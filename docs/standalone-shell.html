@@ -3,42 +3,66 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>JavaScript와 DOM · 개념부터 읽기</title>
+  <title>바닐라 JS와 DOM · 개념부터 읽기</title>
   <style>
-    :root { color-scheme: light; font: 15px/1.5 system-ui, -apple-system, sans-serif; color: #20242b; background: #f7f8fa; }
+    :root { color-scheme: light; font: 15px/1.5 system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; color: #20382f; background: #f7f8f4; }
     * { box-sizing: border-box; }
     body { margin: 0; height: 100vh; height: 100dvh; display: flex; flex-direction: column; }
-    .toolbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 24px; border-bottom: 1px solid #dde1e7; background: #fff; }
-    .brand { font-weight: 700; color: #20242b; text-decoration: none; white-space: nowrap; }
-    select, button { font: inherit; color: inherit; background: #fff; border: 1px solid #7c8797; border-radius: 7px; min-height: 40px; padding: 7px 11px; }
-    button { cursor: pointer; }
-    button:hover { background: #edf2ff; }
+    .toolbar { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; padding: 14px 28px; border-bottom: 1px solid #dde5db; background: #fffefa; }
+    .brand { display: inline-flex; align-items: center; gap: 10px; flex-shrink: 0; font-weight: 750; letter-spacing: -.035em; color: #20382f; text-decoration: none; white-space: nowrap; }
+    .brand-mark { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid #dfe5b8; border-radius: 10px; color: #28654e; background: #edf2c8; font-size: 15px; letter-spacing: -.04em; }
+    select, button { font: inherit; color: inherit; background: #fffefa; border: 1px solid #a6b6a9; border-radius: 10px; min-height: 44px; padding: 8px 13px; }
+    select { cursor: pointer; }
+    button { cursor: pointer; font-weight: 600; transition: background 140ms ease, border-color 140ms ease; }
+    button:hover { background: #edf3eb; border-color: #708d78; }
     button:disabled { cursor: default; opacity: .5; }
-    #lesson-picker { max-width: 100%; margin-right: auto; }
-    .primary { color: #fff; background: #3659ba; border-color: #3659ba; }
-    .primary:hover { background: #294797; }
-    :focus-visible { outline: 3px solid #3659ba; outline-offset: 3px; }
-    #notice { padding: 6px 24px; margin: 0; font-size: 12px; color: #626b78; }
-    #notice.error { color: #a02020; background: #fff0f0; }
-    iframe { display: block; border: 0; width: 100%; flex: 1; min-height: 0; background: #f7f8fa; }
-    dialog { width: min(1000px, calc(100% - 28px)); height: min(840px, calc(100dvh - 28px)); padding: 22px; border: 1px solid #dde1e7; border-radius: 14px; color: #20242b; background: #fff; }
-    dialog::backdrop { background: #20242b66; }
-    .editor-layout { height: 100%; display: flex; flex-direction: column; gap: 12px; }
+    .toolbar-actions { display: flex; align-items: center; gap: 8px; }
+    #open-source { background: #edf3eb; border-color: #b9cbbd; color: #28654e; }
+    #open-source:hover { background: #e1ecdf; border-color: #708d78; }
+    #lesson-picker { min-width: 0; width: min(360px, 100%); max-width: 100%; margin-right: auto; background-color: #f7f8f4; border-color: #ccd8cc; }
+    .primary { color: #fff; background: #28654e; border-color: #28654e; }
+    .primary:hover { background: #1c4d3b; border-color: #1c4d3b; }
+    :focus-visible { outline: 3px solid #28654e; outline-offset: 3px; }
+    .skip-link { position: fixed; z-index: 5; top: 8px; left: 8px; padding: 10px 14px; border-radius: 8px; background: #fffefa; color: #28654e; transform: translateY(-180%); }
+    .skip-link:focus { transform: translateY(0); }
+    #notice { padding: 7px 28px; margin: 0; font-size: 12px; color: #66756c; border-bottom: 1px solid #e8ede3; background: #f7f8f4; }
+    #notice.error { color: #9c302b; background: #fff0ed; }
+    iframe { display: block; border: 0; width: 100%; flex: 1; min-height: 0; background: #f7f8f4; }
+    dialog { width: min(1000px, calc(100% - 28px)); height: min(840px, calc(100dvh - 28px)); padding: 24px; border: 1px solid #cbd8cc; border-radius: 18px; color: #20382f; background: #fffefa; box-shadow: 0 24px 80px #20382f29; }
+    dialog::backdrop { background: #15251e80; }
+    .editor-layout { height: 100%; display: flex; flex-direction: column; gap: 14px; }
     .editor-heading, .editor-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
-    h2 { font-size: 20px; margin: 0 auto 0 0; }
-    #source-file { flex: 1; min-width: 0; }
-    .hint { font-size: 13px; color: #626b78; margin: 0; }
-    textarea { flex: 1; min-height: 120px; width: 100%; resize: none; border: 1px solid #7c8797; border-radius: 8px; background: #f7f8fa; color: #20242b; padding: 16px; font: 14px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; tab-size: 2; }
-    #editor-status { flex: 1; font-size: 13px; color: #626b78; }
-    @media (max-width: 600px) { .toolbar { padding: 10px 14px; gap: 8px; } .brand { width: 100%; } #notice { padding: 6px 14px; } dialog { padding: 14px; } }
+    .editor-heading { padding-bottom: 6px; }
+    h2 { font-size: 20px; letter-spacing: -.035em; margin: 0 auto 0 0; }
+    #source-file { flex: 0 0 auto; min-width: 0; width: 100%; background: #f0f4ed; border-color: #ccd8cc; }
+    .hint { font-size: 13px; color: #66756c; margin: 0; }
+    textarea { flex: 1; min-height: 120px; width: 100%; resize: none; border: 1px solid #4c6c58; border-radius: 12px; background: #1e3028; color: #dce9de; caret-color: #edf2c8; padding: 20px; font: 14px/1.75 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; tab-size: 2; }
+    textarea::selection { background: #426b52; color: #fff; }
+    #editor-status { flex: 1; font-size: 13px; color: #66756c; }
+    @media (max-width: 760px) {
+      .toolbar { display: grid; grid-template-columns: 1fr auto; gap: 10px 12px; padding: 12px 16px; }
+      .brand { font-size: 14px; gap: 8px; }
+      .brand-mark { width: 32px; height: 32px; border-radius: 9px; font-size: 14px; }
+      .toolbar-actions { grid-column: 2; grid-row: 1; gap: 6px; }
+      .toolbar-actions button { padding: 8px 10px; font-size: 13px; }
+      #lesson-picker { grid-column: 1 / -1; grid-row: 2; width: 100%; }
+      #notice { padding: 7px 16px; font-size: 11px; }
+      dialog { padding: 16px; }
+      .editor-layout { gap: 10px; }
+      .editor-actions { gap: 8px; }
+      #editor-status { flex-basis: 100%; }
+      textarea { padding: 14px; }
+    }
+    @media (max-width: 360px) { .toolbar { padding-inline: 12px; gap: 8px; } .brand { font-size: 13px; gap: 6px; } .brand-mark { width: 28px; height: 28px; } .toolbar-actions button { padding-inline: 8px; font-size: 12px; } }
+    @media (prefers-reduced-motion: reduce) { button { transition: none; } }
   </style>
 </head>
 <body>
+  <a class="skip-link" href="#lesson-frame" id="skip-lesson">본문으로 건너뛰기</a>
   <header class="toolbar">
-    <a class="brand" href="#index.html">JS &amp; DOM</a>
+    <a class="brand" href="#index.html"><span class="brand-mark" aria-hidden="true">JS</span><span>바닐라 JS</span></a>
     <select id="lesson-picker" aria-label="읽을 장"><option value="index.html">들어가며 · 차례</option></select>
-    <button id="open-source" type="button">코드 보기</button>
-    <button id="rerun" type="button">예제 다시 시작</button>
+    <div class="toolbar-actions"><button id="open-source" type="button">코드 보기</button><button id="rerun" type="button">예제 다시 시작</button></div>
   </header>
   <p id="notice" role="status">본문을 먼저 읽고, 장 끝의 예제로 설명한 흐름을 확인할 수 있습니다.</p>
   <iframe id="lesson-frame" title="본문과 예제" sandbox="allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox" referrerpolicy="no-referrer"></iframe>
@@ -67,10 +91,13 @@
     const overrides = new Map();
     let drafts = new Map();
     let route = "index.html";
+    let routeAnchor = "";
+    let focusAfterNavigation = false;
     let editingPath = "";
     let editingLesson = "";
 
     for (const [dir, label] of lessons) picker.add(new Option(label, `${dir}/index.html`));
+    picker.add(new Option("개념별 예제 찾기", "samples.html"));
     picker.add(new Option("읽기 안내와 용어 정리", "guide.html"));
     const pages = new Set([...picker.options].map(option => option.value));
     const read = path => overrides.has(path) ? overrides.get(path) : files[path];
@@ -102,8 +129,24 @@
       return prefix + source;
     }
 
-    function frameBridge(page) {
+    function frameBridge(page, anchor, focusPage) {
       const send = (type, data) => parent.postMessage({ course: "vanilla-js-dom", type, page, ...data }, "*");
+      function focusSection(id) {
+        const target = document.getElementById(id);
+        if (!target) return;
+        const focusTarget = target.querySelector("h1, h2, h3") || target;
+        if (!focusTarget.hasAttribute("tabindex")) focusTarget.tabIndex = -1;
+        focusTarget.focus({ preventScroll: true });
+        target.scrollIntoView({ block: "start" });
+      }
+      window.addEventListener("message", event => {
+        if (event.source === parent && event.data?.course === "vanilla-js-dom" && event.data.type === "focus-content") {
+          focusSection("main-content");
+        }
+      });
+      window.addEventListener("load", () => {
+        if (anchor || focusPage) focusSection(anchor || "main-content");
+      });
       document.addEventListener("click", event => {
         const link = event.target instanceof Element ? event.target.closest("a[href]") : null;
         if (!link) return;
@@ -112,13 +155,7 @@
           event.preventDefault();
           let id;
           try { id = decodeURIComponent(href.slice(1)); } catch { return; }
-          const target = document.getElementById(id);
-          if (target) {
-            const focusTarget = target.querySelector("h2, h3") || target;
-            if (!focusTarget.hasAttribute("tabindex")) focusTarget.tabIndex = -1;
-            focusTarget.focus({ preventScroll: true });
-            target.scrollIntoView({ block: "start" });
-          }
+          focusSection(id);
           return;
         }
         if (/^https?:/i.test(href)) { link.target = "_blank"; link.rel = "noopener noreferrer"; return; }
@@ -151,7 +188,7 @@
           script.remove();
         }
         const bridge = doc.createElement("script");
-        bridge.textContent = `(${frameBridge.toString()})(${safeJSON(route)});`;
+        bridge.textContent = `(${frameBridge.toString()})(${safeJSON(route)}, ${safeJSON(routeAnchor)}, ${focusAfterNavigation});`;
         doc.body.append(bridge);
         for (const code of scripts) {
           const script = doc.createElement("script");
@@ -159,8 +196,9 @@
           doc.body.append(script);
         }
         frame.srcdoc = "<!doctype html>\n" + doc.documentElement.outerHTML;
+        focusAfterNavigation = false;
         frame.title = doc.title || "본문과 예제";
-        document.title = doc.title.includes("JavaScript와 DOM") ? doc.title : `${doc.title} · JavaScript와 DOM`;
+        document.title = doc.title.includes("바닐라 JS와 DOM") ? doc.title : `${doc.title} · 바닐라 JS와 DOM`;
         picker.value = route;
         showNotice(overrides.size ? "수정한 예제 코드로 실행 중 · 파일을 새로고침하면 원본으로 돌아갑니다." : "본문을 먼저 읽고, 장 끝의 예제로 설명한 흐름을 확인할 수 있습니다.");
       } catch (error) {
@@ -168,16 +206,20 @@
       }
     }
 
-    function navigate(next) {
+    function navigate(next, anchor = "") {
       if (!pages.has(next)) return;
-      if (location.hash === `#${next}`) { route = next; render(); }
-      else location.hash = next;
+      focusAfterNavigation = true;
+      const hash = `#${next}${anchor ? `#${encodeURIComponent(anchor)}` : ""}`;
+      if (location.hash === hash) { route = next; routeAnchor = anchor; render(); }
+      else location.hash = hash;
     }
 
     function loadRoute() {
       let requested;
       try { requested = decodeURIComponent(location.hash.slice(1)); } catch { requested = ""; }
-      route = pages.has(requested) ? requested : "index.html";
+      const [path, anchor = ""] = requested.split("#");
+      route = pages.has(path) ? path : "index.html";
+      routeAnchor = pages.has(path) ? anchor : "";
       render();
     }
 
@@ -207,8 +249,12 @@
       if (event.source !== frame.contentWindow || event.data?.course !== "vanilla-js-dom" || event.data.page !== route) return;
       if (event.data.type === "error") { showNotice(`실습 코드 오류: ${event.data.message}`, true); return; }
       if (event.data.type !== "navigate" || typeof event.data.href !== "string") return;
-      const target = resolve(event.data.href, route);
-      if (pages.has(target)) navigate(target);
+      let target, anchor;
+      try {
+        target = resolve(event.data.href, route);
+        anchor = decodeURIComponent(new URL(event.data.href, `https://course.invalid/${route}`).hash.slice(1));
+      } catch { return; }
+      if (pages.has(target)) navigate(target, anchor);
       else if (Object.hasOwn(files, target)) openSource(target);
     });
     picker.addEventListener("change", () => navigate(picker.value));
@@ -216,6 +262,10 @@
     document.querySelector("#open-source").addEventListener("click", () => openSource());
     document.querySelector("#close-source").addEventListener("click", () => dialog.close());
     document.querySelector("#rerun").addEventListener("click", render);
+    document.querySelector("#skip-lesson").addEventListener("click", event => {
+      event.preventDefault();
+      frame.contentWindow.postMessage({ course: "vanilla-js-dom", type: "focus-content" }, "*");
+    });
     editor.addEventListener("input", () => { drafts.set(editingPath, editor.value); editorStatus.textContent = "아직 예제에 적용하지 않은 수정입니다."; });
     sourceSelect.addEventListener("change", () => loadEditorFile(sourceSelect.value));
     document.querySelector("#apply-source").addEventListener("click", () => {

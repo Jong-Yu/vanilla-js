@@ -4,10 +4,13 @@ const runDom = document.querySelector("#run-dom");
 const domValue = document.querySelector("#dom-value");
 const domLog = document.querySelector("#dom-log");
 let domRun = 0;
+let orderRunning = false;
 
 runOrder.addEventListener("click", () => {
+  if (orderRunning) return;
+  orderRunning = true;
   orderLog.textContent = "";
-  runOrder.disabled = true;
+  runOrder.setAttribute("aria-disabled", "true");
   const lines = [];
   function log(message) {
     lines.push(message);
@@ -17,7 +20,8 @@ runOrder.addEventListener("click", () => {
   log("1. 클릭 콜백 시작 · 동기 실행");
   setTimeout(() => {
     log("5. setTimeout 콜백 · 나중의 task");
-    runOrder.disabled = false;
+    orderRunning = false;
+    runOrder.removeAttribute("aria-disabled");
   }, 0);
   Promise.resolve().then(() => {
     log("4. Promise.then 콜백 · microtask");

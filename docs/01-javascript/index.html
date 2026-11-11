@@ -1,7 +1,8 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>1장 · 값, 변수, 함수와 실행</title><link rel="stylesheet" href="../styles.css"><script defer src="main.js"></script></head>
-<body><main><header><a href="../">차례</a><p class="eyebrow">1장 · 값, 변수, 함수와 실행</p><h1>JavaScript는 값을 어떻게 다룰까요?</h1><p class="intro">코드가 값을 만들고, 이름에 연결하고, 함수를 호출하는 과정을 이해합니다. 브라우저를 다루기 전에 실행의 기본 모델부터 잡습니다.</p></header>
-<nav class="chapter-toc" aria-label="이 장의 읽기 순서"><a href="#language-runtime">언어와 실행 환경</a><a href="#values-bindings">값과 변수</a><a href="#execution-flow">실행 흐름</a><a href="#reading-code">한 줄씩 읽기</a><a href="#value-identity">값과 객체</a><a href="#functions-scope">함수와 범위</a></nav>
+<body><a class="skip-link" href="#main-content">본문으로 건너뛰기</a><main id="main-content" tabindex="-1"><header><a href="../">차례</a><p class="eyebrow">1장 · 값, 변수, 함수와 실행</p><h1>JavaScript는 값을 어떻게 다룰까요?</h1><p class="intro">코드가 값을 만들고, 이름에 연결하고, 함수를 호출하는 과정을 이해합니다. 브라우저를 다루기 전에 실행의 기본 모델부터 잡습니다.</p></header>
+<section class="learning-goals" aria-labelledby="learning-goals-title"><h2 id="learning-goals-title">값과 계산을 구분하는 기준</h2><ul><li>변수에 재대입하는 것과 객체의 속성을 수정하는 것을 구분합니다.</li><li>함수 자체와 함수의 반환값을 구분하고 실행 시점을 설명합니다.</li><li>클로저가 어떤 변수에 접근하는지 호출별로 추적합니다.</li></ul></section>
+<nav class="chapter-toc" aria-label="이 장의 읽기 순서"><a href="#language-runtime">언어와 실행 환경</a><a href="#values-bindings">값과 변수</a><a href="#execution-flow">실행 흐름</a><a href="#reading-code">한 줄씩 읽기</a><a href="#value-identity">값과 객체</a><a href="#functions-scope">함수와 범위</a><a href="#live-example">작은 예제 4개</a></nav>
 <section class="concept" id="language-runtime"><h2>JavaScript는 무엇이고, 어디에서 실행될까요?</h2>
 <p>JavaScript는 값을 표현하고, 그 값으로 계산하고, 수행할 작업의 순서를 정하는 프로그래밍 언어입니다. “이름에 인사말을 붙인다”, “현재 개수에 하나를 더한다”, “조건에 맞을 때만 함수를 실행한다” 같은 규칙을 코드로 적을 수 있습니다. 코드는 그 자체로 화면이 아니며, 파일에 적힌 글자가 실행 환경에 전달되어야 실제 작업이 일어납니다.</p>
 <p>언어의 규칙을 해석하고 실행하는 것은 JavaScript 엔진입니다. 브라우저는 이 엔진을 포함하면서 문서, 네트워크, 타이머처럼 웹페이지에 필요한 기능도 제공합니다. 엔진과 주변 기능을 포함하여 코드가 돌아가는 환경을 런타임이라고 부릅니다. 같은 JavaScript 언어라도 어디에서 실행하느냐에 따라 사용할 수 있는 주변 기능이 달라집니다.</p>
@@ -54,7 +55,59 @@ const next = createCounter();</code></pre>
 <p>지금까지의 핵심은 값, 이름, 객체, 실행을 구분하는 것입니다. 값은 계산의 결과이고, 변수는 그 값에 접근하는 이름이며, 객체는 공유할 수 있는 정체성을 갖습니다. 함수는 호출해야 작업을 실행하고, 필요한 값은 그 함수가 정의된 범위를 통해 이어집니다. 브라우저 화면을 다루는 코드도 이 언어 규칙 위에서 동작합니다.</p>
 <p class="muted">더 읽기: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Introduction">MDN · JavaScript 소개</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Closures">MDN · 클로저</a>.</p>
 </section>
-<section class="demo" aria-labelledby="result-title"><h2 id="result-title">개념이 동작하는 예제 · 학습 문구 계산</h2><p>아래 결과는 main.js가 데이터를 읽고 함수를 호출한 뒤, 마지막에 DOM으로 출력한 것입니다. 계산 부분은 일반 JavaScript이고, 결과를 문서에 넣는 부분부터 브라우저 API입니다.</p><pre id="result">JavaScript가 실행되면 이 문구가 바뀝니다.</pre><p class="muted">페이지를 실행할 때 한 번 계산됩니다. <a href="main.js">실행 코드 읽기</a></p></section>
-<details class="optional-practice"><summary>선택 연습 · 읽은 내용을 코드로 확인하고 싶다면</summary><p>원한다면 코드 편집기에서 completed의 증가를 describe 호출 뒤로 옮긴 뒤 실행하세요. 문구가 왜 이전 개수를 담는지 본문의 “계산 결과와 계산 방법” 구분으로 설명할 수 있으면 충분합니다. learner.name이나 topics도 바꿔볼 수 있습니다.</p></details>
+<section id="live-example"><h2>한 번에 한 가지씩 실행하기</h2>
+<p>먼저 결과를 예상한 다음 버튼을 눌러보세요. 각 예제는 별개의 값을 사용합니다. 버튼과 결과 표시는 실험을 위한 DOM 코드이고, 코드 상자 안의 계산은 문서 없이도 실행할 수 있는 JavaScript입니다.</p>
+<div class="sample-links"><a href="#sample-assignment">1. 대입과 계산 결과</a> · <a href="#sample-object-reference">2. 객체 참조</a> · <a href="#sample-function-call">3. 함수 전달과 호출</a> · <a href="#sample-closure">4. 클로저</a></div>
+<section class="demo sample" id="sample-assignment" aria-labelledby="assignment-title">
+<p class="sample-meta">예제 1-1 · 값과 이름</p><h3 id="assignment-title">다시 대입하면 이전 계산도 바뀔까요?</h3>
+<p class="prediction"><strong>예상하기:</strong> count에 2를 대입한 뒤 saved와 message는 어떤 값을 가질까요?</p>
+<pre><code>let count = 1;
+const saved = count;
+const message = `${count}개 완료`;
+count = 2;</code></pre>
+<button id="run-assignment" type="button">대입 결과 확인</button>
+<pre id="assignment-result" role="status">아직 실행하지 않았습니다.</pre>
+<p class="expected"><strong>확인할 결과:</strong> count는 2, saved는 1, message는 “1개 완료”입니다. 대입과 문자열 계산은 그 줄이 실행될 때 한 번 일어납니다. 버튼을 다시 눌러도 매번 새 count에서 시작하므로 결과는 같습니다.</p>
+</section>
+<section class="demo sample" id="sample-object-reference" aria-labelledby="reference-title">
+<p class="sample-meta">예제 1-2 · 객체의 정체성</p><h3 id="reference-title">같은 객체를 가리키는 이름과 새 객체</h3>
+<p class="prediction"><strong>예상하기:</strong> alias.done만 바꿨는데 original.done도 바뀔까요? separate는 어떨까요?</p>
+<pre><code>const original = { done: false };
+const alias = original;
+const separate = { done: false };
+alias.done = true;</code></pre>
+<button id="run-reference" type="button">객체 참조 비교</button>
+<pre id="reference-result" role="status">아직 실행하지 않았습니다.</pre>
+<p class="expected"><strong>확인할 결과:</strong> original.done과 alias.done은 true, separate.done은 false입니다. original === alias는 true이고 original === separate는 false입니다. const는 재대입을 막지만 객체의 속성 수정을 막지는 않습니다.</p>
+</section>
+<section class="demo sample" id="sample-function-call" aria-labelledby="function-title">
+<p class="sample-meta">예제 1-3 · 함수를 값으로 전달하기</p><h3 id="function-title">함수는 언제 실행될까요?</h3>
+<p class="prediction"><strong>예상하기:</strong> 콜백을 callback이라는 이름에 담는 순간 describe의 본문이 실행될까요?</p>
+<pre><code>let calls = 0;
+function describe(count) {
+  calls += 1;
+  return `${count}개 완료`;
+}
+const callback = describe; // 아직 호출하지 않음
+const message = callback(2); // 여기서 호출</code></pre>
+<button id="run-function" type="button">전달 전후와 호출 결과 비교</button>
+<pre id="function-result" role="status">아직 실행하지 않았습니다.</pre>
+<p class="expected"><strong>확인할 결과:</strong> 함수 전달 직후 calls는 0, callback(2) 호출 후에는 1입니다. callback에는 함수, message에는 “2개 완료”라는 문자열이 들어 있습니다. 콜백은 “다른 코드에 전달되어 호출되는 함수”라는 역할이며 항상 비동기인 것은 아닙니다.</p>
+</section>
+<section class="demo sample" id="sample-closure" aria-labelledby="closure-title">
+<p class="sample-meta">예제 1-4 · 호출마다 생기는 범위</p><h3 id="closure-title">두 카운터는 각각 무엇을 기억할까요?</h3>
+<p class="prediction"><strong>예상하기:</strong> A를 두 번 실행한 뒤 B를 처음 실행하면 B도 3이 될까요?</p>
+<pre><code>function createCounter() {
+  let count = 0;
+  return () => ++count;
+}
+const nextA = createCounter();
+const nextB = createCounter();</code></pre>
+<div class="row"><button id="next-a" type="button">A 한 번 실행</button><button id="next-b" type="button">B 한 번 실행</button><button id="reset-counters" type="button">두 카운터 초기화</button></div>
+<p id="closure-result" role="status">A: 0 · B: 0</p>
+<p class="expected"><strong>확인할 결과:</strong> A를 두 번, B를 한 번 실행하면 A: 2 · B: 1입니다. createCounter의 각 호출이 별개의 count를 만들고 반환된 함수가 그 변수에 접근합니다. 초기화는 두 함수를 새로 만듭니다.</p>
+</section>
+<p><a href="main.js">이 장의 JavaScript 전체 읽기</a></p></section>
+<details class="optional-practice"><summary>선택 연습 · 새 함수 만들기와 기존 함수 공유하기</summary><p>예제 1-4에서 <code>let nextB = createCounter()</code>를 <code>let nextB = nextA</code>로 바꾸고 실행해보세요. A를 두 번 누른 뒤 B를 누르면 3을 반환합니다. 두 이름이 같은 함수를 가리키므로 같은 count를 읽기 때문입니다. 화면의 A와 B 표시는 각 버튼을 마지막으로 눌렀을 때 받은 반환값입니다.</p></details>
 <nav aria-label="장 이동"><a href="../">← 전체 학습</a><a href="../02-dom/">다음 · 문서가 객체가 되는 과정 →</a></nav>
 </main></body></html>

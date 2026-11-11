@@ -71,6 +71,8 @@ function replaceStartupSection(markdown) {
     "",
     "[차례](index.html)에서 읽을 장을 고르세요. 각 장은 개념과 작동 원리, 짧은 코드의 줄별 해설을 먼저 설명합니다. 동작 예제는 본문 뒤에 있습니다.",
     "",
+    "[개념별 예제 목록](samples.html)에서는 작은 예제를 골라 해당 위치로 바로 이동할 수 있습니다.",
+    "",
     "코드를 더 살펴보고 싶을 때 **코드 보기**를 사용하고 수정한 내용은 **예제에 적용**으로 실행합니다. 브라우저를 새로고침하면 수정 내용은 초기화됩니다. 개발자 도구의 document를 관찰할 때는 본문이 표시된 iframe을 선택하세요.",
     "",
     "본문의 index.html과 main.js는 원본 예제의 파일 이름입니다. 단일 파일 안의 코드 보기에서 읽고 수정할 수 있습니다.",
@@ -137,8 +139,8 @@ export function renderGuide(markdown) {
   }
   return `<!doctype html>
 <html lang="ko">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>읽기 안내 · JavaScript와 DOM</title><link rel="stylesheet" href="styles.css"></head>
-<body><main><a href="index.html">차례</a>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>읽기 안내 · 바닐라 JS와 DOM</title><link rel="stylesheet" href="styles.css"></head>
+<body><a class="skip-link" href="#main-content">본문으로 건너뛰기</a><main id="main-content" tabindex="-1"><a href="index.html">차례</a>
 ${blocks.join("\n")}
 <nav><a href="index.html">차례로 돌아가기</a></nav>
 </main></body></html>`;

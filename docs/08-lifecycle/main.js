@@ -65,8 +65,14 @@ function disconnect() {
   showConnection();
 }
 
-connectButton.addEventListener("click", connect);
-disconnectButton.addEventListener("click", disconnect);
+connectButton.addEventListener("click", () => {
+  connect();
+  disconnectButton.focus();
+});
+disconnectButton.addEventListener("click", () => {
+  disconnect();
+  connectButton.focus();
+});
 form.addEventListener("submit", (event) => {
   event.preventDefault(); // 이 실습에서는 서버로 전송하지 않고 값만 확인합니다.
   formResult.textContent = JSON.stringify([...new FormData(form).entries()], null, 2);
@@ -74,3 +80,30 @@ form.addEventListener("submit", (event) => {
 
 connect();
 showState();
+
+// 11-1 · 다른 예제와 관계없는 리스너 한 개를 등록하고 제거합니다.
+const listenerToggle = document.querySelector("#listener-toggle");
+const listenerTarget = document.querySelector("#listener-target");
+const listenerResult = document.querySelector("#listener-result");
+let listenerConnected = true;
+let listenerCount = 0;
+function showListener() {
+  listenerToggle.setAttribute("aria-pressed", String(listenerConnected));
+  listenerResult.textContent = `${listenerConnected ? "연결됨" : "연결 해제됨"} · 호출 ${listenerCount}회`;
+}
+function countClick() {
+  listenerCount++;
+  showListener();
+}
+function setListenerConnected(next) {
+  listenerConnected = next;
+  if (next) listenerTarget.addEventListener("click", countClick);
+  else listenerTarget.removeEventListener("click", countClick);
+  showListener();
+}
+listenerToggle.addEventListener("click", () => setListenerConnected(!listenerConnected));
+document.querySelector("#listener-reset").addEventListener("click", () => {
+  listenerCount = 0;
+  setListenerConnected(true);
+});
+setListenerConnected(true);

@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ko">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>8장 · 폼과 포커스의 기본 계약</title><link rel="stylesheet" href="../styles.css"><script defer src="main.js"></script><style>#focus-title:focus { outline: 3px solid var(--accent); outline-offset: 6px; } .focus-lab input:disabled { color: var(--muted); background: var(--code); } .focus-lab input[readonly] { background: var(--soft); }</style></head>
-<body><main class="focus-lab">
+<body><a class="skip-link" href="#main-content">본문으로 건너뛰기</a><main id="main-content" tabindex="-1" class="focus-lab">
 <header><a href="../">차례</a><p class="eyebrow">8장 · 폼과 포커스의 기본 계약</p><h1>HTML 요소가 제공하는<br>입력과 이동의 규칙</h1><p class="intro">폼 요소는 화면에 그려진 모양 이상의 기능을 갖습니다. 브라우저가 제공하는 의미, 키보드 조작, 포커스, 데이터 수집 규칙을 이해하면 직접 구현할 동작의 경계가 보입니다.</p></header>
 <nav class="chapter-toc" aria-label="이 장의 읽기 순서"><a href="#native">네이티브 요소의 의미</a><a href="#focus">포커스와 이동 순서</a><a href="#form-data">폼 데이터의 구성</a><a href="#defaults">현재 값과 기본값</a><a href="#semantics">키보드와 접근성</a><a href="#observation">동작 예제</a></nav>
 
@@ -50,19 +50,56 @@ console.log(document.activeElement === input);</code></pre>
 <p>헤드리스 컴포넌트에서도 먼저 기본 요소가 이미 제공하는 책임을 확인해야 합니다. 그다음 Tabs의 방향키 이동이나 Dialog를 닫은 뒤 원래 버튼으로 돌아가는 동작처럼 추가로 필요한 규칙을 설계합니다. 포커스를 이동할 때는 대상이 문서에 존재하는지, 숨김이나 disabled 상태인지, 다른 코드가 다시 포커스를 옮기고 있는지도 함께 확인합니다.</p>
 </section>
 
-<section id="observation"><h2>같은 화면에서 각 규칙 관찰하기</h2><p>아래 입력들은 겉모습이 비슷하지만 서로 다른 규칙을 갖습니다. 이름은 수정할 수 있고, 계정은 읽기 전용이며, 플랜은 비활성화되어 있습니다. 메모에는 name이 없습니다. 값을 바꾸고 폼 데이터와 비교하면 위에서 설명한 포함 규칙을 확인할 수 있습니다.</p>
-<section class="demo stack" aria-labelledby="focus-title"><h3 id="focus-title" tabindex="-1">프로필 실습</h3>
+<section id="observation"><h2>하나의 규칙씩 확인하는 예제</h2>
+<p>포커스, 데이터 수집, 초기화는 각각 다른 브라우저 기능입니다. 아래 예제는 서로 다른 입력을 사용하므로 앞 예제의 조작이 다음 결과에 영향을 주지 않습니다.</p>
+<div class="sample-links"><a href="#sample-focus">8-1 · 포커스</a><a href="#sample-form-data">8-2 · 폼 데이터</a><a href="#sample-form-reset">8-3 · 초기화</a></div>
+<section class="demo sample" id="sample-focus" aria-labelledby="focus-sample-title">
+<h3 id="focus-sample-title">8-1 · Tab 순서와 프로그램으로 옮기는 포커스</h3>
+<p class="prediction"><strong>먼저 예상하기.</strong> 제목에 포커스를 보낼 수 있다면 Tab으로도 그 제목에 멈출까요?</p>
+<div class="stack"><h4 id="focus-title" tabindex="-1">프로필 입력 영역</h4>
+<label for="focus-name-input">연습용 이름</label><input id="focus-name-input" type="text" value="민지">
+<div class="row"><button id="focus-name" type="button">이름으로 포커스 이동</button><button id="focus-heading" type="button">제목으로 포커스 이동</button></div>
+<p>현재 문서의 포커스: <span id="focus-result" class="status"></span></p></div>
+<pre><code>heading.tabIndex = -1;
+heading.focus();
+// document.activeElement === heading</code></pre>
+<p class="expected"><strong>관찰할 결과.</strong> 제목 이동 버튼을 누르면 제목에 테두리가 나타납니다. 제목의 tabindex="-1"은 프로그램으로 이동할 수 있게 하지만 일반 Tab 순서에는 넣지 않습니다. 제목에서 Tab을 누르면 다음 입력으로 이동합니다. 포커스 표시는 시각 관찰용이며 매 이동을 별도로 읽어주지 않습니다.</p>
+</section>
+<section class="demo sample" id="sample-form-data" aria-labelledby="data-sample-title">
+<h3 id="data-sample-title">8-2 · 화면의 입력과 제출되는 데이터는 다릅니다</h3>
+<p class="prediction"><strong>먼저 예상하기.</strong> readonly, disabled, name 없음 중 어떤 입력이 FormData에 들어갈까요?</p>
 <form id="profile-form" class="stack">
 <label class="stack" for="nickname">이름 · 수정 가능<input id="nickname" name="nickname" type="text" value="민지" required autocomplete="off"></label>
 <label class="stack" for="account">계정 · readonly<input id="account" name="account" type="text" value="learner-001" readonly></label>
 <label class="stack" for="plan">플랜 · disabled<input id="plan" name="plan" type="text" value="basic" disabled></label>
 <label class="stack" for="memo">메모 · name 없음<input id="memo" type="text" value="화면에서만 읽는 메모" autocomplete="off"></label>
 <label class="control" for="news"><input id="news" name="news" type="checkbox" value="email" checked>이메일 소식 받기</label>
-<div class="row"><button type="submit" class="primary">폼 값 읽기</button><button type="reset">기본값으로 초기화</button><button id="focus-name" type="button">이름으로 포커스 이동</button><button id="focus-heading" type="button">제목으로 포커스 이동</button></div>
-</form>
-<p>현재 포커스: <output id="focus-result" class="status"></output></p><pre id="form-result" aria-live="polite">아직 폼 값을 읽지 않았습니다.</pre><pre id="reset-result" aria-live="polite">아직 초기화하지 않았습니다.</pre></section>
-<p>포커스 이동 버튼을 누른 뒤 현재 포커스 표시와 테두리를 함께 보세요. 제목은 tabindex가 -1이므로 프로그램으로 이동할 수 있어도 일반적인 Tab 순서에는 추가되지 않습니다. 이름과 알림을 바꾼 뒤 초기화하면 reset 이벤트 안과 기본 동작 이후의 값도 비교할 수 있습니다.</p><p><a href="main.js">이 장의 JavaScript 전체 읽기</a></p></section>
+<button type="submit">폼 값 읽기</button></form>
+<pre id="form-result" aria-live="polite">아직 폼 값을 읽지 않았습니다.</pre>
+<pre><code>form.addEventListener("submit", (event) =&gt; {
+  event.preventDefault();
+  const entries = [...new FormData(form).entries()];
+});</code></pre>
+<p class="expected"><strong>관찰할 결과.</strong> 처음에는 nickname, account, news만 포함됩니다. readonly는 포함되지만 disabled와 name 없는 입력은 제외됩니다. 알림을 해제하고 다시 읽으면 news 항목 자체가 사라집니다. 이름을 비우면 required 검증이 제출을 막으므로 이전 결과가 남습니다.</p>
+</section>
+<section class="demo sample" id="sample-form-reset" aria-labelledby="reset-sample-title">
+<h3 id="reset-sample-title">8-3 · reset은 빈 값이 아니라 기본값으로 돌아갑니다</h3>
+<p class="prediction"><strong>먼저 예상하기.</strong> 이름과 체크를 바꾼 뒤 초기화하면 빈 이름과 꺼진 체크가 될까요?</p>
+<form id="reset-form" class="stack">
+<label class="stack" for="reset-name">이름 · 기본값 민지<input id="reset-name" type="text" value="민지"></label>
+<label class="control" for="reset-news"><input id="reset-news" type="checkbox" checked>알림 · 기본값 켜짐</label>
+<button type="reset">이 예제의 기본값으로 초기화</button></form>
+<pre id="reset-result" aria-live="polite">이름과 체크를 바꾼 뒤 초기화해보세요.</pre>
+<pre><code>form.addEventListener("reset", (event) =&gt; {
+  // 이 자리에서는 아직 이전 값일 수 있습니다.
+  setTimeout(() =&gt; {
+    if (!event.defaultPrevented) readCurrentValues();
+  }, 0);
+});</code></pre>
+<p class="expected"><strong>관찰할 결과.</strong> 이름은 “민지”, 체크는 true로 돌아옵니다. 로그의 첫 줄은 reset 이벤트 안의 값, 둘째 줄은 기본 동작 이후 값입니다. 현재값(value, checked)과 기본값(defaultValue, defaultChecked)이 서로 다른 정보이기 때문입니다.</p>
+</section>
+<p><a href="main.js">이 장의 JavaScript 전체 읽기</a></p></section>
 <details class="optional-practice"><summary>선택 연습 · 표시된 값과 제출되는 값을 연결해보기</summary><p>메모 입력에 <code>name="memo"</code>를 추가하고 플랜의 disabled를 제거한 뒤 수정한 코드를 실행해보세요. 두 값 모두 FormData에 포함됩니다. 이 변화는 새로운 JavaScript 처리 없이 HTML 속성만 바꾸어 얻은 결과입니다. 브라우저가 담당하는 데이터 수집 규칙을 설명할 수 있으면 충분합니다.</p></details>
 <p class="muted">공식 참고: <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/focus">MDN · focus</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/tabindex">MDN · tabindex</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/disabled">MDN · disabled</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement/reset">MDN · reset</a></p>
-<nav><a href="../09-browser-runtime/">← 이전 · 브라우저 실행 순서</a><a href="../07-headless/">다음 · 동작과 스타일 분리 →</a></nav>
+<nav><a href="../09-browser-runtime/">← 이전 · 브라우저 실행 순서</a><a href="../11-accessibility/">다음 · 접근성의 의미와 동작 →</a></nav>
 </main></body></html>

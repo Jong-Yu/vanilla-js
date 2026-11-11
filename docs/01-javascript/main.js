@@ -1,25 +1,77 @@
-// 1. 값에 이름을 붙입니다. 객체 안에는 문자열과 배열이 들어 있습니다.
-const learner = {
-  name: "지우",
-  topics: ["DOM", "이벤트"],
-};
-let completed = 0;
-
-// 2. 함수를 정의합니다. 여기서는 아직 본문을 실행하지 않습니다.
-function describe(name, count) {
-  return `${name}: ${count}개 완료`;
+// 예제마다 블록을 나누어 서로의 변수에 영향을 주지 않게 합니다.
+// 1-1. 숫자 대입과 문자열 계산은 그 순간의 값을 사용합니다.
+{
+  const result = document.querySelector("#assignment-result");
+  document.querySelector("#run-assignment").addEventListener("click", () => {
+    let count = 1;
+    const saved = count;
+    const message = `${count}개 완료`;
+    count = 2;
+    result.textContent = `count: ${count}\nsaved: ${saved}\nmessage: ${message}`;
+  });
 }
 
-// 3. 순서대로 실행합니다. 함수가 반환한 문자열을 message에 저장합니다.
-completed += 1;
-const message = describe(learner.name, completed);
-console.log(message);
-
-let topicText = "";
-for (const topic of learner.topics) {
-  topicText += `- ${topic}\n`;
+// 1-2. 객체를 대입하면 복제하는 대신 같은 객체를 가리킵니다.
+{
+  const result = document.querySelector("#reference-result");
+  document.querySelector("#run-reference").addEventListener("click", () => {
+    const original = { done: false };
+    const alias = original;
+    const separate = { done: false };
+    alias.done = true;
+    result.textContent = [
+      `original.done: ${original.done} · alias.done: ${alias.done}`,
+      `separate.done: ${separate.done}`,
+      `original === alias: ${original === alias}`,
+      `original === separate: ${original === separate}`,
+    ].join("\n");
+  });
 }
 
-// 4. 여기부터 DOM API입니다. 위에서 계산한 결과를 실제 문서에 표시합니다.
-const result = document.querySelector("#result");
-result.textContent = `${message}\n\n학습할 주제\n${topicText}`;
+// 1-3. 함수 전달과 호출의 사이에서 실행 횟수를 읽습니다.
+{
+  const result = document.querySelector("#function-result");
+  document.querySelector("#run-function").addEventListener("click", () => {
+    let calls = 0;
+    function describe(count) {
+      calls += 1;
+      return `${count}개 완료`;
+    }
+    const callback = describe;
+    const before = calls;
+    const message = callback(2);
+    result.textContent = `함수 전달 직후 calls: ${before}\n호출 후 calls: ${calls}\ntypeof callback: ${typeof callback}\nmessage: ${message}`;
+  });
+}
+
+// 1-4. 별도로 만든 두 함수는 서로 다른 count에 접근합니다.
+{
+  const result = document.querySelector("#closure-result");
+  function createCounter() {
+    let count = 0;
+    return () => ++count;
+  }
+  let nextA = createCounter();
+  let nextB = createCounter();
+  // 화면에는 각 함수가 마지막으로 반환한 값을 기록합니다.
+  let lastA = 0;
+  let lastB = 0;
+  function show() {
+    result.textContent = `A: ${lastA} · B: ${lastB}`;
+  }
+  document.querySelector("#next-a").addEventListener("click", () => {
+    lastA = nextA();
+    show();
+  });
+  document.querySelector("#next-b").addEventListener("click", () => {
+    lastB = nextB();
+    show();
+  });
+  document.querySelector("#reset-counters").addEventListener("click", () => {
+    nextA = createCounter();
+    nextB = createCounter();
+    lastA = 0;
+    lastB = 0;
+    show();
+  });
+}

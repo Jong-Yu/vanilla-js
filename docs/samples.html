@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>개념별 예제 찾기 · 바닐라 JS와 DOM</title><link rel="stylesheet" href="styles.css"></head>
+<body><a class="skip-link" href="#main-content">본문으로 건너뛰기</a><main id="main-content" tabindex="-1">
+<header><a href="index.html">차례</a><p class="eyebrow">SAMPLE INDEX / 한 번에 한 가지 개념</p><h1>작게 실행하고,<br>이유를 설명해보세요</h1><p class="intro">11개 장, 35개의 독립 예제. 제목을 누르면 해당 예제로 바로 이동합니다. 처음 접하는 개념은 그 장의 본문을 먼저 읽어도 좋습니다.</p></header>
+<nav class="chapter-toc" aria-label="장별 예제 목록"><a href="#01-javascript">1장 · 값, 변수, 함수와 실행</a><a href="#02-dom">2장 · HTML에서 DOM 객체까지</a><a href="#03-dom-update">3장 · 문서의 내용과 현재 상태</a><a href="#04-events">4장 · 이벤트가 전달되는 원리</a><a href="#05-dom-create">5장 · DOM 트리의 생성과 변경</a><a href="#06-state-render">6장 · 상태와 화면의 연결</a><a href="#09-browser-runtime">7장 · 브라우저의 실행 순서</a><a href="#10-focus-forms">8장 · 폼과 포커스의 기본 계약</a><a href="#11-accessibility">9장 · 접근성의 의미와 동작</a><a href="#07-headless">10장 · 동작을 재사용하는 구조</a><a href="#08-lifecycle">11장 · 연결과 수명</a></nav>
+<p class="note">실행 전에 결과를 예상하고, 한 가지 조작을 한 뒤 예상과 다른 이유를 찾아보세요. 각 예제는 자신의 상태를 사용합니다. 같은 예제 안에서 두 화면이 상태를 공유하는 경우에는 본문에 명시했습니다.</p>
+
+<section class="concept" id="01-javascript"><h2><a href="01-javascript/">1장 · 값, 변수, 함수와 실행</a></h2>
+<ul class="sample-index">
+<li><a href="01-javascript/#sample-assignment">다시 대입하면 이전 계산도 바뀔까요?<small>질문 → 실행 → 결과 해석</small></a></li>
+<li><a href="01-javascript/#sample-object-reference">같은 객체를 가리키는 이름과 새 객체<small>질문 → 실행 → 결과 해석</small></a></li>
+<li><a href="01-javascript/#sample-function-call">함수는 언제 실행될까요?<small>질문 → 실행 → 결과 해석</small></a></li>
+<li><a href="01-javascript/#sample-closure">두 카운터는 각각 무엇을 기억할까요?<small>질문 → 실행 → 결과 해석</small></a></li></ul></section>
+
+<section class="concept" id="02-dom"><h2><a href="02-dom/">2장 · HTML에서 DOM 객체까지</a></h2>
+<ul class="sample-index">
+<li><a href="02-dom/#sample-dom-query">하나, 목록, 없음은 어떻게 다를까요?<small>질문 → 실행 → 결과 해석</small></a></li>
+<li><a href="02-dom/#sample-dom-nodes">보이지 않는 공백도 자식일까요?<small>질문 → 실행 → 결과 해석</small></a></li>
+<li><a href="02-dom/#sample-dom-reference">요소가 바뀌면 저장한 글자도 바뀔까요?<small>질문 → 실행 → 결과 해석</small></a></li>
+<li><a href="02-dom/#sample-dom-collections">항목을 추가하면 어떤 개수가 바뀔까요?<small>질문 → 실행 → 결과 해석</small></a></li></ul></section>
+
+<section class="concept" id="03-dom-update"><h2><a href="03-dom-update/">3장 · 문서의 내용과 현재 상태</a></h2>
+<ul class="sample-index">
+<li><a href="03-dom-update/#sample-update-text">태그처럼 생긴 글자를 넣으면 어떻게 될까요?<small>질문 → 실행 → 결과 해석</small></a></li>
+<li><a href="03-dom-update/#sample-update-defaults">입력을 바꾸어도 기본값은 남을까요?<small>질문 → 실행 → 결과 해석</small></a></li>
+<li><a href="03-dom-update/#sample-update-boolean">disabled="false"는 활성 상태일까요?<small>질문 → 실행 → 결과 해석</small></a></li>
+<li><a href="03-dom-update/#sample-update-style">data 속성만 바꾸면 색도 바뀔까요?<small>질문 → 실행 → 결과 해석</small></a></li></ul></section>
+
+<section class="concept" id="04-events"><h2><a href="04-events/">4장 · 이벤트가 전달되는 원리</a></h2>
+<ul class="sample-index">
+<li><a href="04-events/#sample-dispatch">dispatchEvent 뒤의 코드는 언제 실행될까요?<small>질문 → 실행 → 결과 해석</small></a></li>
+<li><a href="04-events/#sample-propagation">하나의 클릭을 세 위치에서 읽기<small>질문 → 실행 → 결과 해석</small></a></li>
+<li><a href="04-events/#sample-submit">제출을 취소해도 부모가 알 수 있을까요?<small>질문 → 실행 → 결과 해석</small></a></li>
+<li><a href="04-events/#sample-input-change">입력 중, 입력 확정, 코드 대입 비교<small>질문 → 실행 → 결과 해석</small></a></li></ul></section>
+
+<section class="concept" id="05-dom-create"><h2><a href="05-dom-create/">5장 · DOM 트리의 생성과 변경</a></h2>
+<ul class="sample-index">
+<li><a href="05-dom-create/#sample-create-connect">만든 요소는 언제 문서에 나타날까요?<small>질문 → 실행 → 결과 해석</small></a></li>
+<li><a href="05-dom-create/#sample-create-identity">다른 목록에 붙이면 이동할까요, 늘어날까요?<small>질문 → 실행 → 결과 해석</small></a></li>
+<li><a href="05-dom-create/#sample-create-delegation">나중에 생긴 버튼의 클릭은 누가 받을까요?<small>질문 → 실행 → 결과 해석</small></a></li></ul></section>
+
+<section class="concept" id="06-state-render"><h2><a href="06-state-render/">6장 · 상태와 화면의 연결</a></h2>
+<ul class="sample-index">
+<li><a href="06-state-render/#sample-memory-dom">메모리의 값만 바꾸면 화면은 어떨까요?<small>질문 → 실행 → 결과 해석</small></a></li>
+<li><a href="06-state-render/#sample-derived-values">세 값을 따로 기억할 필요가 있을까요?<small>질문 → 실행 → 결과 해석</small></a></li>
+<li><a href="06-state-render/#sample-state-render">입력 경로가 달라도 같은 상태 변경<small>질문 → 실행 → 결과 해석</small></a></li></ul></section>
+
+<section class="concept" id="09-browser-runtime"><h2><a href="09-browser-runtime/">7장 · 브라우저의 실행 순서</a></h2>
+<ul class="sample-index">
+<li><a href="09-browser-runtime/#sample-execution-order">7-1 · 동기 실행과 예약된 실행<small>질문 → 실행 → 결과 해석</small></a></li>
+<li><a href="09-browser-runtime/#sample-dom-paint">7-2 · DOM 객체의 값과 화면의 값<small>질문 → 실행 → 결과 해석</small></a></li></ul></section>
+
+<section class="concept" id="10-focus-forms"><h2><a href="10-focus-forms/">8장 · 폼과 포커스의 기본 계약</a></h2>
+<ul class="sample-index">
+<li><a href="10-focus-forms/#sample-focus">8-1 · Tab 순서와 프로그램으로 옮기는 포커스<small>질문 → 실행 → 결과 해석</small></a></li>
+<li><a href="10-focus-forms/#sample-form-data">8-2 · 화면의 입력과 제출되는 데이터는 다릅니다<small>질문 → 실행 → 결과 해석</small></a></li>
+<li><a href="10-focus-forms/#sample-form-reset">8-3 · reset은 빈 값이 아니라 기본값으로 돌아갑니다<small>질문 → 실행 → 결과 해석</small></a></li></ul></section>
+
+<section class="concept" id="11-accessibility"><h2><a href="11-accessibility/">9장 · 접근성의 의미와 동작</a></h2>
+<ul class="sample-index">
+<li><a href="11-accessibility/#sample-native-keyboard">click 리스너 하나로 키보드 활성화도 받을 수 있을까?<small>질문 → 실행 → 결과 해석</small></a></li>
+<li><a href="11-accessibility/#sample-accessible-name">입력값을 바꾸어도 입력의 이름은 그대로일까?<small>질문 → 실행 → 결과 해석</small></a></li>
+<li><a href="11-accessibility/#sample-disclosure">패널을 펼칠 때 함께 바꿔야 할 정보는 무엇일까?<small>질문 → 실행 → 결과 해석</small></a></li>
+<li><a href="11-accessibility/#sample-live-status">결과를 알리기 위해 반드시 포커스를 옮겨야 할까?<small>질문 → 실행 → 결과 해석</small></a></li></ul></section>
+
+<section class="concept" id="07-headless"><h2><a href="07-headless/">10장 · 동작을 재사용하는 구조</a></h2>
+<ul class="sample-index">
+<li><a href="07-headless/#sample-subscription">10-1 · 함수 호출 횟수와 변경 알림 횟수<small>질문 → 실행 → 결과 해석</small></a></li>
+<li><a href="07-headless/#sample-shared-views">10-2 · 같은 상태를 두 가지 모습으로 표현하기<small>질문 → 실행 → 결과 해석</small></a></li></ul></section>
+
+<section class="concept" id="08-lifecycle"><h2><a href="08-lifecycle/">11장 · 연결과 수명</a></h2>
+<ul class="sample-index">
+<li><a href="08-lifecycle/#sample-listener-cleanup">11-1 · 같은 함수로 등록하고 제거하기<small>질문 → 실행 → 결과 해석</small></a></li>
+<li><a href="08-lifecycle/#sample-binding-lifetime">11-2 · DOM 연결 해제와 브라우저 기본 동작<small>질문 → 실행 → 결과 해석</small></a></li></ul></section>
+<nav aria-label="학습 안내"><a href="index.html">차례로 돌아가기</a><a href="README.md">읽기 안내와 용어</a></nav>
+</main></body></html>

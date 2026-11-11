@@ -2,9 +2,10 @@ import { readFile, mkdir, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { renderGuide } from "./build-guide.mjs";
+import { renderSamples } from "./build-samples.mjs";
 
 const root = dirname(fileURLToPath(import.meta.url));
-const lessons = [
+export const lessons = [
   ["01-javascript", "1장 · 값, 변수, 함수와 실행"],
   ["02-dom", "2장 · HTML에서 DOM 객체까지"],
   ["03-dom-update", "3장 · 문서의 내용과 현재 상태"],
@@ -13,8 +14,9 @@ const lessons = [
   ["06-state-render", "6장 · 상태와 화면의 연결"],
   ["09-browser-runtime", "7장 · 브라우저의 실행 순서"],
   ["10-focus-forms", "8장 · 폼과 포커스의 기본 계약"],
-  ["07-headless", "9장 · 동작을 재사용하는 구조"],
-  ["08-lifecycle", "10장 · 연결과 수명"],
+  ["11-accessibility", "9장 · 접근성의 의미와 동작"],
+  ["07-headless", "10장 · 동작을 재사용하는 구조"],
+  ["08-lifecycle", "11장 · 연결과 수명"],
 ];
 const paths = [
   "index.html", "styles.css", "shared/switch-store.js", "shared/bind-switch.js",
@@ -23,6 +25,9 @@ const paths = [
 const files = Object.fromEntries(await Promise.all(paths.map(async path => [
   path, await readFile(join(root, path), "utf8"),
 ])));
+const sampleIndex = renderSamples(lessons, files);
+await writeFile(join(root, "samples.html"), sampleIndex);
+files["samples.html"] = sampleIndex.replace('href="README.md"', 'href="guide.html"');
 
 // 원본의 서버 안내만 단일 파일용 안내로 바꿉니다. 실습 구현은 그대로 포함합니다.
 files["index.html"] = files["index.html"]

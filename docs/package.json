@@ -1,9 +1,11 @@
 {
-  "name": "vanilla-js-dom-book",
+  "name": "vanilla-js-switch-lab",
   "private": true,
   "type": "module",
   "scripts": {
     "build": "node build.mjs",
-    "test": "node --test shared/switch-store.test.mjs"
-  }
+    "build:pages": "node build-pages.mjs",
+    "test": "node --test shared/*.test.mjs"
+  },
+  "engines": { "node": ">=18" }
 }

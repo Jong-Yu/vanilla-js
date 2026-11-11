@@ -1,7 +1,9 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>3장 · 문서의 내용과 현재 상태</title><link rel="stylesheet" href="../styles.css"><script defer src="main.js"></script><style>.dom-update-lab input[type="text"] { max-width: 100%; font: inherit; padding: 8px 10px; border: 1px solid var(--control-line); border-radius: 6px; background: var(--surface); color: var(--ink); }</style></head><body><main class="dom-update-lab">
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>3장 · 문서의 내용과 현재 상태</title><link rel="stylesheet" href="../styles.css"><script defer src="main.js"></script><style>.dom-update-lab input[type="text"] { max-width: 100%; font: inherit; padding: 8px 10px; border: 1px solid var(--control-line); border-radius: 6px; background: var(--surface); color: var(--ink); }</style></head><body><a class="skip-link" href="#main-content">본문으로 건너뛰기</a><main id="main-content" tabindex="-1" class="dom-update-lab">
 <header><a href="../">차례</a><p class="eyebrow">3장 · 문서의 내용과 현재 상태</p><h1>객체를 바꾸면 화면은 어떻게 달라질까요?</h1><p class="intro">현재 입력값, HTML 속성, 문서 내용은 서로 다른 정보를 담습니다. 그 차이와 CSS로 이어지는 변경 과정을 이해합니다.</p></header>
+<aside class="learning-goals" aria-label="이 장의 학습 목표"><strong>이 장을 읽고 설명할 수 있는 것</strong><ul><li>문단의 텍스트와 입력 컨트롤의 현재값을 바꾸는 방법</li><li>attribute, property, 현재값, 기본값의 관계</li><li>문자열 상태를 CSS 표현과 연결하는 과정</li></ul></aside>
 <nav class="chapter-toc" aria-label="이 장의 읽기 순서"><a href="#changing-a-document">DOM 변경의 의미</a><a href="#two-representations">속성의 두 표현</a><a href="#current-default">현재값과 기본값</a><a href="#reading-state">한 줄씩 읽기</a><a href="#booleans-strings">불리언과 문자열</a><a href="#content-identity">내용과 객체 정체성</a><a href="#styles-rendering">CSS와 화면 갱신</a></nav>
+<nav class="sample-links" aria-label="작은 예제로 바로 이동"><a href="#sample-update-text">3-1 텍스트 넣기</a><a href="#sample-update-defaults">3-2 현재값과 기본값</a><a href="#sample-update-boolean">3-3 불리언 속성</a><a href="#sample-update-style">3-4 상태와 CSS</a></nav>
 <section class="concept" id="changing-a-document"><h2>DOM 수정은 객체의 어느 부분을 바꿀지 정하는 일입니다</h2>
 <p>앞 장에서 요소를 찾으면 실제 DOM 객체의 참조를 얻는다는 것을 보았습니다. 이제 그 객체에 새로운 값을 대입할 수 있습니다. 다만 요소는 글자 하나만 담은 단순한 상자가 아닙니다. 문서에 붙은 속성, 자식 노드, 폼 컨트롤의 현재 입력값처럼 서로 다른 정보를 관리합니다. 같은 “바꾼다”라는 말이라도 어느 정보를 대상으로 하는지에 따라 사용해야 할 API가 달라집니다.</p>
 <p>예를 들어 p 요소의 안내 문구를 바꾸는 것과 input에 현재 입력된 이름을 바꾸는 것은 다릅니다. p의 문구는 자식 텍스트로 표현되고, 텍스트 입력의 현재 값은 입력 컨트롤이 관리하는 상태입니다. 전자는 textContent로, 후자는 value로 다룹니다. 이 차이를 이해하면 문구를 바꾸려다가 입력값이 그대로인 상황이나, 현재값 대신 초기값을 읽는 상황을 설명할 수 있습니다.</p>
@@ -53,12 +55,56 @@ preview.classList.add(&quot;status&quot;);</code></pre>
 <p>또 코드로 value나 checked를 대입했다고 사용자 입력에 따른 input·change 이벤트가 자동 발생하지는 않습니다. 아래 예제는 값을 읽어 문구를 만드는 updatePreview를 필요할 때 직접 호출합니다. 다음 장에서는 사용자의 행동이 어떻게 이벤트가 되고, 그 이벤트를 받아 어떤 변경 함수를 호출할지 연결하는 과정을 읽습니다.</p>
 <p class="muted">더 읽기: <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement/checked">MDN · checked</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent">MDN · textContent</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dataset">MDN · dataset</a>.</p>
 </section>
-<section class="demo stack" aria-labelledby="demo-title"><h2 id="demo-title">개념이 동작하는 예제 · 현재 상태를 읽어 문구 만들기</h2><p>입력창과 체크박스는 현재 상태를 보관합니다. “입력값을 화면에 반영”은 그 상태를 읽어 안내 문구·data 속성·클래스를 함께 갱신합니다. 아래 기록은 그 함수가 실행된 시점의 값입니다.</p>
+<h2 id="demo-observe">작은 예제 · 바꾸는 대상 구분하기</h2>
+<p>현재값, 문구, 속성, 클래스는 별개의 대상입니다. 한 예제씩 실행하면서 어떤 부분만 달라지는지 확인합니다.</p>
+<section class="demo sample" id="sample-update-text" aria-labelledby="text-title">
+<p class="sample-meta">예제 3-1 · 텍스트와 입력값 · textContent / value</p><h3 id="text-title">태그처럼 생긴 글자를 넣으면 어떻게 될까요?</h3>
+<p class="prediction">예상하기: 입력값 “&lt;strong&gt;안녕&lt;/strong&gt;”을 문단에 textContent로 대입하면 굵은 글자가 될까요?</p>
+<label class="stack" for="literal-input">문단에 넣을 글자<input id="literal-input" type="text" value="&lt;strong&gt;안녕&lt;/strong&gt;" autocomplete="off"></label>
+<button id="apply-text" type="button">글자를 문단에 넣기</button>
+<p id="literal-preview">아직 글자를 넣지 않았습니다.</p><p id="text-result" role="status"></p>
+<pre><code>preview.textContent = input.value;
+// input.value는 입력의 현재 문자열
+// preview.textContent는 문단의 텍스트 내용</code></pre>
+<p class="expected"><strong>관찰할 결과:</strong> 꺾쇠를 포함한 글자가 그대로 보이고 strong 요소는 0개입니다. textContent는 문자열을 HTML로 해석하지 않습니다. 이름이나 메시지 같은 사용자 입력을 글자로 보여줄 때 이 구분이 필요합니다.</p>
+</section>
+<section class="demo sample" id="sample-update-defaults" aria-labelledby="defaults-title">
+<p class="sample-meta">예제 3-2 · 현재값과 기본값 · value / defaultValue</p><h3 id="defaults-title">입력을 바꾸어도 기본값은 남을까요?</h3>
+<p class="prediction">예상하기: 이름을 바꾸고 체크를 해제한 뒤 값을 읽으면, HTML에 적힌 기본값도 함께 바뀔까요?</p>
+<form id="defaults-form" class="stack">
 <label class="stack" for="username">이름<input id="username" type="text" value="민지" autocomplete="off"></label>
 <label class="control" for="notifications"><input id="notifications" type="checkbox" checked>이메일 알림 받기</label>
-<div class="row"><button id="apply" type="button" class="primary">입력값을 화면에 반영</button><button id="change-values" type="button">코드로 지우 · 알림 꺼짐 넣기</button></div>
-<div aria-live="polite"><p id="preview"></p><p class="muted">현재값과 attribute가 연결되는 방식을 비교할 수 있습니다.</p><pre id="snapshot"></pre></div>
-<p>코드 변경 버튼은 value와 checked를 직접 대입한 뒤 안내 함수도 호출합니다. 사용자 입력 없이도 현재 상태를 바꿀 수 있으며, 기본값은 따로 유지됩니다. <a href="main.js">실행 코드 읽기</a></p></section>
-<details class="optional-practice"><summary>선택 연습 · 읽은 내용을 코드로 확인하고 싶다면</summary><p>이름을 바꾸고 체크를 해제한 뒤 반영 버튼을 눌러보세요. 현재값은 바뀌지만 기본값을 나타내는 attribute는 남아 있는 이유를 본문에서 찾을 수 있습니다. 더 확인하고 싶다면 코드 변경 버튼에 username.defaultValue 대입을 추가한 뒤 코드를 실행해 현재값과 비교해보세요.</p></details>
+<div class="row"><button id="read-values" type="button">현재값과 기본값 읽기</button><button id="change-values" type="button">코드로 지우 · 알림 꺼짐 넣기</button><button id="reset-values" type="button">기본값으로 되돌리기</button></div>
+</form>
+<pre id="snapshot" role="status"></pre>
+<pre><code>username.value = "지우";
+notifications.checked = false;
+// username.defaultValue는 "민지"
+// notifications.defaultChecked는 true</code></pre>
+<p class="expected"><strong>관찰할 결과:</strong> 코드 변경 후 현재값은 “지우”, false이고 기본값은 “민지”, true입니다. 되돌리기는 form.reset()을 호출하므로 기본값이 다시 현재값이 됩니다. 아래 기록은 “읽기”나 코드 변경 버튼을 누른 시점의 값입니다.</p>
+</section>
+<section class="demo sample" id="sample-update-boolean" aria-labelledby="boolean-title">
+<p class="sample-meta">예제 3-3 · HTML 불리언 속성 · 존재 여부</p><h3 id="boolean-title">disabled="false"는 활성 상태일까요?</h3>
+<p class="prediction">예상하기: 아래 입력에 disabled 속성을 문자열 “false”로 붙여보세요. 키보드로 입력할 수 있을까요?</p>
+<label class="stack" for="boolean-input">활성 상태를 바꿀 입력<input id="boolean-input" type="text" value="처음에는 입력 가능" autocomplete="off"></label>
+<div class="row"><button id="set-disabled-attribute" type="button">disabled="false" 붙이기</button><button id="clear-disabled" type="button">disabled = false로 되돌리기</button></div>
+<pre id="boolean-result" role="status"></pre>
+<pre><code>input.setAttribute("disabled", "false"); // 비활성
+input.disabled = false; // 속성이 없어지고 활성화</code></pre>
+<p class="expected"><strong>관찰할 결과:</strong> 속성을 붙이면 input.disabled는 true입니다. HTML 불리언 속성은 문자열 내용이 아닌 존재 여부를 봅니다. property에 false를 대입하면 속성이 제거됩니다. ARIA의 “false”나 data 속성에는 이 규칙을 그대로 적용하지 않습니다.</p>
+</section>
+<section class="demo sample" id="sample-update-style" aria-labelledby="style-title">
+<p class="sample-meta">예제 3-4 · 상태와 시각 표현 · dataset / classList</p><h3 id="style-title">data 속성만 바꾸면 색도 바뀔까요?</h3>
+<p class="prediction">예상하기: “data 속성에 on 기록”을 누른 뒤 “클래스로 표현 반영”을 눌러보세요. 어느 단계에서 글자색과 굵기가 달라질까요?</p>
+<p id="preview" data-notifications="off">알림이 꺼져 있어요.</p>
+<div class="row"><button id="set-data" type="button">data 속성에 on 기록</button><button id="apply-style" type="button">클래스로 표현 반영</button><button id="reset-style" type="button">off로 다시 시작</button></div>
+<pre id="style-result" role="status"></pre>
+<pre><code>preview.dataset.notifications = "on";
+const enabled = preview.dataset.notifications === "on";
+preview.classList.toggle("status", enabled);</code></pre>
+<p class="expected"><strong>관찰할 결과:</strong> 이 예제는 data 속성만으로 스타일을 정하는 CSS가 없습니다. 클래스 반영을 누르면 .status 규칙 때문에 강조되고 문구도 바뀝니다. 같은 상태를 다시 반영해도 모습이 뒤집히지 않습니다. 데이터와 화면의 연결은 작성한 코드가 담당합니다.</p>
+</section>
+<p><a href="main.js">이 장의 실행 코드 읽기</a></p>
+<details class="optional-practice"><summary>선택 연습 · 읽은 내용을 코드로 확인하고 싶다면</summary><p>예제 3-2에서 이름을 바꾸고 체크를 해제한 뒤 “현재값과 기본값 읽기”를 눌러보세요. 현재값은 바뀌지만 기본값을 나타내는 attribute는 남아 있는 이유를 본문에서 찾을 수 있습니다. 더 확인하고 싶다면 코드 변경 버튼에 username.defaultValue 대입을 추가한 뒤 코드를 실행해 현재값과 비교해보세요.</p></details>
 <nav aria-label="장 이동"><a href="../02-dom/">← 이전 · 문서와 객체</a><a href="../04-events/">다음 · 사용자 행동이 코드에 전달되는 과정 →</a></nav>
 </main></body></html>

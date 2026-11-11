@@ -1,8 +1,9 @@
 <!doctype html>
 <html lang="ko">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>6장 · 상태와 화면의 연결</title><link rel="stylesheet" href="../styles.css"><script defer src="main.js"></script></head>
-<body><main>
+<body><a class="skip-link" href="#main-content">본문으로 건너뛰기</a><main id="main-content" tabindex="-1">
 <header><a href="../">차례</a><p class="eyebrow">6장 · 상태와 화면의 연결</p><h1>데이터와 화면은<br>어떻게 일치할까요?</h1><p class="intro">화면에 나타내는 사실을 어디에 저장하고, 어떤 코드가 그 사실을 DOM에 반영하는지 살펴봅니다. 상태와 파생값, 갱신 함수, 값을 결정하는 주체를 차례로 구분합니다.</p></header>
+<section class="learning-goals" aria-labelledby="learning-goals-title"><h2 id="learning-goals-title">상태를 설계할 때 먼저 정할 것</h2><ul><li>어떤 값이 원본 상태이고 어떤 값이 계산된 표현인지 정합니다.</li><li>메모리의 값과 DOM의 값을 구분하고 둘을 연결하는 코드를 찾습니다.</li><li>여러 입력 경로가 같은 변경 함수를 거치도록 구성합니다.</li></ul></section>
 <nav class="chapter-toc" aria-label="이 장의 읽기 순서"><ol><li><a href="#definition">정의</a></li><li><a href="#purpose">왜 필요한가</a></li><li><a href="#mechanism">작동 원리</a></li><li><a href="#reading-code">작은 코드 읽기</a></li><li><a href="#comparison">개념 구분</a></li><li><a href="#live-example">실행 예제</a></li></ol></nav>
 
 <section class="concept" id="definition">
@@ -58,14 +59,47 @@ render();</code></pre>
 <p>이때 입력은 “true로 바꾸고 싶다”는 요청을 바깥 코드에 알립니다. 바깥 코드는 요청을 받아 자신의 값을 갱신하거나, 조건에 따라 기존 값을 유지한 뒤 최종 값을 다시 입력에 전달합니다. 이런 관계를 <strong>외부 제어</strong>라고 이해할 수 있습니다. 어떤 프레임워크의 전용 기능이 아니라, 값을 결정하는 주체와 값을 표시하는 주체 사이에 세운 약속입니다.</p>
 <p>내부와 외부 양쪽에서 같은 상태를 독립적으로 결정하면 어느 쪽이 맞는지 충돌할 수 있습니다. 재사용 가능한 구성으로 발전시킬 때는 현재 값이 들어오는 통로와 변경 요청이 나가는 통로를 먼저 정해야 합니다. 이 장의 변경 함수와 표시 함수를 분리한 경험은 그 통로를 구분하는 출발점이 됩니다.</p>
 </section>
-<section id="live-example"><h2>개념을 확인하는 실행 예제</h2><p>아래 화면은 체크박스 조작과 두 버튼이 같은 setChecked 함수를 사용합니다. 체크 표시, 안내 문구, JSON이 한 사실의 서로 다른 표현이며 render 횟수는 함수 호출을 기록합니다.</p>
-<section class="demo stack" aria-labelledby="demo-title">
-    <h2 id="demo-title">입력 경로가 달라도 같은 상태 변경</h2>
-    <label class="control" for="notifications"><input id="notifications" type="checkbox" role="switch">이메일 알림</label>
-    <div class="row"><button id="turn-on" type="button">코드로 켜기</button><button id="turn-off" type="button">코드로 끄기</button></div>
-    <div aria-live="polite"><p>알림: <output id="summary" class="status"></output></p><pre id="state-view"></pre><p>render 호출: <output id="render-count">0</output>회</p></div>
-  </section>
-<p><a href="main.js">예제의 JavaScript 읽기</a></p></section>
-<details class="optional-practice"><summary>선택 연습 · 연결 함수 한 줄의 역할 확인하기</summary><p>코드 보기에서 setChecked 안의 render 호출만 잠시 주석 처리한 뒤 실행하세요. 체크박스 직접 조작과 “코드로 켜기” 버튼을 각각 사용하고, 어떤 표시가 바뀌는지 비교합니다.</p><p>체크박스 직접 조작은 브라우저가 먼저 DOM을 바꾸지만 프로그램 버튼은 상태만 바꿉니다. 안내와 JSON은 두 경우 모두 갱신되지 않습니다. 마지막으로 render 호출을 복구해 각 입력 경로가 다시 같은 표시를 만드는 것을 확인하세요.</p></details>
+<section id="live-example"><h2>연결의 단계를 나누어 확인하기</h2>
+<p>먼저 자동 연결이 없다는 사실을 확인하고, 하나의 값에서 여러 표현을 계산한 뒤, 두 작업을 하나의 변경 함수로 연결합니다. 세 예제는 서로 다른 데이터를 사용합니다.</p>
+<div class="sample-links"><a href="#sample-memory-dom">1. 메모리와 DOM</a> · <a href="#sample-derived-values">2. 원본과 파생값</a> · <a href="#sample-state-render">3. 변경 경로 모으기</a></div>
+<section class="demo sample" id="sample-memory-dom" aria-labelledby="memory-title">
+<p class="sample-meta">예제 6-1 · 두 객체의 값은 자동으로 연결되지 않음</p><h3 id="memory-title">메모리의 값만 바꾸면 화면은 어떨까요?</h3>
+<p class="prediction"><strong>예상하기:</strong> state.checked를 true로 바꾸면 아래 “화면의 알림” 문구도 바로 켜짐이 될까요?</p>
+<pre><code>const state = { checked: false };
+state.checked = true; // 메모리만 변경
+// 아래 줄을 실행해야 표시가 바뀝니다.
+view.textContent = state.checked ? "켜짐" : "꺼짐";</code></pre>
+<div class="row"><button id="change-memory" type="button">1. 메모리의 상태만 켜기</button><button id="render-memory" type="button">2. 상태를 DOM에 반영</button><button id="reset-memory" type="button">메모리 실험 초기화</button></div>
+<p>화면의 알림: <strong id="manual-view">꺼짐</strong></p>
+<p id="memory-result" role="status">메모리 checked: false · 마지막으로 쓴 화면: 꺼짐</p>
+<p class="expected"><strong>확인할 결과:</strong> 1번만 누르면 메모리는 true지만 화면의 알림은 꺼짐입니다. 2번을 눌러야 켜짐으로 바뀝니다. 아래 관찰 문구는 현재 값을 읽어 알려주는 실험 도구이며, 실제 알림 표시는 <code>#manual-view</code>입니다.</p>
+</section>
+<section class="demo sample" id="sample-derived-values" aria-labelledby="derived-title">
+<p class="sample-meta">예제 6-2 · 원본은 하나, 표현은 여러 개</p><h3 id="derived-title">세 값을 따로 기억할 필요가 있을까요?</h3>
+<p class="prediction"><strong>예상하기:</strong> checked 하나만 알면 안내 문구, CSS용 상태 이름, JSON 표현을 모두 계산할 수 있을까요?</p>
+<pre><code>const summary = checked ? "켜짐" : "꺼짐";
+const dataState = checked ? "checked" : "unchecked";
+const json = JSON.stringify({ checked });</code></pre>
+<div class="row"><button id="derive-true" type="button">true에서 계산</button><button id="derive-false" type="button">false에서 계산</button></div>
+<pre id="derived-result" role="status">아직 계산하지 않았습니다.</pre>
+<p class="expected"><strong>확인할 결과:</strong> true는 “켜짐”, “checked”, {"checked":true}로 표현됩니다. false는 “꺼짐”, “unchecked”, {"checked":false}로 표현됩니다. 이 세 표현을 별개의 원본으로 저장하지 않으면 서로 어긋날 가능성을 줄일 수 있습니다.</p>
+</section>
+<section class="demo sample" id="sample-state-render" aria-labelledby="demo-title">
+<p class="sample-meta">예제 6-3 · 입력 → 상태 변경 → DOM 반영</p><h3 id="demo-title">입력 경로가 달라도 같은 상태 변경</h3>
+<p class="prediction"><strong>예상하기:</strong> 체크박스를 직접 바꾸는 경우와 코드로 켜기 버튼을 누르는 경우가 같은 화면을 만들려면 어떤 처리를 공유해야 할까요?</p>
+<pre><code>function setChecked(checked) {
+  state = { checked };
+  render();
+}
+input.addEventListener("change", (event) => {
+  setChecked(event.currentTarget.checked);
+});</code></pre>
+<label class="control" for="notifications"><input id="notifications" type="checkbox">이메일 알림</label>
+<div class="row"><button id="turn-on" type="button">코드로 켜기</button><button id="turn-off" type="button">코드로 끄기</button><button id="reset-render" type="button">연결 실험 초기화</button></div>
+<div role="status"><p>알림: <span id="summary" class="status"></span></p><pre id="state-view"></pre><p>render 호출: <span id="render-count">0</span>회</p></div>
+<p class="expected"><strong>확인할 결과:</strong> 어느 입력 경로든 체크 표시, 문구, JSON이 함께 바뀝니다. 이미 켜진 상태에서 다시 코드로 켜기를 눌러도 render 호출은 증가합니다. 이 수는 함수 호출 횟수이며 브라우저의 실제 paint 횟수가 아닙니다. 초기화하면 초기 render 1회부터 다시 셉니다.</p>
+</section>
+<p><a href="main.js">이 장의 JavaScript 전체 읽기</a></p></section>
+<details class="optional-practice"><summary>선택 연습 · 연결 함수 한 줄의 역할 확인하기</summary><p>예제 6-3의 setChecked 안에 있는 render 호출만 잠시 주석 처리한 뒤 실행하세요. 체크박스 직접 조작과 “코드로 켜기” 버튼을 각각 사용하고, 어떤 표시가 바뀌는지 비교합니다.</p><p>체크박스 직접 조작은 브라우저가 먼저 DOM을 바꾸지만 프로그램 버튼은 상태만 바꿉니다. 안내와 JSON은 두 경우 모두 갱신되지 않습니다. 마지막으로 render 호출을 복구해 각 입력 경로가 다시 같은 표시를 만드는 것을 확인하세요.</p></details>
 <nav aria-label="장 이동"><a href="../05-dom-create/">← 이전 · 문서 구조 만들기</a><a href="../09-browser-runtime/">다음 · 브라우저 실행 순서 →</a></nav>
 </main></body></html>

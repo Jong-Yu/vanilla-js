@@ -1,9 +1,11 @@
 <!doctype html>
 <html lang="ko">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>5장 · DOM 트리의 생성과 변경</title><link rel="stylesheet" href="../styles.css"><script defer src="main.js"></script></head>
-<body><main>
+<body><a class="skip-link" href="#main-content">본문으로 건너뛰기</a><main id="main-content" tabindex="-1">
 <header><a href="../">차례</a><p class="eyebrow">5장 · DOM 트리의 생성과 변경</p><h1>요소 객체는 어떻게<br>화면의 일부가 될까요?</h1><p class="intro">요소를 만드는 일과 문서에 붙이는 일은 별개의 과정입니다. 요소가 가진 정체성과 부모·자식 관계를 이해하면, 목록을 조립하고 이동하고 제거하는 코드의 의미를 읽을 수 있습니다.</p></header>
+<aside class="learning-goals" aria-label="이 장의 학습 목표"><strong>이 장을 읽고 설명할 수 있는 것</strong><ul><li>요소를 만드는 일과 문서에 연결하는 일의 차이</li><li>같은 객체를 이동하는 것과 별개 객체를 복제하는 것의 차이</li><li>동적으로 만든 항목의 이벤트와 삭제 후 포커스를 관리하는 방법</li></ul></aside>
 <nav class="chapter-toc" aria-label="이 장의 읽기 순서"><ol><li><a href="#definition">정의</a></li><li><a href="#purpose">왜 필요한가</a></li><li><a href="#mechanism">작동 원리</a></li><li><a href="#reading-code">작은 코드 읽기</a></li><li><a href="#comparison">개념 구분</a></li><li><a href="#live-example">실행 예제</a></li></ol></nav>
+<nav class="sample-links" aria-label="작은 예제로 바로 이동"><a href="#sample-create-connect">5-1 생성과 연결</a><a href="#sample-create-identity">5-2 이동과 복제</a><a href="#sample-create-delegation">5-3 동적 목록과 위임</a></nav>
 
 <section class="concept" id="definition">
 <h2>노드 객체와 문서의 연결은 별개의 개념입니다</h2>
@@ -52,11 +54,46 @@ item.remove();</code></pre>
 <h3>현재 구조와 예전에 검색한 목록</h3>
 <p><code>querySelectorAll</code>은 검색한 시점의 결과를 담은 정적인 NodeList를 반환합니다. 나중에 항목을 추가해도 전에 얻어둔 목록의 길이는 늘지 않습니다. 반면 부모의 children은 현재 자식 요소의 변화를 반영하는 목록입니다. 어떤 컬렉션을 읽는지에 따라 “항목 수”의 기준 시점이 달라집니다. 현재 개수가 필요하면 다시 검색하거나 현재 children을 읽어야 합니다.</p>
 </section>
-<section id="live-example"><h2>개념을 확인하는 실행 예제</h2><p>다음 목록은 입력을 받아 항목을 조립하고 문서에 붙입니다. 삭제는 부모 목록에 등록된 리스너가 담당합니다. 문구와 버튼이 서로 다른 자식이라는 점을 생각하며 구조를 읽어보세요.</p>
-<section class="demo stack" aria-labelledby="list-title"><h2 id="list-title">나의 학습 목록</h2>
-<form id="task-form" class="stack"><label for="task-input">추가할 주제</label><div class="row"><input id="task-input" type="text" placeholder="예: classList 사용해보기" maxlength="100" required><button class="primary" type="submit">추가</button></div></form>
-<ul id="task-list" class="task-list"></ul><p id="task-status" role="status"></p></section>
-<p><a href="main.js">예제의 JavaScript 읽기</a></p></section>
+<section id="live-example"><h2>작은 예제 · 생성, 연결, 행동을 차례로 나누기</h2><p>먼저 객체 하나의 연결을 관찰하고, 이동과 복제를 비교한 뒤, 마지막 예제에서 목록 만들기와 이벤트 위임을 조합합니다. 세 예제의 데이터는 서로 독립적입니다.</p>
+<section class="demo sample" id="sample-create-connect" aria-labelledby="connect-title">
+<p class="sample-meta">예제 5-1 · 객체와 문서의 관계 · createElement / append / remove</p><h3 id="connect-title">만든 요소는 언제 문서에 나타날까요?</h3>
+<p class="prediction">예상하기: 이 예제는 시작할 때 li 객체를 하나 만들었습니다. 아직 아래 목록이 비어 있는 이유는 무엇일까요?</p>
+<ul id="connection-list" aria-label="요소를 붙일 목록"></ul>
+<div class="row"><button id="connect-node" type="button">같은 요소 연결하기</button><button id="detach-node" type="button">요소 떼어내기</button></div>
+<pre id="connection-result" role="status"></pre>
+<pre><code>const item = document.createElement("li");
+item.textContent = "연결을 기다리는 항목";
+list.append(item);
+item.remove();</code></pre>
+<p class="expected"><strong>관찰할 결과:</strong> 처음에는 isConnected가 false이고, 연결하면 true, 떼어내면 다시 false입니다. 떼어낸 뒤에도 변수에 남은 객체의 글자를 읽을 수 있습니다. 여러 번 연결해도 같은 객체이므로 항목은 1개입니다. 두 버튼으로 언제든 같은 실험을 반복할 수 있습니다.</p>
+</section>
+<section class="demo sample" id="sample-create-identity" aria-labelledby="identity-title">
+<p class="sample-meta">예제 5-2 · 객체의 정체성 · 이동 / 복제</p><h3 id="identity-title">다른 목록에 붙이면 이동할까요, 늘어날까요?</h3>
+<p class="prediction">예상하기: 왼쪽에 있는 원본을 오른쪽에 append하면 총 항목 수가 늘어날까요? cloneNode로 복사한 뒤 붙이면 어떨까요?</p>
+<div class="two-views"><div><h4>왼쪽 목록</h4><ul id="identity-left"><li>원본 항목</li></ul></div><div><h4>오른쪽 목록</h4><ul id="identity-right"></ul></div></div>
+<div class="row"><button id="move-node" type="button">원본을 오른쪽으로 이동</button><button id="clone-node" type="button">원본 복사본을 오른쪽에 추가</button><button id="reset-identity" type="button">원본 하나로 다시 시작</button></div>
+<pre id="identity-result" role="status"></pre>
+<pre><code>right.append(original); // 원본의 위치만 변경
+const copy = original.cloneNode(true);
+right.append(copy); // 별개 객체를 추가
+original === copy; // false</code></pre>
+<p class="expected"><strong>관찰할 결과:</strong> 이동만 하면 전체 1개, 첫 복제 후에는 2개가 됩니다. 글자와 모양이 같아도 복사본은 다른 객체입니다. 이 원본에는 id가 없습니다. id가 있는 요소를 복제한다면 문서에서 중복되지 않도록 바꾸어야 하며, addEventListener로 등록한 함수도 자동 복사되지 않습니다.</p>
+</section>
+<section class="demo sample" id="sample-create-delegation" aria-labelledby="list-title">
+<p class="sample-meta">예제 5-3 · 개념 조합 · 생성 + 연결 + 이벤트 위임</p><h3 id="list-title">나중에 생긴 버튼의 클릭은 누가 받을까요?</h3>
+<p class="prediction">예상하기: 삭제 리스너는 목록에 한 번만 등록했습니다. 새 주제를 추가해도 그 항목의 삭제 버튼이 동작할까요?</p>
+<form id="task-form" class="stack"><label for="task-input">추가할 주제</label><div class="row"><input id="task-input" type="text" placeholder="예: classList 사용해보기" maxlength="100" required><button class="primary" type="submit">추가</button><button id="reset-tasks" type="button">처음 두 항목으로 되돌리기</button></div></form>
+<ul id="task-list" class="task-list"></ul><p id="task-status" role="status"></p>
+<pre><code>list.addEventListener("click", (event) =&gt; {
+  if (!(event.target instanceof Element)) return;
+  const button = event.target.closest("button[data-action='remove']");
+  if (!button || !list.contains(button)) return;
+  // 버튼이 속한 항목을 찾고, 다음 포커스를 정한 뒤 제거합니다.
+});</code></pre>
+<p class="expected"><strong>관찰할 결과:</strong> 새 항목도 같은 부모를 통해 삭제됩니다. 글자 부분을 누르면 삭제되지 않습니다. 삭제 버튼에는 주제 이름을 포함한 접근 가능한 이름이 있습니다. 키보드로 삭제하면 다음 항목, 없으면 이전 항목의 삭제 버튼으로 이동하며, 목록이 비면 입력으로 돌아갑니다.</p>
+<p>실행 순서: 주제를 입력하고 Enter → 새 항목의 삭제 버튼까지 Tab → Enter로 삭제 → 포커스가 이어지는 위치 확인. 입력한 태그 모양의 문자열도 문서 구조가 아닌 글자로 표시됩니다.</p>
+</section>
+<p><a href="main.js">이 장의 실행 코드 읽기</a></p></section>
 <p class="muted">개념 참고: <a href="https://developer.mozilla.org/en-US/docs/Web/API/Node/appendChild">노드 연결과 이동</a> · <a href="https://developer.mozilla.org/en-US/docs/Web/API/Node/cloneNode">노드 복제</a> · <a href="https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent">텍스트 내용</a>.</p>
 <details class="optional-practice"><summary>선택 연습 · 같은 객체를 맨 앞으로 옮기기</summary><p>코드 보기에서 이동 버튼을 하나 추가하고, 버튼을 누르면 list.lastElementChild를 list.prepend로 전달하도록 수정 후 실행하세요. 마지막 항목이 맨 앞으로 가도 개수는 그대로입니다.</p><p>목록이 비었을 때 lastElementChild는 null이므로 먼저 검사합니다. 이 연습의 목적은 새 항목을 만드는 것이 아니라 이미 있는 객체의 부모 안 위치를 바꾸는 과정을 확인하는 것입니다.</p></details>
 <nav aria-label="장 이동"><a href="../04-events/">← 이전 · 이벤트</a><a href="../06-state-render/">다음 · 상태와 화면 →</a></nav>

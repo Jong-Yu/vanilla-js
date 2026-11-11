@@ -1,38 +1,41 @@
-const form = document.querySelector("#profile-form");
-const nickname = document.querySelector("#nickname");
-const news = document.querySelector("#news");
-const formResult = document.querySelector("#form-result");
+// 8-1 · 포커스는 문서의 상태입니다. 매 이동을 live region으로 알리지 않습니다.
 const focusResult = document.querySelector("#focus-result");
-const resetResult = document.querySelector("#reset-result");
-const focusTitle = document.querySelector("#focus-title");
-let resetTimer;
-
 function describeFocus() {
   const active = document.activeElement;
   focusResult.textContent = active
     ? `${active.tagName.toLowerCase()}${active.id ? `#${active.id}` : ""}`
     : "없음";
 }
-
 document.addEventListener("focusin", describeFocus);
-document.querySelector("#focus-name").addEventListener("click", () => nickname.focus());
-document.querySelector("#focus-heading").addEventListener("click", () => focusTitle.focus());
+document.querySelector("#focus-name").addEventListener("click", () => {
+  document.querySelector("#focus-name-input").focus();
+});
+document.querySelector("#focus-heading").addEventListener("click", () => {
+  document.querySelector("#focus-title").focus();
+});
+describeFocus();
 
-form.addEventListener("submit", (event) => {
+// 8-2 · FormData는 저장소가 아니라 폼의 현재 값을 읽습니다.
+const profileForm = document.querySelector("#profile-form");
+profileForm.addEventListener("submit", (event) => {
   event.preventDefault();
-  // 같은 name이 여러 번 나와도 보존하기 위해 entries를 배열로 확인합니다.
-  formResult.textContent = JSON.stringify([...new FormData(form).entries()], null, 2);
+  document.querySelector("#form-result").textContent = JSON.stringify(
+    [...new FormData(profileForm).entries()], null, 2,
+  );
 });
 
-form.addEventListener("reset", (event) => {
-  const before = `reset 이벤트 안: value=${nickname.value}, checked=${news.checked}`;
+// 8-3 · 이 폼은 앞 예제와 입력 및 초기화 상태를 공유하지 않습니다.
+const resetForm = document.querySelector("#reset-form");
+const resetName = document.querySelector("#reset-name");
+const resetNews = document.querySelector("#reset-news");
+const resetResult = document.querySelector("#reset-result");
+let resetTimer;
+resetForm.addEventListener("reset", (event) => {
+  const before = `reset 이벤트 안: value=${resetName.value}, checked=${resetNews.checked}`;
   resetResult.textContent = before;
   clearTimeout(resetTimer);
   resetTimer = setTimeout(() => {
     if (event.defaultPrevented) return;
-    resetResult.textContent = `${before}\n기본 reset 후: value=${nickname.value}, checked=${news.checked}`;
-    formResult.textContent = "초기화되었습니다. 폼 값을 다시 읽어보세요.";
+    resetResult.textContent = `${before}\n기본 reset 후: value=${resetName.value}, checked=${resetNews.checked}`;
   }, 0);
 });
-
-describeFocus();

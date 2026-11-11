@@ -1,7 +1,9 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>2장 · HTML에서 DOM 객체까지</title><link rel="stylesheet" href="../styles.css"><script defer src="main.js"></script></head><body><main>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>2장 · HTML에서 DOM 객체까지</title><link rel="stylesheet" href="../styles.css"><script defer src="main.js"></script></head><body><a class="skip-link" href="#main-content">본문으로 건너뛰기</a><main id="main-content" tabindex="-1">
 <header><a href="../">차례</a><p class="eyebrow">2장 · HTML에서 DOM 객체까지</p><h1>문서는 어떻게 객체가 될까요?</h1><p class="intro">HTML 문자열이 DOM 트리가 되는 과정부터 읽습니다. 요소를 찾는 코드는 문서 안의 실제 객체에 접근하는 방법입니다.</p></header>
+<aside class="learning-goals" aria-label="이 장의 학습 목표"><strong>이 장을 읽고 설명할 수 있는 것</strong><ul><li>HTML 문자열과 DOM 객체, 실제 화면의 차이</li><li>요소 하나와 요소 목록, 텍스트 노드의 차이</li><li>참조와 문자열 복사본, 정적 목록과 실시간 목록의 차이</li></ul></aside>
 <nav class="chapter-toc" aria-label="이 장의 읽기 순서"><a href="#dom-definition">DOM의 정의</a><a href="#why-a-tree">트리가 필요한 이유</a><a href="#parsing-tree">HTML에서 DOM으로</a><a href="#object-operations">한 줄씩 읽기</a><a href="#references-search">참조와 검색 범위</a><a href="#collections">목록의 의미</a></nav>
+<nav class="sample-links" aria-label="작은 예제로 바로 이동"><a href="#sample-dom-query">2-1 검색 결과</a><a href="#sample-dom-nodes">2-2 노드와 요소</a><a href="#sample-dom-reference">2-3 참조와 문자열</a><a href="#sample-dom-collections">2-4 목록의 시점</a></nav>
 <section class="concept" id="dom-definition"><h2>DOM은 문서를 다루기 위한 객체 모델입니다</h2>
 <p>HTML 파일은 처음에는 글자들의 나열입니다. <code>&lt;h1&gt;제목&lt;/h1&gt;</code>이라는 문자열에 제목의 시작과 끝을 표시할 수 있지만, 문자열 자체가 클릭되거나 부모 요소를 알고 있는 것은 아닙니다. 브라우저는 HTML을 읽어 요소와 텍스트를 객체로 만들고, 이 객체들을 문서 구조에 맞게 연결합니다. 이 구조와 그것을 다루는 인터페이스가 DOM, 즉 Document Object Model입니다.</p>
 <p>DOM을 “JavaScript로 작성한 HTML”이라고 생각하면 역할이 섞입니다. HTML은 문서를 기술하는 형식이고, DOM은 실행 중인 문서를 객체로 표현하는 모델입니다. JavaScript는 DOM 객체에 접근할 때 사용하는 언어입니다. <code>const</code>나 함수는 JavaScript 문법이지만, <code>document.querySelector()</code>는 브라우저가 제공하는 DOM API를 호출하는 코드입니다.</p>
@@ -46,7 +48,54 @@ title.textContent = &quot;새로운 주제&quot;;</code></pre>
 <p>이제 DOM 검색은 문자열로 화면 일부를 긁어오는 작업이 아니라, 문서 트리 안에 있는 객체와 관계에 접근하는 작업으로 볼 수 있습니다. 다음 장에서는 얻은 객체의 어떤 부분을 바꾸면 현재 입력값, 내용, CSS와 연결되는 상태가 달라지는지 살펴봅니다.</p>
 <p class="muted">더 읽기: <a href="https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model">MDN · DOM</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelectorAll">MDN · querySelectorAll</a>.</p>
 </section>
-<h2 id="demo-observe">개념이 동작하는 예제 · 요소와 관계 읽기</h2><p>아래 버튼은 기존 요소를 찾아 강조하고, 그 객체의 태그 이름·부모·자식 요소 수를 읽어 표시합니다. 찾기 자체가 새 요소를 만드는 작업은 아닙니다.</p><section class="demo" id="profile" aria-labelledby="profile-title"><h2 id="profile-title">학습할 주제</h2><ul><li class="topic">DOM 구조 읽기</li><li class="topic">이벤트 연결하기</li></ul></section><div class="row"><button id="find-one" type="button">id로 하나 찾기</button><button id="find-many" type="button">class로 여러 개 찾기</button><button id="find-missing" type="button">없는 요소 찾기</button></div><pre id="query-result" aria-live="polite">버튼을 눌러 검색 결과를 확인하세요.</pre><p><a href="main.js">실행 코드 읽기</a></p>
+<h2 id="demo-observe">작은 예제 · 한 번에 하나의 차이 관찰하기</h2>
+<p>각 예제는 서로 다른 요소를 사용합니다. 다른 예제를 먼저 실행하지 않아도 됩니다. 버튼을 누르기 전 결과를 예상하고, 아래 설명과 비교해보세요.</p>
+<section class="demo sample" id="sample-dom-query" aria-labelledby="query-title">
+<p class="sample-meta">예제 2-1 · 검색의 결과 · querySelector / querySelectorAll</p><h3 id="query-title">하나, 목록, 없음은 어떻게 다를까요?</h3>
+<p class="prediction">예상하기: 두 항목이 있는 영역에서 하나 찾기, 여러 개 찾기, 없는 요소 찾기는 각각 무엇을 돌려줄까요?</p>
+<section id="profile" aria-labelledby="profile-title"><h4 id="profile-title">학습할 주제</h4><ul><li class="topic">DOM 구조 읽기</li><li class="topic">이벤트 연결하기</li></ul></section>
+<div class="row"><button id="find-one" type="button">id로 하나 찾기</button><button id="find-many" type="button">class로 여러 개 찾기</button><button id="find-missing" type="button">없는 요소 찾기</button></div>
+<pre id="query-result" role="status">아직 검색하지 않았습니다.</pre>
+<pre><code>const area = document.querySelector("#profile");
+const topics = area.querySelectorAll(".topic");
+const missing = area.querySelector(".missing");</code></pre>
+<p class="expected"><strong>관찰할 결과:</strong> 하나 찾기는 section 요소, 여러 개 찾기는 길이 2인 목록, 없는 요소 찾기는 null입니다. 검색은 기존 객체를 찾는 작업이며 새 요소를 만들지 않습니다. 찾은 대상에는 테두리와 함께 태그·부모·자식 수가 표시됩니다.</p>
+</section>
+<section class="demo sample" id="sample-dom-nodes" aria-labelledby="nodes-title">
+<p class="sample-meta">예제 2-2 · 노드와 요소 · children / childNodes</p><h3 id="nodes-title">보이지 않는 공백도 자식일까요?</h3>
+<p class="prediction">예상하기: 아래 문장에는 strong 요소가 하나 있습니다. 자식 노드도 하나일까요?</p>
+<p id="node-sentence">안녕 <strong>DOM</strong>!</p>
+<button id="inspect-nodes" type="button">자식 요소와 노드 비교</button>
+<pre id="nodes-result" role="status">버튼을 눌러 두 목록을 읽어보세요.</pre>
+<pre><code>sentence.children.length;   // 요소만
+sentence.childNodes.length; // 텍스트도 포함</code></pre>
+<p class="expected"><strong>관찰할 결과:</strong> children은 strong 하나, childNodes는 “안녕 ” 텍스트·strong·“!” 텍스트, 총 3개입니다. 화면의 글자도 트리 안에서는 별도 노드입니다. 이 문장은 태그 사이의 줄바꿈이 없도록 작성했습니다.</p>
+</section>
+<section class="demo sample" id="sample-dom-reference" aria-labelledby="reference-title">
+<p class="sample-meta">예제 2-3 · 참조와 값 · 같은 객체 / 읽어 둔 문자열</p><h3 id="reference-title">요소가 바뀌면 저장한 글자도 바뀔까요?</h3>
+<p class="prediction">예상하기: 같은 문단을 두 번 찾아도 같은 객체입니다. 그 문단에서 미리 읽어 둔 문자열은 어떨까요?</p>
+<p id="reference-text">처음 문구</p>
+<div class="row"><button id="change-reference" type="button">참조로 문구 바꾸기</button><button id="reset-reference" type="button">문구 되돌리기</button></div>
+<pre id="reference-result" role="status"></pre>
+<pre><code>const first = document.querySelector("#reference-text");
+const second = document.querySelector("#reference-text");
+const savedText = first.textContent;
+first.textContent = "바뀐 문구";</code></pre>
+<p class="expected"><strong>관찰할 결과:</strong> first === second는 true이고, second.textContent도 “바뀐 문구”입니다. savedText는 여전히 “처음 문구”입니다. 요소 참조는 같은 객체를 가리키지만, 이미 읽은 문자열은 다시 계산되지 않습니다.</p>
+</section>
+<section class="demo sample" id="sample-dom-collections" aria-labelledby="collections-title">
+<p class="sample-meta">예제 2-4 · 목록의 기준 시점 · 정적 목록 / 실시간 목록</p><h3 id="collections-title">항목을 추가하면 어떤 개수가 바뀔까요?</h3>
+<p class="prediction">예상하기: 항목 두 개일 때 NodeList와 children을 저장했습니다. 항목을 하나 추가하면 두 목록이 모두 3개가 될까요?</p>
+<ul id="collection-list"><li>첫 항목</li><li>둘째 항목</li></ul>
+<div class="row"><button id="append-collection" type="button">항목 하나 추가</button><button id="rename-collection" type="button">저장된 첫 요소의 글자 바꾸기</button><button id="reset-collection" type="button">두 항목으로 다시 시작</button></div>
+<pre id="collections-result" role="status"></pre>
+<pre><code>const saved = list.querySelectorAll("li");
+const live = list.children;
+list.append(document.createElement("li"));
+// saved.length는 2, live.length는 3</code></pre>
+<p class="expected"><strong>관찰할 결과:</strong> 추가 후 저장한 NodeList의 길이는 2로 유지되고, children과 다시 검색한 목록은 3이 됩니다. 저장된 첫 요소의 글자는 바꿀 수 있습니다. 정적인 것은 목록의 구성원이며 요소의 내용이 아닙니다. 다시 시작하면 두 목록도 처음부터 저장합니다.</p>
+</section>
+<p><a href="main.js">이 장의 실행 코드 읽기</a></p>
 <details class="optional-practice"><summary>선택 연습 · 읽은 내용을 코드로 확인하고 싶다면</summary><p>HTML에서 profile의 ul에 li.topic 하나를 더 넣고 코드를 실행해보세요. “여러 개 찾기”가 반환하는 개수와 profile 자체의 자식 요소 수를 비교하면, 직접 자식과 더 깊은 후손의 차이를 확인할 수 있습니다. 연습 없이 본문 설명만으로도 다음 장을 읽을 수 있습니다.</p></details>
 <nav aria-label="장 이동"><a href="../01-javascript/">← 이전 · 언어와 실행</a><a href="../03-dom-update/">다음 · 객체를 바꾸면 화면이 달라지는 이유 →</a></nav>
 </main></body></html>

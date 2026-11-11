@@ -1,5 +1,5 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>10장 · 연결과 수명</title><link rel="stylesheet" href="../styles.css"><script type="module" src="main.js"></script></head><body><main>
-<header><a href="../">차례</a><p class="eyebrow">10장 · 연결과 수명</p><h1>연결한 코드는<br>언제까지 남아 있을까</h1><p class="intro">이벤트 등록과 구독은 함수를 나중에 부를 수 있도록 남겨 두는 일입니다. 이 관계가 생기고 끝나는 과정을 이해하면, 화면을 여러 번 열고 닫아도 동작이 겹치지 않게 만들 수 있습니다.</p></header>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>11장 · 연결과 수명</title><link rel="stylesheet" href="../styles.css"><script type="module" src="main.js"></script></head><body><a class="skip-link" href="#main-content">본문으로 건너뛰기</a><main id="main-content" tabindex="-1">
+<header><a href="../">차례</a><p class="eyebrow">11장 · 연결과 수명</p><h1>연결한 코드는<br>언제까지 남아 있을까</h1><p class="intro">이벤트 등록과 구독은 함수를 나중에 부를 수 있도록 남겨 두는 일입니다. 이 관계가 생기고 끝나는 과정을 이해하면, 화면을 여러 번 열고 닫아도 동작이 겹치지 않게 만들 수 있습니다.</p></header>
 <nav class="chapter-toc" aria-label="이 장의 내용"><h2>이 장의 내용</h2><ol><li><a href="#lifetime">연결과 수명의 의미</a></li><li><a href="#identity">함수 객체의 동일성</a></li><li><a href="#cleanup">정리 함수를 줄마다 읽기</a></li><li><a href="#ownership">여러 자원을 한 연결로 관리</a></li><li><a href="#default-action">기본 동작과 예약 작업의 순서</a></li><li><a href="#example">연결을 끊어 보는 예제</a></li></ol></nav>
 <section class="concept" id="lifetime"><h2>함수가 끝났는데도 동작이 남는 이유</h2>
 <p>일반 함수를 호출하면 본문을 실행하고 호출한 곳으로 돌아옵니다. 그런데 함수 안에서 addEventListener를 실행했다면 상황이 하나 더 생깁니다. 지금 실행 중인 함수가 끝나더라도, 이벤트 대상에는 나중에 호출할 리스너가 등록되어 있습니다. 등록한 함수의 실행 종료와 등록된 기능의 종료는 다른 시점입니다.</p>
@@ -49,17 +49,29 @@ return () =&gt; {
 <p>이 처리를 모든 이벤트에 그대로 복사할 필요는 없습니다. 필요한 것은 값을 언제 읽어야 하는지와 그 사이에 어떤 변화가 가능한지를 구분하는 사고방식입니다. 특히 microtask를 예약했다고 항상 기본 동작 이후를 보장하는 것은 아니므로, 기본 동작이 끝난 값이 필요한 이 예제에서는 다음 task를 사용합니다.</p></section>
 <section class="concept" id="example"><h2>연결을 끊어 보면 각 책임이 드러납니다</h2>
 <p>아래 입력은 처음 켜져 있습니다. 연결을 끊고 입력을 조작하면 브라우저의 기본 체크 동작은 계속되지만 저장소는 갱신되지 않습니다. 다시 연결하면 저장소 값으로 입력을 맞춥니다. 폼 값 읽기는 저장소가 아니라 실제 입력의 현재 상태를 읽으므로, 두 값의 기준이 서로 다르다는 점도 볼 수 있습니다.</p>
-<section class="demo stack" aria-labelledby="demo-title">
-    <h2 id="demo-title">연결 상태와 폼 값</h2>
+<div class="sample-links"><a href="#sample-listener-cleanup">11-1 · 리스너 정리</a><a href="#sample-binding-lifetime">11-2 · 연결의 수명</a></div>
+<section class="demo sample" id="sample-listener-cleanup" aria-labelledby="listener-title">
+<h3 id="listener-title">11-1 · 같은 함수로 등록하고 제거하기</h3>
+<p class="prediction"><strong>먼저 예상하기.</strong> 연결을 해제해도 버튼 자체가 비활성화될까요?</p>
+<div class="row"><button id="listener-toggle" type="button" aria-pressed="true">클릭 리스너 연결</button><button id="listener-target" type="button">횟수 증가</button><button id="listener-reset" type="button">이 예제 다시 시작</button></div>
+<p id="listener-result" role="status"></p>
+<pre><code>function countClick() { count++; }
+button.addEventListener("click", countClick);
+button.removeEventListener("click", countClick);</code></pre>
+<p class="expected"><strong>관찰할 결과.</strong> 연결 버튼을 꺼도 횟수 증가 버튼에는 포커스가 갑니다. 다만 등록했던 함수가 없어 횟수가 늘지 않습니다. 연결과 해제를 반복해도 한 번 누를 때 한 번만 늘어야 합니다.</p>
+</section>
+<section class="demo sample stack" id="sample-binding-lifetime" aria-labelledby="demo-title">
+    <h3 id="demo-title">11-2 · DOM 연결 해제와 브라우저 기본 동작</h3><p class="prediction"><strong>먼저 예상하기.</strong> 연결을 해제하고 체크를 끄면 저장소와 FormData는 같은 값을 읽을까요?</p>
     <div class="row"><button id="connect" type="button">다시 연결</button><button id="disconnect" type="button">연결 해제</button><span id="connection" class="status" role="status"></span></div>
     <form id="settings" class="stack">
       <label class="control" for="notifications"><input id="notifications" type="checkbox" role="switch" name="notifications" value="on" checked>이메일 알림</label>
       <div class="row"><button type="submit">폼 값 읽기</button><button type="reset">기본값으로 초기화</button></div>
     </form>
-    <div aria-live="polite"><p>저장소: <output id="summary" class="status"></output></p><p>상태 변경 알림: <output id="notify-count">0</output>회</p><pre id="form-result">아직 폼 값을 읽지 않았습니다.</pre></div>
+    <div aria-live="polite"><p>저장소: <span id="summary" class="status"></span></p><p>상태 변경 알림: <span id="notify-count">0</span>회</p><pre id="form-result">아직 폼 값을 읽지 않았습니다.</pre></div>
+    <p class="expected"><strong>관찰할 결과.</strong> 연결을 해제하고 체크를 끄면 저장소는 켜짐을 유지하지만 폼에는 notifications가 없습니다. 다시 연결하면 입력은 저장소 값으로 돌아옵니다. 연결 중 초기화하면 기본 체크값과 저장소가 다시 맞춰집니다.</p>
   </section>
 <p><a href="main.js">전체 연결과 폼 처리 코드</a> · <a href="../shared/bind-switch.js">DOM 연결의 정리 함수</a></p></section>
 <details class="optional-practice"><summary>선택 · 연결을 끝내는 시점을 확인하기</summary><p>연결을 끊고 체크를 바꾼 뒤 저장소 문구와 폼 값을 각각 읽어보세요. 저장소가 갱신되지 않아도 폼 값이 달라지는 이유는 FormData가 읽는 대상이 DOM이기 때문입니다. 연결을 여러 번 반복한 뒤 한 번 조작했을 때 변경 알림이 한 번만 늘면 등록과 정리가 짝을 이루고 있는 것입니다.</p><p>코드를 수정해 보고 싶다면 연결 안에서 1초 후 로그를 남기는 타이머를 만들고 cleanup에서 취소해보세요. 정리는 변수 이름이 아니라 실제로 예약한 작업의 ID를 사용해야 합니다.</p></details>
 <p class="muted">참고: <a href="https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener">MDN · 이벤트 리스너 제거</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Memory_management">MDN · 메모리 관리</a></p>
-<nav><a href="../07-headless/">← 9장 · 동작을 재사용하는 구조</a><a href="../">차례로 →</a></nav>
+<nav><a href="../07-headless/">← 10장 · 동작을 재사용하는 구조</a><a href="../">차례로 →</a></nav>
 </main></body></html>
