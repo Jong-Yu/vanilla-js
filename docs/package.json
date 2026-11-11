@@ -1,0 +1,9 @@
+{
+  "name": "vanilla-js-dom-book",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node --test shared/switch-store.test.mjs"
+  }
+}

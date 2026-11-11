@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>3장 · 문서의 내용과 현재 상태</title><link rel="stylesheet" href="../styles.css"><script defer src="main.js"></script><style>.dom-update-lab input[type="text"] { max-width: 100%; font: inherit; padding: 8px 10px; border: 1px solid var(--control-line); border-radius: 6px; background: var(--surface); color: var(--ink); }</style></head><body><main class="dom-update-lab">
+<header><a href="../">차례</a><p class="eyebrow">3장 · 문서의 내용과 현재 상태</p><h1>객체를 바꾸면 화면은 어떻게 달라질까요?</h1><p class="intro">현재 입력값, HTML 속성, 문서 내용은 서로 다른 정보를 담습니다. 그 차이와 CSS로 이어지는 변경 과정을 이해합니다.</p></header>
+<nav class="chapter-toc" aria-label="이 장의 읽기 순서"><a href="#changing-a-document">DOM 변경의 의미</a><a href="#two-representations">속성의 두 표현</a><a href="#current-default">현재값과 기본값</a><a href="#reading-state">한 줄씩 읽기</a><a href="#booleans-strings">불리언과 문자열</a><a href="#content-identity">내용과 객체 정체성</a><a href="#styles-rendering">CSS와 화면 갱신</a></nav>
+<section class="concept" id="changing-a-document"><h2>DOM 수정은 객체의 어느 부분을 바꿀지 정하는 일입니다</h2>
+<p>앞 장에서 요소를 찾으면 실제 DOM 객체의 참조를 얻는다는 것을 보았습니다. 이제 그 객체에 새로운 값을 대입할 수 있습니다. 다만 요소는 글자 하나만 담은 단순한 상자가 아닙니다. 문서에 붙은 속성, 자식 노드, 폼 컨트롤의 현재 입력값처럼 서로 다른 정보를 관리합니다. 같은 “바꾼다”라는 말이라도 어느 정보를 대상으로 하는지에 따라 사용해야 할 API가 달라집니다.</p>
+<p>예를 들어 p 요소의 안내 문구를 바꾸는 것과 input에 현재 입력된 이름을 바꾸는 것은 다릅니다. p의 문구는 자식 텍스트로 표현되고, 텍스트 입력의 현재 값은 입력 컨트롤이 관리하는 상태입니다. 전자는 textContent로, 후자는 value로 다룹니다. 이 차이를 이해하면 문구를 바꾸려다가 입력값이 그대로인 상황이나, 현재값 대신 초기값을 읽는 상황을 설명할 수 있습니다.</p>
+<p>DOM 변경을 이해할 때는 “무엇을 저장하는가”, “어떤 값과 연결되는가”, “브라우저는 그 변경을 어떻게 표시하는가”라는 세 질문을 연결해서 보면 됩니다. 이번 장은 명령을 여러 개 익히기보다 이 연결을 이해하는 데 집중합니다.</p>
+</section><section class="concept" id="two-representations"><h2>왜 attribute와 property라는 두 표현이 있을까요?</h2>
+<p>HTML에서는 요소를 태그와 속성으로 기술합니다. <code>&lt;input value="민지"&gt;</code>의 value="민지"처럼 요소에 붙는 이름과 값의 쌍을 content attribute라고 부릅니다. HTML 문서에 적힌 내용을 선언적으로 표현하는 수단입니다. 브라우저가 요소 객체를 만든 뒤에도 이 attribute는 DOM 안에 존재하며, getAttribute나 setAttribute로 읽고 바꿀 수 있습니다.</p>
+<p>한편 JavaScript에서 DOM 객체를 사용할 때는 그 객체가 제공하는 property에 접근합니다. <code>input.value</code>나 <code>input.disabled</code>가 그 예입니다. property는 단순한 문자열 사본일 수도 있지만, 현재 상태를 읽거나 브라우저의 정해진 동작을 수행하는 창구일 수도 있습니다. property를 설정하면 대응하는 attribute가 변경되기도 하고, 별도의 내부 상태가 변경되기도 합니다.</p>
+<p>이 두 표현이 연결되는 것을 반영, 즉 reflection이라고 합니다. 예를 들어 요소의 id property를 바꾸면 id attribute도 바뀝니다. title이나 className도 대응하는 attribute와 연결됩니다. 하지만 모든 property가 같은 이름의 attribute를 그대로 반영하지는 않습니다. 어떤 property는 불리언이나 숫자로 변환하고, 어떤 것은 값을 정규화하며, 입력 컨트롤의 현재 상태처럼 기본 설정과 분리된 정보를 제공합니다.</p>
+<p>따라서 “attribute는 HTML, property는 JavaScript”라고만 외우면 중요한 부분을 놓칩니다. 둘 다 실행 중인 DOM에서 접근할 수 있습니다. 또한 attribute가 원본 파일의 영구적인 초기값인 것도 아닙니다. setAttribute로 바꾸면 DOM의 attribute가 달라지지만, 디스크에 저장된 HTML 파일까지 수정되지는 않습니다. 지금 어떤 표현을 읽고 있는지가 핵심입니다.</p>
+</section><section class="concept" id="current-default"><h2>브라우저가 현재값과 기본값을 나누어 관리하는 이유</h2>
+<p>입력창은 문서를 읽을 때의 설정과 사용자가 편집한 결과를 모두 다뤄야 합니다. HTML의 value attribute는 기본값을 정합니다. 텍스트 입력의 defaultValue property는 이 attribute와 연결됩니다. 반면 value property는 지금 입력창에 들어 있는 문자열을 읽고 씁니다. 사용자가 “민지”를 “하루”로 바꾸면 현재값은 하루가 되어도 기본값은 민지로 남을 수 있습니다.</p>
+<p>왜 항상 서로를 똑같이 갱신하지 않을까요? 현재 입력과 기본 설정이 한 값뿐이라면 사용자의 편집을 보존하면서 초기 상태를 따로 관리하기 어렵습니다. 브라우저는 아직 기본값을 따라가는 상태와, 현재값을 직접 설정한 상태를 구분합니다. 이 구분을 위해 내부에 변경 여부를 기록하는 표시가 있으며, 표준에서는 dirty flag라고 부릅니다. 잘못되거나 오염된 값이라는 뜻이 아니라 현재값이 독립적으로 설정되었다는 표시입니다.</p>
+<p>사용자가 입력하거나 코드가 value에 대입하면 이 표시가 설정됩니다. 그 뒤 기본값을 바꾸더라도 현재의 편집 결과를 무조건 덮어쓰지 않습니다. 아직 이런 변경이 없는 입력에서는 기본값 변경이 현재값에도 반영될 수 있습니다. 그래서 “attribute를 바꾸면 언제나 현재값도 바뀐다”와 “attribute는 현재값에 절대로 영향을 주지 않는다”는 설명이 모두 정확하지 않습니다.</p>
+<p>체크박스도 같은 구분이 필요합니다. checked property는 현재 선택 여부이고, defaultChecked는 checked attribute와 연결된 기본 선택 여부입니다. 사용자가 체크를 해제해도 기본 선택 여부는 유지될 수 있습니다. 폼을 reset하면 컨트롤은 그때의 기본값으로 돌아가고 이러한 변경 표시도 초기화됩니다. 현재 상태를 확실히 지정하려면 value나 checked에 직접 대입하고, 기본 설정을 바꾸려면 defaultValue나 defaultChecked를 구분해서 사용합니다.</p><p class="muted">현재값·기본값·변경 표시의 관계는 <a href="https://html.spec.whatwg.org/multipage/input.html">HTML 표준의 input 동작</a>에 정의되어 있습니다.</p>
+</section><section class="concept" id="reading-state"><h2>작은 코드에서 현재값과 기본값을 한 줄씩 읽기</h2>
+<p>아래 코드는 HTML에 value="민지"가 있는 입력창을 대상으로 합니다. 같은 요소에서 읽는 값이 왜 다른지, 각 줄이 무엇에 접근하는지 따라가 보겠습니다.</p>
+<pre><code>const input = document.querySelector(&quot;#username&quot;);
+const before = input.getAttribute(&quot;value&quot;);
+input.value = &quot;하루&quot;;
+const current = input.value;
+const initial = input.defaultValue;
+console.log(before, current, initial);</code></pre>
+<ol class="line-explanation">
+<li><strong>1행:</strong> username 요소 객체를 찾습니다. input은 그 객체를 가리키는 이름입니다.</li>
+<li><strong>2행:</strong> DOM의 value attribute를 문자열로 읽습니다. 지금은 “민지”이며 before에는 이때 읽은 문자열이 저장됩니다.</li>
+<li><strong>3행:</strong> 컨트롤의 현재값을 “하루”로 설정합니다. 입력창의 현재 표시도 이 값을 사용하고, 기본값의 attribute를 덮어쓰지는 않습니다.</li>
+<li><strong>4행:</strong> 현재값을 다시 읽습니다. current는 “하루”가 됩니다.</li>
+<li><strong>5행:</strong> value attribute와 연결된 기본값을 읽습니다. initial은 여전히 “민지”입니다.</li>
+<li><strong>6행:</strong> “민지”, “하루”, “민지”를 차례로 출력합니다. 하나의 요소가 서로 다른 의미의 값을 관리하고 있음을 보여줍니다.</li>
+</ol>
+<p>이후 <code>input.defaultValue = "기본 이름"</code>으로 기본값을 바꾸면 value attribute도 바뀝니다. 하지만 앞에서 현재값을 직접 설정했으므로 현재의 하루는 유지됩니다. before와 initial에 앞서 저장한 문자열도 자동으로 다시 읽히지 않습니다. 요소가 관리하는 상태의 연결 규칙과 JavaScript 변수에 이미 저장한 값의 규칙을 함께 구분해야 합니다.</p>
+</section><section class="concept" id="booleans-strings"><h2>불리언 상태와 문자열 표기를 구분하기</h2>
+<p>getAttribute는 속성이 있으면 문자열을, 없으면 null을 반환합니다. 하지만 HTML의 모든 속성이 문자열 내용을 같은 방식으로 해석하는 것은 아닙니다. checked·disabled·required 같은 불리언 attribute는 속성의 존재 자체로 참을 표현합니다. disabled="false"라고 써도 disabled가 존재하므로 비활성 상태입니다. 끄려면 속성을 없애거나 disabled property에 false를 설정합니다.</p>
+<p>checked attribute도 존재 여부로 기본 선택 상태를 표현하지만, 현재 선택을 뜻하는 checked property와는 앞서 본 분리가 있습니다. <code>box.checked = false</code>는 현재 선택을 끄는 작업이지 checked attribute를 반드시 제거하는 작업이 아닙니다. 반면 disabled property는 그 attribute의 존재 여부를 반영합니다. 둘 다 불리언 property라는 이유만으로 반영 규칙까지 같다고 생각하면 안 됩니다.</p>
+<p>data-* attribute는 요소에 애플리케이션이 사용할 문자열 정보를 기록하는 방법입니다. <code>data-notifications="on"</code>은 <code>element.dataset.notifications</code>로 읽고 쓸 수 있습니다. dataset에 false를 대입해도 저장되는 것은 문자열 “false”입니다. JavaScript의 조건문에서는 빈 문자열이 아닌 “false”도 참으로 평가하므로, <code>dataset.notifications === "on"</code>처럼 약속한 값과 비교합니다.</p>
+<p>HTML 불리언 attribute와 data 속성, ARIA 속성을 같은 규칙으로 취급해서도 안 됩니다. 예를 들어 aria-expanded의 “false”는 그 속성에서 정한 의미를 갖는 문자열입니다. 무조건 속성이 있으면 참이라고 해석하지 않습니다. 문자열 표기와 프로그램의 불리언 상태 사이를 어떻게 연결할지는 각 API의 규칙을 따라야 합니다.</p>
+</section><section class="concept" id="content-identity"><h2>내용을 교체해도 모든 객체가 같은 방식으로 바뀌지는 않습니다</h2>
+<p>요소의 textContent에 문자열을 대입하면 그 요소의 자식 내용을 텍스트로 교체합니다. 부모 요소 객체 자체를 새로 만드는 것은 아닙니다. 하지만 그 안에 있던 강조 요소나 아이콘도 자식이므로 제거될 수 있습니다. 제목에 아이콘과 글자가 함께 있다면 글자를 담당하는 span을 따로 두고 그 span을 수정하는 편이 의도를 정확히 표현합니다.</p>
+<p>제거된 자식 객체를 다른 변수가 계속 가리키고 있다면 그 객체는 문서에서 떨어진 상태로 남을 수 있습니다. 같은 태그와 문구로 새 자식을 만들어도 이전 객체와 정체성이 같은 것은 아닙니다. 기존 객체에 붙인 이벤트 리스너나 별도 상태가 새 객체로 자동 이동하지 않습니다. 단순히 최종 화면이 같다는 이유로 어떤 DOM 변경 방법이든 동등하다고 볼 수 없는 이유입니다.</p>
+<p>textContent는 입력을 HTML로 해석하지 않습니다. “&lt;strong&gt;하루&lt;/strong&gt;”를 넣으면 꺾쇠를 포함한 글자를 표시합니다. 반면 innerHTML은 문자열을 HTML로 파싱하여 자식 구조를 만들거나 교체합니다. 사용자에게 받은 문장을 그대로 보여주는 목적이라면 textContent가 맞습니다. 불필요하게 HTML로 해석하면 의도하지 않은 요소나 위험한 동작을 만들 수 있습니다. 표시할 텍스트와 문서 구조를 만드는 작업을 분리해서 생각하세요.</p>
+</section><section class="concept" id="styles-rendering"><h2>객체 변경이 화면의 모양으로 이어지는 과정</h2>
+<p>JavaScript는 class나 data 속성을 바꿀 수 있지만, 그 이름만으로 브라우저가 특정 디자인을 선택하지는 않습니다. CSS 선택자가 현재 요소와 일치하고, 다른 규칙과의 우선순위 및 상속 등을 통해 적용할 스타일이 결정되어야 합니다. <code>data-notifications="on"</code>이라는 값을 썼다고 자동으로 초록색이나 파란색이 되는 것은 아닙니다.</p>
+<pre><code>preview.textContent = &quot;알림이 켜져 있어요.&quot;;
+preview.dataset.notifications = &quot;on&quot;;
+preview.classList.add(&quot;status&quot;);</code></pre>
+<p>첫 줄은 자식 내용을 바꾸고, 둘째 줄은 data attribute를 바꾸며, 셋째 줄은 class 목록에 status를 추가합니다. 이 페이지에는 status의 글자색과 굵기를 정하는 CSS가 있기 때문에 마지막 변경이 강조된 모습으로 이어집니다. data 속성을 스타일 조건으로 쓰고 싶다면 <code>#preview[data-notifications="on"]</code>과 같은 선택자에 규칙을 작성해야 합니다.</p>
+<p>classList는 특정 클래스만 추가하거나 제거하는 창구입니다. className에 새 문자열을 대입하면 기존 클래스 전체가 교체됩니다. 또 인수 하나인 toggle은 현재 상태를 뒤집지만, <code>toggle("status", enabled)</code>는 enabled가 뜻하는 목표 상태로 맞춥니다. 같은 값을 다시 화면에 반영할 때마다 모습이 뒤집히지 않게 하려면 “전환”과 “원하는 상태로 설정”을 구분해야 합니다.</p>
+<p>DOM의 값은 코드가 대입한 뒤 바로 읽을 수 있지만, 실제 픽셀을 다시 그리는 과정은 별도의 브라우저 작업입니다. 브라우저는 변경에 따라 필요한 스타일을 계산하고, 필요하면 크기와 위치를 계산한 뒤 화면을 그립니다. 여러 변경이 한 번의 화면 갱신으로 모일 수도 있습니다. 따라서 DOM을 한 줄 바꿀 때마다 반드시 전체 화면을 즉시 다시 그린다고 생각할 필요는 없습니다.</p>
+<p>또 코드로 value나 checked를 대입했다고 사용자 입력에 따른 input·change 이벤트가 자동 발생하지는 않습니다. 아래 예제는 값을 읽어 문구를 만드는 updatePreview를 필요할 때 직접 호출합니다. 다음 장에서는 사용자의 행동이 어떻게 이벤트가 되고, 그 이벤트를 받아 어떤 변경 함수를 호출할지 연결하는 과정을 읽습니다.</p>
+<p class="muted">더 읽기: <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement/checked">MDN · checked</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent">MDN · textContent</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dataset">MDN · dataset</a>.</p>
+</section>
+<section class="demo stack" aria-labelledby="demo-title"><h2 id="demo-title">개념이 동작하는 예제 · 현재 상태를 읽어 문구 만들기</h2><p>입력창과 체크박스는 현재 상태를 보관합니다. “입력값을 화면에 반영”은 그 상태를 읽어 안내 문구·data 속성·클래스를 함께 갱신합니다. 아래 기록은 그 함수가 실행된 시점의 값입니다.</p>
+<label class="stack" for="username">이름<input id="username" type="text" value="민지" autocomplete="off"></label>
+<label class="control" for="notifications"><input id="notifications" type="checkbox" checked>이메일 알림 받기</label>
+<div class="row"><button id="apply" type="button" class="primary">입력값을 화면에 반영</button><button id="change-values" type="button">코드로 지우 · 알림 꺼짐 넣기</button></div>
+<div aria-live="polite"><p id="preview"></p><p class="muted">현재값과 attribute가 연결되는 방식을 비교할 수 있습니다.</p><pre id="snapshot"></pre></div>
+<p>코드 변경 버튼은 value와 checked를 직접 대입한 뒤 안내 함수도 호출합니다. 사용자 입력 없이도 현재 상태를 바꿀 수 있으며, 기본값은 따로 유지됩니다. <a href="main.js">실행 코드 읽기</a></p></section>
+<details class="optional-practice"><summary>선택 연습 · 읽은 내용을 코드로 확인하고 싶다면</summary><p>이름을 바꾸고 체크를 해제한 뒤 반영 버튼을 눌러보세요. 현재값은 바뀌지만 기본값을 나타내는 attribute는 남아 있는 이유를 본문에서 찾을 수 있습니다. 더 확인하고 싶다면 코드 변경 버튼에 username.defaultValue 대입을 추가한 뒤 코드를 실행해 현재값과 비교해보세요.</p></details>
+<nav aria-label="장 이동"><a href="../02-dom/">← 이전 · 문서와 객체</a><a href="../04-events/">다음 · 사용자 행동이 코드에 전달되는 과정 →</a></nav>
+</main></body></html>
