@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>2장 · HTML에서 DOM 객체까지</title><link rel="stylesheet" href="../../styles.css"><script defer src="main.js"></script></head><body><a class="skip-link" href="#main-content">본문으로 건너뛰기</a><main id="main-content" tabindex="-1">
+<header><a href="../../">차례</a><p class="eyebrow">2장 · HTML에서 DOM 객체까지</p><h1>문서는 어떻게 객체가 될까요?</h1><p class="intro">HTML 문자열이 DOM 트리가 되는 과정부터 읽습니다. 요소를 찾는 코드는 문서 안의 실제 객체에 접근하는 방법입니다.</p></header>
+<aside class="learning-goals" aria-label="이 장의 학습 목표"><strong>이 장을 읽고 설명할 수 있는 것</strong><ul><li>HTML 문자열과 DOM 객체, 실제 화면의 차이</li><li>요소 하나와 요소 목록, 텍스트 노드의 차이</li><li>참조와 문자열 복사본, 정적 목록과 실시간 목록의 차이</li></ul></aside>
+<nav class="chapter-toc" aria-label="이 장의 읽기 순서"><a href="#dom-definition">DOM의 정의</a><a href="#why-a-tree">트리가 필요한 이유</a><a href="#parsing-tree">HTML에서 DOM으로</a><a href="#object-operations">한 줄씩 읽기</a><a href="#references-search">참조와 검색 범위</a><a href="#collections">목록의 의미</a></nav>
+<nav class="sample-links" aria-label="작은 예제로 바로 이동"><a href="#sample-dom-query">2-1 검색 결과</a><a href="#sample-dom-nodes">2-2 노드와 요소</a><a href="#sample-dom-reference">2-3 참조와 문자열</a><a href="#sample-dom-collections">2-4 목록의 시점</a></nav>
+<section class="concept" id="dom-definition"><h2>DOM은 문서를 다루기 위한 객체 모델입니다</h2>
+<p>HTML 파일은 처음에는 글자들의 나열입니다. <code>&lt;h1&gt;제목&lt;/h1&gt;</code>이라는 문자열에 제목의 시작과 끝을 표시할 수 있지만, 문자열 자체가 클릭되거나 부모 요소를 알고 있는 것은 아닙니다. 브라우저는 HTML을 읽어 요소와 텍스트를 객체로 만들고, 이 객체들을 문서 구조에 맞게 연결합니다. 이 구조와 그것을 다루는 인터페이스가 DOM, 즉 Document Object Model입니다.</p>
+<p>DOM을 “JavaScript로 작성한 HTML”이라고 생각하면 역할이 섞입니다. HTML은 문서를 기술하는 형식이고, DOM은 실행 중인 문서를 객체로 표현하는 모델입니다. JavaScript는 DOM 객체에 접근할 때 사용하는 언어입니다. <code>const</code>나 함수는 JavaScript 문법이지만, <code>document.querySelector()</code>는 브라우저가 제공하는 DOM API를 호출하는 코드입니다.</p>
+<p>DOM은 화면에 보이는 그림 자체도 아닙니다. 브라우저는 DOM, CSS 등 여러 정보를 바탕으로 요소의 크기와 위치를 계산하고 화면을 그립니다. CSS로 보이지 않게 한 요소도 DOM 안에 남아 있을 수 있습니다. 아직 문서에 붙이지 않은 요소 객체 역시 존재할 수 있습니다. 객체의 존재, 문서와의 연결, 화면 표시를 구분하면 이후 생성과 삭제를 더 정확히 이해할 수 있습니다.</p>
+</section><section class="concept" id="why-a-tree"><h2>왜 문서를 객체의 트리로 만들까요?</h2>
+<p>문서의 어느 부분을 바꾸려 할 때 HTML 문자열 전체에서 글자를 찾아 교체하면 구조를 안정적으로 다루기 어렵습니다. 같은 글자가 여러 곳에 있을 수 있고, 태그가 중첩되며, 사용자의 입력이나 프로그램에 의해 현재 상태가 달라질 수도 있습니다. 이름표가 있는 실제 요소 객체를 찾아 조작할 수 있다면 이런 문제를 문서 전체의 문자열 편집으로 풀 필요가 없습니다.</p>
+<p>HTML은 요소 안에 다른 요소를 넣는 중첩 구조입니다. 브라우저는 이것을 부모와 자식 관계로 나타냅니다. 하나의 노드에서 아래로 연결된 자식들을 따라갈 수 있는 구조를 트리라고 부릅니다. 한 요소의 자식은 바로 아래에 붙은 노드이고, 후손은 그 자식의 자식까지 포함한 모든 아래쪽 노드입니다. 같은 부모를 가진 노드들은 형제 관계입니다.</p>
+<p>트리라는 모델이 있으면 “이 영역 안의 버튼”, “현재 항목의 부모 목록”, “이 제목의 다음 형제”처럼 관계로 대상을 설명할 수 있습니다. 문서 순서, 요소 검색, 이벤트가 전달되는 경로도 이 구조를 토대로 합니다. DOM을 배운다는 것은 명령 이름을 외우기 전에, 어떤 객체가 어디에 연결되어 있고 어느 대상을 변경할지 파악하는 법을 배우는 것입니다.</p>
+</section><section class="concept" id="parsing-tree"><h2>HTML이 객체와 관계로 바뀌는 과정</h2>
+<p>브라우저의 HTML 파서는 입력 문자열에서 시작 태그, 끝 태그, 텍스트 등의 의미를 읽고 문서 트리를 구성합니다. section 안에 h2와 ul이 있으면 section 객체의 자식 관계로 두 요소가 연결됩니다. ul 안의 li들은 ul의 자식입니다. 태그 사이에 적힌 글자는 별도의 텍스트 노드가 됩니다. 따라서 요소만 그린 구조도와 실제 모든 노드를 포함한 DOM은 세부 모습이 다를 수 있습니다.</p>
+<pre><code>&lt;section id=&quot;profile&quot;&gt;
+  &lt;h2&gt;학습할 주제&lt;/h2&gt;
+  &lt;ul&gt;&lt;li&gt;DOM&lt;/li&gt;&lt;li&gt;이벤트&lt;/li&gt;&lt;/ul&gt;
+&lt;/section&gt;</code></pre>
+<p>이 조각에서 section의 직접 자식 요소는 h2와 ul입니다. li는 section의 후손이지만 직접 자식 요소는 아닙니다. “학습할 주제”라는 글자는 h2의 자식 텍스트 노드입니다. 들여쓰기와 줄바꿈도 텍스트 노드가 될 수 있으므로, 요소 사이에 공백 노드가 생길 수 있습니다. 공백을 화면에서 뚜렷하게 보지 못하더라도 문서 객체에는 남을 수 있습니다.</p>
+<p>DOM을 구성하는 공통 단위를 Node라고 합니다. 문서 Document, 요소 Element, 글자를 담는 Text 등은 서로 다른 종류의 Node입니다. Element는 HTML에만 한정되지 않는 요소의 공통 기반입니다. HTML 요소는 HTMLElement 계열, SVG 요소는 SVGElement 계열이며 모두 Element에 해당합니다. 그러므로 Node와 Element는 같은 말이 아니고, Element와 HTMLElement도 범위가 다릅니다.</p>
+<p>객체가 제공하는 기능은 종류에 따라 다릅니다. 요소에는 classList처럼 요소를 위한 기능이 있지만 텍스트 노드에는 없습니다. <code>children</code>은 자식 요소만 읽고, <code>childNodes</code>는 텍스트와 주석 등을 포함한 자식 노드를 읽습니다. <code>parentElement</code>는 부모가 요소일 때 반환합니다. html 요소의 부모는 문서이므로 parentNode는 document여도 parentElement는 null입니다.</p>
+<p>브라우저가 파싱하며 생략된 구조를 보완하거나 잘못 중첩된 HTML을 정리할 수도 있습니다. 그래서 실행 중인 구조를 확인할 때는 파일의 글자뿐 아니라 개발자 도구의 Elements도 살펴봅니다. 이 장의 외부 스크립트는 defer로 연결되어 있으므로 초기 HTML 파싱이 끝난 뒤 요소를 찾습니다. 검색 코드는 대상이 실제로 생성된 시점 이후에 실행되어야 합니다.</p>
+</section><section class="concept" id="object-operations"><h2>객체를 찾고 읽는 코드를 한 줄씩 읽기</h2>
+<p>DOM API의 property는 객체에서 값을 읽거나 쓰는 창구이고, method는 객체가 제공하는 작업을 호출하는 함수입니다. <code>title.textContent</code>는 property 읽기이고 <code>area.querySelector("h2")</code>는 method 호출입니다. 점 뒤에 어떤 이름을 쓰느냐보다, 지금 대상이 어떤 객체이며 읽는지 호출하는지를 구분하는 것이 먼저입니다.</p>
+<pre><code>const area = document.querySelector(&quot;#profile&quot;);
+const title = area.querySelector(&quot;h2&quot;);
+const savedText = title.textContent;
+title.textContent = &quot;새로운 주제&quot;;</code></pre>
+<ol class="line-explanation">
+<li><strong>1행:</strong> 문서에서 id가 profile인 첫 요소를 찾습니다. 반환된 section 객체를 area라는 이름으로 가리킵니다. HTML 문자열을 복사한 것이 아닙니다.</li>
+<li><strong>2행:</strong> area의 후손 중 첫 h2 요소를 찾습니다. title은 찾은 h2 객체를 가리키며, area와는 다른 객체입니다.</li>
+<li><strong>3행:</strong> h2의 텍스트 내용을 문자열로 읽어 savedText에 저장합니다. 이 변수에는 요소 자체가 아니라 그 시점에 읽은 글자가 들어갑니다.</li>
+<li><strong>4행:</strong> 같은 h2 객체의 내용을 새로운 문자열로 교체합니다. 문서 속 제목은 바뀌지만 savedText에 이미 저장된 문자열까지 다시 읽히지는 않습니다.</li>
+</ol>
+<p>여기서 첫 검색에 실패하면 area는 null입니다. null은 빈 요소 객체가 아니라 대상이 없다는 값이므로 다음 줄에서 메서드를 호출할 수 없습니다. 이 짧은 예제는 해당 HTML이 존재함을 전제로 합니다. 실제 프로그램에서는 필수 구조를 보장하거나, 결과를 검사하고 없는 경우의 흐름을 정해야 합니다. 검색 실패와 객체 수정 실패는 서로 다른 단계의 문제입니다.</p>
+</section><section class="concept" id="references-search"><h2>HTML 문자열, 요소 참조, 검색 범위를 구분하기</h2>
+<p>같은 요소를 두 번 검색하면 두 변수로 같은 DOM 객체를 가리킬 수 있습니다. 한 변수로 속성을 수정하면 다른 변수에서 읽어도 바뀐 값을 봅니다. 반면 <code>area.outerHTML</code>처럼 요소를 HTML 문자열로 표현해 읽으면 문자열 결과를 얻습니다. 그 문자열을 변수에 저장했다고 요소와 계속 연결되는 것은 아닙니다. 이후 DOM을 변경해도 앞서 저장한 문자열은 그때 읽은 결과로 남습니다.</p>
+<p>실행 중인 DOM을 바꾸는 작업은 원본 HTML 파일을 편집하는 작업과도 다릅니다. JavaScript가 제목을 변경해도 디스크의 파일에 그 문장이 저장되지는 않습니다. 페이지를 다시 실행하면 소스에서 새 문서가 만들어지고 코드가 다시 실행됩니다. 파일, 현재 DOM 객체, DOM에서 읽어 얻은 문자열은 각각 다른 시점과 역할을 갖습니다.</p>
+<p>선택자는 찾을 요소의 조건을 적는 문자열입니다. <code>#profile</code>은 id, <code>.topic</code>은 class, <code>li</code>는 요소 이름을 조건으로 사용합니다. 검색은 이 문자열을 해석해 실제 객체를 돌려줍니다. 선택자 문자열 자체를 바꾼다고 문서의 id나 class가 바뀌지는 않습니다. 문서 전체에서 검색할 수도 있고, 이미 찾은 영역 안으로 반환 대상을 좁힐 수도 있습니다.</p>
+<p><code>area.querySelector("li")</code>는 area 내부의 첫 li 후손을 찾습니다. 중첩된 목록이 있으면 바로 아래뿐 아니라 더 깊은 요소도 포함될 수 있습니다. <code>:scope &gt; ul</code>처럼 쓰면 검색 기준인 area의 직접 자식 ul을 고릅니다. 요소에서 검색할 때 그 요소 자신은 반환 대상에 포함하지 않습니다. 자신의 조건 일치 여부를 알고 싶을 때는 matches를 사용합니다.</p>
+<p>선택자가 문법상 유효하지만 일치하는 요소가 없으면 querySelector는 null을 반환합니다. 잘못된 CSS 선택자 문법은 예외를 일으킵니다. 코드가 예상과 다를 때는 대상이 없는지, 검색 범위를 잘못 정했는지, 문법이 틀렸는지를 나누어 보면 됩니다. 나중에 생성될 요소를 너무 일찍 찾은 경우도 “없음”으로 나타납니다.</p>
+</section><section class="concept" id="collections"><h2>정적인 목록은 요소를 얼려 놓은 복사본이 아닙니다</h2>
+<p><code>querySelectorAll()</code>은 일치하는 여러 요소를 담은 NodeList를 반환합니다. 하나만 일치해도 목록이고, 하나도 없으면 길이가 0인 목록입니다. 요소 하나의 참조와 요소 목록은 다르므로, 목록의 항목을 꺼내거나 반복하면서 실제 요소를 다뤄야 합니다. 빈 목록도 객체이므로 단순히 값이 존재하는지만 검사해서는 검색 성공을 판단할 수 없습니다.</p>
+<p>querySelectorAll의 목록은 검색 시점의 구성원을 유지하는 정적 목록입니다. li가 두 개일 때 목록을 받아둔 뒤 세 번째 li를 추가해도 기존 목록의 길이는 2입니다. 새 검색을 해야 세 개를 얻습니다. 하지만 기존 목록 안의 li 객체는 실제 문서 요소의 참조입니다. 그 요소의 글자를 바꾸면 화면도 바뀝니다. “어떤 객체가 목록에 들어 있는가”가 고정되며, 객체의 내용까지 복사하거나 고정한 것은 아닙니다.</p>
+<p>반면 <code>list.children</code>은 현재 자식 요소를 반영하는 실시간 컬렉션입니다. 같은 변수를 통해 읽어도 자식이 추가되면 길이가 바뀝니다. 모든 NodeList가 정적인 것도 아닙니다. childNodes는 실시간 NodeList입니다. 이름에 List가 있다는 이유로 갱신 방식을 추측하지 말고 어떤 API가 만든 목록인지 확인해야 합니다. 고정된 작업 대상이 필요한지, 늘 현재 구조가 필요한지에 따라 적합한 읽기 방법이 달라집니다.</p>
+<p>이제 DOM 검색은 문자열로 화면 일부를 긁어오는 작업이 아니라, 문서 트리 안에 있는 객체와 관계에 접근하는 작업으로 볼 수 있습니다. 다음 장에서는 얻은 객체의 어떤 부분을 바꾸면 현재 입력값, 내용, CSS와 연결되는 상태가 달라지는지 살펴봅니다.</p>
+<p class="muted">더 읽기: <a href="https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model">MDN · DOM</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelectorAll">MDN · querySelectorAll</a>.</p>
+</section>
+<h2 id="demo-observe">작은 예제 · 한 번에 하나의 차이 관찰하기</h2>
+<p>각 예제는 서로 다른 요소를 사용합니다. 다른 예제를 먼저 실행하지 않아도 됩니다. 버튼을 누르기 전 결과를 예상하고, 아래 설명과 비교해보세요.</p>
+<section class="demo sample" id="sample-dom-query" aria-labelledby="query-title">
+<p class="sample-meta">예제 2-1 · 검색의 결과 · querySelector / querySelectorAll</p><h3 id="query-title">하나, 목록, 없음은 어떻게 다를까요?</h3>
+<p class="prediction">예상하기: 두 항목이 있는 영역에서 하나 찾기, 여러 개 찾기, 없는 요소 찾기는 각각 무엇을 돌려줄까요?</p>
+<section id="profile" aria-labelledby="profile-title"><h4 id="profile-title">학습할 주제</h4><ul><li class="topic">DOM 구조 읽기</li><li class="topic">이벤트 연결하기</li></ul></section>
+<div class="row"><button id="find-one" type="button">id로 하나 찾기</button><button id="find-many" type="button">class로 여러 개 찾기</button><button id="find-missing" type="button">없는 요소 찾기</button></div>
+<pre id="query-result" role="status">아직 검색하지 않았습니다.</pre>
+<pre><code>const area = document.querySelector("#profile");
+const topics = area.querySelectorAll(".topic");
+const missing = area.querySelector(".missing");</code></pre>
+<p class="expected"><strong>관찰할 결과:</strong> 하나 찾기는 section 요소, 여러 개 찾기는 길이 2인 목록, 없는 요소 찾기는 null입니다. 검색은 기존 객체를 찾는 작업이며 새 요소를 만들지 않습니다. 찾은 대상에는 테두리와 함께 태그·부모·자식 수가 표시됩니다.</p>
+</section>
+<section class="demo sample" id="sample-dom-nodes" aria-labelledby="nodes-title">
+<p class="sample-meta">예제 2-2 · 노드와 요소 · children / childNodes</p><h3 id="nodes-title">보이지 않는 공백도 자식일까요?</h3>
+<p class="prediction">예상하기: 아래 문장에는 strong 요소가 하나 있습니다. 자식 노드도 하나일까요?</p>
+<p id="node-sentence">안녕 <strong>DOM</strong>!</p>
+<button id="inspect-nodes" type="button">자식 요소와 노드 비교</button>
+<pre id="nodes-result" role="status">버튼을 눌러 두 목록을 읽어보세요.</pre>
+<pre><code>sentence.children.length;   // 요소만
+sentence.childNodes.length; // 텍스트도 포함</code></pre>
+<p class="expected"><strong>관찰할 결과:</strong> children은 strong 하나, childNodes는 “안녕 ” 텍스트·strong·“!” 텍스트, 총 3개입니다. 화면의 글자도 트리 안에서는 별도 노드입니다. 이 문장은 태그 사이의 줄바꿈이 없도록 작성했습니다.</p>
+</section>
+<section class="demo sample" id="sample-dom-reference" aria-labelledby="reference-title">
+<p class="sample-meta">예제 2-3 · 참조와 값 · 같은 객체 / 읽어 둔 문자열</p><h3 id="reference-title">요소가 바뀌면 저장한 글자도 바뀔까요?</h3>
+<p class="prediction">예상하기: 같은 문단을 두 번 찾아도 같은 객체입니다. 그 문단에서 미리 읽어 둔 문자열은 어떨까요?</p>
+<p id="reference-text">처음 문구</p>
+<div class="row"><button id="change-reference" type="button">참조로 문구 바꾸기</button><button id="reset-reference" type="button">문구 되돌리기</button></div>
+<pre id="reference-result" role="status"></pre>
+<pre><code>const first = document.querySelector("#reference-text");
+const second = document.querySelector("#reference-text");
+const savedText = first.textContent;
+first.textContent = "바뀐 문구";</code></pre>
+<p class="expected"><strong>관찰할 결과:</strong> first === second는 true이고, second.textContent도 “바뀐 문구”입니다. savedText는 여전히 “처음 문구”입니다. 요소 참조는 같은 객체를 가리키지만, 이미 읽은 문자열은 다시 계산되지 않습니다.</p>
+</section>
+<section class="demo sample" id="sample-dom-collections" aria-labelledby="collections-title">
+<p class="sample-meta">예제 2-4 · 목록의 기준 시점 · 정적 목록 / 실시간 목록</p><h3 id="collections-title">항목을 추가하면 어떤 개수가 바뀔까요?</h3>
+<p class="prediction">예상하기: 항목 두 개일 때 NodeList와 children을 저장했습니다. 항목을 하나 추가하면 두 목록이 모두 3개가 될까요?</p>
+<ul id="collection-list"><li>첫 항목</li><li>둘째 항목</li></ul>
+<div class="row"><button id="append-collection" type="button">항목 하나 추가</button><button id="rename-collection" type="button">저장된 첫 요소의 글자 바꾸기</button><button id="reset-collection" type="button">두 항목으로 다시 시작</button></div>
+<pre id="collections-result" role="status"></pre>
+<pre><code>const saved = list.querySelectorAll("li");
+const live = list.children;
+list.append(document.createElement("li"));
+// saved.length는 2, live.length는 3</code></pre>
+<p class="expected"><strong>관찰할 결과:</strong> 추가 후 저장한 NodeList의 길이는 2로 유지되고, children과 다시 검색한 목록은 3이 됩니다. 저장된 첫 요소의 글자는 바꿀 수 있습니다. 정적인 것은 목록의 구성원이며 요소의 내용이 아닙니다. 다시 시작하면 두 목록도 처음부터 저장합니다.</p>
+</section>
+<p><a href="main.js">이 장의 실행 코드 읽기</a></p>
+<details class="optional-practice"><summary>선택 연습 · 읽은 내용을 코드로 확인하고 싶다면</summary><p>HTML에서 profile의 ul에 li.topic 하나를 더 넣고 코드를 실행해보세요. “여러 개 찾기”가 반환하는 개수와 profile 자체의 자식 요소 수를 비교하면, 직접 자식과 더 깊은 후손의 차이를 확인할 수 있습니다. 연습 없이 본문 설명만으로도 다음 장을 읽을 수 있습니다.</p></details>
+<nav aria-label="장 이동"><a href="../01-javascript/">← 이전 · 언어와 실행</a><a href="../03-dom-update/">다음 · 객체를 바꾸면 화면이 달라지는 이유 →</a></nav>
+</main></body></html>

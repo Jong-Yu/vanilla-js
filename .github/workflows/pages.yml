@@ -4,7 +4,11 @@ on:
   push:
     branches: [main]
     paths:
+      - "src/**"
+      - "scripts/**"
       - "docs/**"
+      - "tests/**"
+      - "package.json"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -18,9 +22,6 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: docs
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
@@ -36,7 +37,7 @@ jobs:
       - name: Upload site
         uses: actions/upload-pages-artifact@v4
         with:
-          path: docs/_site
+          path: dist/site
 
   deploy:
     needs: build

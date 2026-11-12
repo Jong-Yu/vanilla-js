@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>4장 · 이벤트가 행동을 전달하는 원리</title>
+  <link rel="stylesheet" href="../../styles.css">
+  <script src="main.js" defer></script>
+  <style>
+    .events-lab #event-zone { padding: 22px; border: 2px dashed var(--line); border-radius: 10px; }
+    .events-lab #event-label { display: inline-block; margin-left: 8px; padding: 6px 10px; background: var(--soft); border-radius: 4px; }
+    .events-lab input[type="text"] { max-width: 100%; font: inherit; padding: 8px 10px; border: 1px solid var(--control-line); border-radius: 6px; background: var(--surface); color: var(--ink); }
+  </style>
+</head>
+<body><a class="skip-link" href="#main-content">본문으로 건너뛰기</a><main id="main-content" tabindex="-1" class="events-lab">
+<header><a href="../../">차례</a><p class="eyebrow">4장 · 이벤트가 행동을 전달하는 원리</p><h1>이벤트는 어떻게<br>코드에 도착할까요?</h1><p class="intro">이벤트는 발생한 일을 코드에 알려주는 방식입니다. 이벤트를 받는 함수를 등록하는 일부터, 그 함수가 호출되는 시점과 문서 안의 전달 경로까지 차례로 이해합니다.</p></header>
+<section class="learning-goals" aria-labelledby="learning-goals-title"><h2 id="learning-goals-title">이벤트를 읽는 네 가지 기준</h2><ul><li>등록할 때와 실제 핸들러가 호출될 때를 구분합니다.</li><li>이벤트의 대상과 현재 리스너의 위치를 구분합니다.</li><li>이벤트 전파, 기본 동작, 프로그램의 값 대입을 따로 설명합니다.</li></ul></section>
+<nav class="chapter-toc" aria-label="이 장의 읽기 순서"><ol><li><a href="#definition">정의</a></li><li><a href="#purpose">왜 필요한가</a></li><li><a href="#mechanism">작동 원리</a></li><li><a href="#reading-code">작은 코드 읽기</a></li><li><a href="#comparison">개념 구분</a></li><li><a href="#live-example">실행 예제</a></li></ol></nav>
+
+<section class="concept" id="definition">
+<h2>이벤트는 발생한 사실을 전달하는 객체입니다</h2>
+<p>사용자가 버튼을 누르거나 입력창의 내용을 바꾸면 브라우저는 그 일을 자바스크립트 코드에 알려줄 수 있습니다. 이렇게 “무언가 발생했다”는 사실을 전달하는 체계가 <strong>이벤트</strong>입니다. 이벤트 자체가 화면을 바꾸는 함수는 아닙니다. 무엇이 일어났는지를 전달하면, 그 사실을 받은 코드가 필요한 일을 결정합니다.</p>
+<p>코드가 받는 것은 <strong>이벤트 객체</strong>입니다. 객체에는 발생한 일의 종류를 나타내는 type, 대상인 target 등의 정보가 들어 있습니다. 키보드 이벤트라면 어떤 키인지, 포인터 이벤트라면 좌표가 무엇인지처럼 종류에 맞는 정보도 포함됩니다. 따라서 “클릭했다”는 사실과 “클릭했으니 문구를 바꾼다”는 처리는 서로 분리됩니다.</p>
+<p>특정 대상에 특정 종류의 이벤트를 받겠다고 연결하는 것을 <strong>리스너 등록</strong>이라고 합니다. 등록된 뒤 실제 처리를 담당하는 함수는 <strong>이벤트 핸들러</strong>라고 부릅니다. 실무에서는 리스너라는 말로 이 함수까지 가리키기도 합니다. 중요한 것은 등록 정보와 실행할 함수가 연결된다는 점입니다.</p>
+<p>이 함수는 우리가 그 자리에서 호출하지 않고 다른 코드에 전달해 둡니다. 전달받은 쪽이 정해진 조건에 호출하는 함수를 <strong>콜백</strong>이라고 합니다. 이벤트 핸들러는 콜백의 한 사례입니다. “콜백”은 함수의 문법이나 비동기 실행을 뜻하지 않고, 누가 그 함수를 호출하는지에 관한 말입니다.</p>
+</section>
+<section class="concept" id="purpose">
+<h2>발생 사실과 처리 방법을 분리하는 이유</h2>
+<p>코드를 위에서 아래로 한 번 실행하는 것만으로는 사용자가 나중에 무엇을 누를지 알 수 없습니다. 입력창 값을 계속 반복해서 확인하는 것도 불필요한 일을 늘립니다. 대신 브라우저에 관심 있는 일을 등록해 두면, 그 일이 발생한 순간 필요한 함수를 실행할 수 있습니다. 문서를 준비하는 코드와 사용자 행동에 반응하는 코드가 이 지점에서 연결됩니다.</p>
+<p>같은 동작은 여러 입력 방식에서 시작될 수도 있습니다. 폼 제출은 제출 버튼으로 시작할 수도 있고 입력창의 Enter 키에서 시작할 수도 있습니다. “어떤 마우스 버튼을 눌렀는가” 대신 “폼을 제출하려 한다”는 이벤트를 처리하면, 입력 수단마다 같은 로직을 중복해서 작성할 필요가 줄어듭니다. 이벤트를 고르는 일은 우리가 어떤 의미의 행동을 처리하려는지 정하는 일이기도 합니다.</p>
+</section>
+<section class="concept" id="mechanism">
+<h2>등록, 호출, 전달 경로는 서로 다른 단계입니다</h2>
+<h3>등록할 때는 함수를 전달합니다</h3>
+<p><code>button.addEventListener("click", handleClick)</code>은 버튼의 click 이벤트와 handleClick 함수를 연결합니다. 함수 이름 뒤에 괄호가 없으므로 여기서 함수 본문을 실행하지 않습니다. <code>handleClick()</code>이라고 쓰면 지금 함수를 호출하고, 그 반환값을 addEventListener에 넘기게 됩니다. 함수 객체를 전달하는 표현과 함수 호출 표현의 차이가 실행 시점을 결정합니다.</p>
+<p>나중에 이벤트가 전달되면 브라우저가 핸들러를 호출하면서 이벤트 객체를 인수로 줍니다. 핸들러의 매개변수 이름을 event라고 정했다면 그 안에서 event.target을 읽을 수 있습니다. event라는 전역 변수가 자동으로 만들어진다고 이해해서는 안 됩니다. 매개변수를 통해 받은 값을 읽는 것입니다.</p>
+<h3>브라우저의 사용자 입력과 코드의 직접 전달</h3>
+<p>사용자의 클릭을 처리하는 일은 일반적으로 현재 실행 중인 자바스크립트 작업이 끝난 뒤 브라우저가 다음 작업으로 진행합니다. 하지만 이벤트 핸들러가 언제나 나중에 호출되는 것은 아닙니다. 코드에서 <code>dispatchEvent</code>를 호출하면 그 호출 안에서 관련 핸들러가 실행되고, 처리가 끝나야 다음 줄로 넘어갑니다. 이런 실행을 <strong>동기 실행</strong>이라고 합니다.</p>
+<p>예를 들어 “준비됨”이라는 자체 이벤트를 만들고 전달할 수도 있습니다. 직접 전달한 이벤트는 사용자가 실제로 조작했다는 사실과 같지 않으며, 일반적으로 사용자 입력의 모든 기본 동작을 재현하지도 않습니다. 이벤트를 전달하는 기능과 입력 장치를 흉내 내는 기능을 같은 것으로 생각하지 않는 것이 좋습니다.</p>
+<h3>문서 안에서 내려갔다 올라오는 경로</h3>
+<p>버튼 안의 span에서 클릭이 시작되면 이벤트는 해당 요소만의 일이 아닙니다. 대상의 조상에서 대상 쪽으로 내려가는 <strong>캡처 단계</strong>, 대상 자체에서 처리하는 단계, 조상 쪽으로 올라가는 <strong>버블 단계</strong>로 전달될 수 있습니다. 부모에 기본 방식으로 등록한 click 리스너는 버블 단계에서 호출됩니다. 캡처 시점에 받으려면 등록할 때 capture 옵션을 true로 지정합니다.</p>
+<p>이 예에서 <code>target</code>은 이벤트의 출발 대상인 span이고, <code>currentTarget</code>은 지금 실행하는 핸들러가 등록된 요소입니다. 같은 이벤트라도 버튼 핸들러에서는 currentTarget이 버튼, 부모 핸들러에서는 부모입니다. 모든 이벤트가 버블링하는 것은 아니므로 이 경로는 이벤트 종류의 특성과 함께 이해해야 합니다.</p>
+</section>
+<section class="concept" id="reading-code">
+<h2>작은 코드에서 호출 시점 읽기</h2>
+<p>아래는 이미 찾은 button 요소에 notice라는 자체 이벤트를 연결하는 짧은 코드입니다. notice는 예제를 위해 정한 이름이며 버튼의 기본 동작과는 관계가 없습니다.</p>
+<pre><code>function handleNotice(event) {
+  console.log("B", event.type);
+}
+button.addEventListener("notice", handleNotice);
+console.log("A");
+button.dispatchEvent(new Event("notice"));
+console.log("C");</code></pre>
+<ol class="line-explanation">
+<li><code>function handleNotice(event)</code>는 함수를 정의합니다. 아직 로그를 출력하지 않으며, 나중에 받은 객체를 event라는 이름으로 읽도록 준비합니다.</li>
+<li>함수 안의 console.log는 호출될 때만 실행됩니다. 여기서는 B와 이벤트 종류를 출력하는 처리입니다.</li>
+<li>addEventListener는 함수 자체를 등록합니다. 함수 정의와 등록만 끝난 시점에도 B는 출력되지 않습니다.</li>
+<li>첫 console.log가 A를 출력합니다. 그다음 new Event는 notice라는 종류의 객체를 만들고 dispatchEvent가 버튼에 전달합니다.</li>
+<li>전달 도중 핸들러가 호출되어 B와 notice가 출력됩니다. dispatchEvent가 반환한 뒤 마지막 줄이 C를 출력하므로 순서는 A → B → C입니다.</li>
+</ol>
+<p>연결이 필요 없어지면 같은 요소에서 같은 종류와 함수로 <code>removeEventListener("notice", handleNotice)</code>를 호출합니다. 본문이 같은 새 함수를 만들면 다른 함수 객체이므로 기존 연결을 지우지 못합니다. 캡처로 등록했다면 해제할 때도 같은 capture 값을 사용해야 합니다.</p>
+</section>
+<section class="concept" id="comparison">
+<h2>이벤트 전달과 기본 동작을 구분하기</h2>
+<p>브라우저는 요소에 따라 기본 동작을 제공합니다. 링크의 이동, 폼 제출, 체크박스의 선택 변경 등이 그 예입니다. 이벤트를 받아 실행하는 우리 코드와 이러한 기본 동작은 별개의 부분입니다. 취소 가능한 기본 동작을 막는 <code>preventDefault</code>는 이벤트가 부모에 전달되는 것을 막지 않습니다.</p>
+<p>반대로 <code>stopPropagation</code>은 다음 요소로 이벤트가 전파되는 것을 멈춥니다. 폼의 submit 전파를 멈추어도 그 자체로 기본 제출을 취소하지는 않습니다. 이미 실행된 조상의 캡처 핸들러를 되돌리지도 않습니다. “부모가 알지 못하게 한다”와 “브라우저가 원래 하려던 일을 하지 않게 한다”를 구분하면 두 메서드의 역할이 분명해집니다.</p>
+<p>input, change, submit도 서로 다른 사실을 전달합니다. 텍스트 입력의 input은 사용자 편집으로 값이 바뀌는 동안 발생합니다. change는 값의 변경이 확정될 때 발생하며, 텍스트 입력에서는 값을 바꾼 뒤 포커스를 옮길 때 관찰할 수 있습니다. 체크박스의 change는 선택을 바꾸는 순간 발생합니다. submit은 개별 입력의 변화가 아니라 폼 제출의 시도를 뜻합니다.</p>
+<p>프로그램에서 value나 checked만 대입하면 input이나 change가 자동으로 발생하지 않습니다. 값이 바뀌었다는 사실과 특정 이벤트가 발생했다는 사실은 같은 조건이 아니기 때문입니다. 화면을 갱신할 목적이라면 필요한 함수를 직접 호출할 수 있으며, 이벤트를 일부러 만들어 보내야 하는 것은 아닙니다.</p>
+</section>
+<section id="live-example"><h2>이벤트의 네 가지 질문을 따로 실험하기</h2>
+<p>언제 호출되는가, 어디로 전달되는가, 기본 동작을 취소하는가, 어떤 변화가 이벤트를 만드는가를 나눠서 봅니다. 한 예제의 조작은 다른 예제의 기록을 바꾸지 않습니다.</p>
+<div class="sample-links"><a href="#sample-dispatch">1. 호출 순서</a> · <a href="#sample-propagation">2. 전달 경로</a> · <a href="#sample-submit">3. 기본 동작</a> · <a href="#sample-input-change">4. 입력과 확정</a></div>
+<section class="demo sample" id="sample-dispatch" aria-labelledby="dispatch-title">
+<p class="sample-meta">예제 4-1 · 등록과 실행 시점</p><h3 id="dispatch-title">dispatchEvent 뒤의 코드는 언제 실행될까요?</h3>
+<p class="prediction"><strong>예상하기:</strong> A, B, C 중 무엇이 먼저 기록될까요? “이벤트는 항상 나중에 실행된다”는 설명으로 맞힐 수 있을까요?</p>
+<pre><code>button.addEventListener("notice", () => log("B"));
+log("A");
+button.dispatchEvent(new Event("notice"));
+log("C");</code></pre>
+<button id="dispatch-notice" type="button">notice 이벤트 전달</button><pre id="dispatch-result" role="status">아직 전달하지 않았습니다.</pre>
+<p class="expected"><strong>확인할 결과:</strong> A → B → C입니다. 등록만으로 B가 실행되지는 않지만 dispatchEvent가 호출되면 핸들러 실행을 마친 뒤 다음 줄로 갑니다. 버튼을 누를 때마다 로그를 새로 만듭니다.</p>
+</section>
+<section class="demo sample" id="sample-propagation" aria-labelledby="bubble-title">
+<p class="sample-meta">예제 4-2 · 전달 경로와 대상</p><h3 id="bubble-title">하나의 클릭을 세 위치에서 읽기</h3>
+<p class="prediction"><strong>예상하기:</strong> 안쪽 글자를 누르면 target도 리스너 위치마다 바뀔까요? 전파를 멈추면 부모의 캡처 기록도 사라질까요?</p>
+<pre><code>parent.addEventListener("click", log, { capture: true });
+button.addEventListener("click", log);
+parent.addEventListener("click", log);</code></pre>
+<label class="control" for="stop-bubbling"><input id="stop-bubbling" type="checkbox">버튼에서 stopPropagation() 실행하기</label>
+<div id="event-zone"><button id="nested-button" type="button">버튼 영역<span id="event-label">안쪽 글자(span)</span></button></div>
+<p>마우스로 안쪽 글자를 눌러본 다음, Tab으로 버튼에 이동해 Enter나 Space로도 실행해보세요.</p>
+<button id="clear-log" type="button">전파 실험 초기화</button>
+<pre id="event-log" aria-label="클릭 이벤트 로그">아직 클릭하지 않았습니다.</pre>
+<p class="expected"><strong>확인할 결과:</strong> 부모 캡처 → 버튼 → 부모 버블 순서입니다. 글자를 직접 누르면 target은 계속 span이고 currentTarget은 리스너가 연결된 요소를 가리킵니다. 키보드로 버튼을 활성화하면 target은 버튼입니다. 전파를 멈추면 마지막 부모 버블 기록만 없어집니다. 매 클릭의 로그를 새로 표시합니다.</p>
+</section>
+<section class="demo sample" id="sample-submit" aria-labelledby="form-title">
+<p class="sample-meta">예제 4-3 · 기본 동작과 전파의 차이</p><h3 id="form-title">제출을 취소해도 부모가 알 수 있을까요?</h3>
+<p class="prediction"><strong>예상하기:</strong> preventDefault를 호출하면 submit이 부모에게도 전달되지 않을까요?</p>
+<pre><code>form.addEventListener("submit", (event) => {
+  event.preventDefault();
+  show(input.value);
+});</code></pre>
+<form id="message-form" class="stack">
+<label class="stack" for="message">제출할 문구<input id="message" name="message" type="text" value="안녕하세요" autocomplete="off"></label>
+<div class="row"><button type="submit" class="primary">문구 제출</button><button id="reset-submit" type="button">제출 실험 초기화</button></div>
+</form>
+<p id="submit-result" role="status">아직 제출하지 않았습니다.</p>
+<p id="submit-parent">부모에서 받은 submit: 0회</p>
+<p class="expected"><strong>확인할 결과:</strong> 페이지는 이동하지 않지만 부모의 submit 횟수는 증가합니다. 문구 입력창에서 Enter를 눌러도 같은 처리가 실행됩니다. submit을 처리하면 입력 수단마다 로직을 반복하지 않아도 됩니다.</p>
+</section>
+<section class="demo sample" id="sample-input-change" aria-labelledby="change-title">
+<p class="sample-meta">예제 4-4 · 값 변경과 이벤트 발생</p><h3 id="change-title">입력 중, 입력 확정, 코드 대입 비교</h3>
+<p class="prediction"><strong>예상하기:</strong> 한 글자를 입력한 순간과 Tab으로 나간 순간은 같은 이벤트일까요? 코드로 value를 바꾸면 어떤 이벤트가 생길까요?</p>
+<pre><code>input.addEventListener("input", record);
+input.addEventListener("change", record);
+input.value = "코드에서 넣은 값"; // 이벤트를 보내지는 않음</code></pre>
+<label class="stack" for="typing-input">직접 입력할 문구<input id="typing-input" type="text" value="" autocomplete="off"></label>
+<div class="row"><button id="assign-value" type="button">코드로 value 대입</button><button id="reset-input-events" type="button">입력 실험 초기화</button></div>
+<pre id="input-event-log" aria-label="입력 이벤트 기록">input: 0회 · change: 0회</pre>
+<p id="assignment-notice" role="status">아직 코드로 대입하지 않았습니다.</p>
+<p class="expected"><strong>확인할 결과:</strong> 직접 편집하는 동안 input이 발생하고, 값을 바꾼 뒤 포커스를 옮기면 change가 발생합니다. 코드 대입 자체는 둘 다 발생시키지 않습니다. 다만 입력을 마치고 버튼으로 이동할 때 생긴 change와 버튼의 대입은 별개입니다. 한글 입력은 조합 과정에 따라 input 횟수가 다를 수 있습니다.</p>
+</section>
+<p><a href="main.js">이 장의 JavaScript 전체 읽기</a></p></section>
+<p class="muted">개념 참고: <a href="https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/dispatchEvent">MDN · 이벤트의 직접 전달</a> · <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/input_event">MDN · 입력 이벤트</a> · <a href="https://developer.mozilla.org/en-US/docs/Web/API/Event/preventDefault">MDN · 기본 동작 취소</a>.</p>
+<details class="optional-practice"><summary>선택 연습 · 이벤트 전파를 한 번 더 추적하기</summary><p>예제 4-2에서 부모의 캡처 리스너 등록을 찾아 <code>{ capture: true }</code>를 제거해보세요. 순서가 어떻게 바뀌는지 설명해보세요. 같은 대상에 같은 이벤트 종류와 같은 함수 객체를 같은 capture 값으로 다시 등록하면 중복 등록되지 않는다는 점도 함께 확인할 수 있습니다.</p></details>
+<nav aria-label="장 이동"><a href="../03-dom-update/">← 이전 · DOM 내용과 속성</a><a href="../05-dom-create/">다음 · 문서 구조 만들기 →</a></nav>
+</main></body></html>

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>바닐라 JS와 DOM · 개념부터 읽기</title><link rel="stylesheet" href="styles.css"></head>
+<body><a class="skip-link" href="#main-content">본문으로 건너뛰기</a><main id="main-content" tabindex="-1">
+<header class="home-hero"><div><p class="eyebrow">VANILLA JS / 개념부터 읽기</p><h1>바닐라 JS로 배우는<br><span>웹의 기본 원리</span></h1><p class="intro">프레임워크 없이 JavaScript와 브라우저의 기본 API를 배웁니다. 값과 함수에서 DOM, 이벤트, 접근성까지 작은 예제로 웹의 작동 원리를 이해합니다.</p><p class="course-meta"><span>11개의 이야기</span><span>35개의 작은 실험</span></p></div>
+<div class="hero-note" aria-hidden="true"><div class="note-label"><span>ONE SMALL CHANGE</span><span class="js-mark">JS</span></div><div class="note-code"><em>const</em> message = "안녕, DOM";<br><br>element.textContent<br>&nbsp; = message;</div><div class="note-result">안녕, DOM</div><p class="note-caption">한 줄의 코드가 문서에 닿는 순간.</p></div></header>
+<div class="sample-links home-actions"><a href="#contents">11개 장 순서대로 읽기</a><a href="samples.html">개념별 예제 모아보기</a><a href="lessons/09-accessibility/">접근성부터 살펴보기</a></div>
+<section aria-labelledby="start-title"><h2 id="start-title">지금 궁금한 질문에서 시작해도 좋습니다</h2>
+<ol class="learning-route">
+<li><strong>언어와 문서 구분하기</strong><p>변수를 바꾸면 화면도 바뀔까? DOM은 HTML 문자열일까?</p><a href="lessons/01-javascript/">1–3장 · 값과 DOM</a></li>
+<li><strong>변화의 원인 따라가기</strong><p>누가 함수를 호출하고, 어느 값을 기준으로 화면을 그릴까?</p><a href="lessons/04-events/">4–7장 · 이벤트와 상태</a></li>
+<li><strong>누구나 조작할 수 있게 만들기</strong><p>키보드로 쓰고, 의미를 전달하고, 연결을 정리하려면?</p><a href="lessons/08-focus-forms/">8–11장 · 폼, 접근성, 재사용</a></li>
+</ol>
+</section>
+<section class="learning-goals" aria-labelledby="study-method"><h2 id="study-method">예제를 읽는 네 단계</h2><p><strong>개념 읽기 → 결과 예상 → 한 가지 조작 → 이유 설명.</strong> 각 예제는 작은 질문 하나에 집중합니다. 코드가 작동하는 것을 확인한 뒤 “어떤 값이, 누구의 호출로, 언제 바뀌었는가”를 자신의 말로 설명해보세요. 예상 결과와 다르면 그 차이가 다음에 읽을 개념입니다.</p></section>
+<section class="concept" id="three-layers">
+<h2>먼저, 화면 뒤에 있는 세 가지를 구분합니다</h2>
+<p>웹페이지에 “안녕하세요”라는 글자가 보인다고 해봅시다. 그 글자는 HTML 파일에 적힌 문자열일 수도 있고, 페이지를 연 다음 JavaScript가 새로 넣은 내용일 수도 있습니다. 같은 모습이어도 내용이 만들어진 과정은 다릅니다. 이 과정을 이해하려면 <strong>파일에 적힌 문서, 브라우저가 기억하는 문서, 실제로 그려진 화면</strong>을 구분해야 합니다.</p>
+<p>HTML은 문서의 구조와 의미를 적는 언어입니다. <code>&lt;p&gt;안녕하세요&lt;/p&gt;</code>는 한 문단을 선언합니다. 브라우저는 이 문자열을 읽고 p 요소와 그 안의 텍스트를 나타내는 객체들을 만듭니다. 이렇게 연결한 문서 객체의 구조를 <strong>DOM(Document Object Model)</strong>이라고 부릅니다. DOM은 웹페이지의 문서를 프로그램에서 다룰 수 있도록 표현한 모델입니다.</p>
+<p>브라우저는 DOM의 요소와 CSS 규칙을 바탕으로 위치, 크기, 색 등을 계산해 화면을 그립니다. 따라서 DOM은 화면의 픽셀 자체가 아닙니다. 화면을 구성하는 데 사용하는 문서의 상태이며, JavaScript가 읽거나 바꿀 수 있는 대상입니다. DOM을 바꿔도 원래 디스크에 있던 HTML 파일의 내용까지 수정되는 것은 아닙니다.</p>
+<figure class="concept-figure"><figcaption>문서가 화면이 되는 흐름</figcaption><div class="flow"><span>HTML 문자열</span> → <span>파싱: 구조를 읽기</span> → <span>DOM 객체 트리</span></div><div class="flow"><span>DOM + CSS</span> → <span>위치와 모양 계산</span> → <span>화면에 그리기</span></div><p>JavaScript는 DOM API를 통해 가운데의 객체들을 읽거나 변경합니다.</p></figure>
+</section>
+<section class="concept" id="language-and-browser">
+<h2>JavaScript와 DOM은 같은 것이 아닙니다</h2>
+<p><strong>JavaScript는 계산과 실행 규칙을 표현하는 프로그래밍 언어</strong>입니다. 변수에 값을 담고, 함수를 호출하고, 조건에 따라 다른 작업을 실행하는 규칙이 언어에 속합니다. 숫자를 더하는 데 문서는 필요하지 않습니다. 이 언어를 실행하는 엔진은 브라우저 안에도 있고, 웹페이지가 없는 다른 실행 환경에도 있습니다.</p>
+<p>브라우저는 JavaScript가 웹 문서를 다룰 수 있도록 <code>document</code> 같은 객체와 문서 조작 기능을 제공합니다. 프로그램에서 기능을 사용할 수 있도록 공개한 약속을 <strong>API</strong>라고 합니다. DOM API에는 요소를 찾거나, 텍스트를 바꾸거나, 자식 요소를 추가하는 기능이 들어 있습니다. JavaScript 문법으로 이 기능을 호출하는 것이 DOM 프로그래밍입니다.</p>
+<p><strong>바닐라 JavaScript</strong>는 별도의 언어나 패키지 이름이 아닙니다. 여기서는 프레임워크 없이 JavaScript 언어와 브라우저의 기본 API를 사용하는 방식을 뜻합니다. HTML 파일 하나에 CSS와 JavaScript를 함께 넣을 수 있지만, 같은 파일 안에 있다고 세 언어의 역할이 합쳐지는 것은 아닙니다.</p>
+</section>
+<section class="concept" id="one-change">
+<h2>세 줄의 코드를 문장으로 읽어봅니다</h2>
+<pre><code>&lt;p id="greeting"&gt;처음 문구&lt;/p&gt;</code></pre>
+<p>브라우저가 위 HTML을 읽은 뒤, 다음 JavaScript를 실행한다고 가정합니다.</p>
+<pre><code>let message = "안녕하세요";
+const paragraph = document.querySelector("#greeting");
+paragraph.textContent = message;</code></pre>
+<ol class="line-explanation"><li><strong>첫 줄은 값을 준비합니다.</strong> 문자열 “안녕하세요”를 message라는 이름으로 사용할 수 있게 합니다. 이 줄만으로는 문서를 바꾸지 않습니다.</li><li><strong>둘째 줄은 문서 속 객체를 찾습니다.</strong> querySelector는 조건에 맞는 첫 요소를 반환하는 DOM 메서드입니다. 메서드는 객체를 통해 호출하는 함수입니다. #greeting은 id가 greeting인 요소를 찾는 CSS 선택자이며, paragraph에는 HTML 문자열의 복사본이 아니라 그 요소를 가리키는 참조가 들어갑니다.</li><li><strong>셋째 줄은 그 객체의 내용을 바꿉니다.</strong> textContent는 요소의 텍스트 내용을 다루는 속성입니다. 값을 대입하면 DOM이 변경되고 브라우저가 이후 화면 갱신에 반영합니다.</li></ol>
+<p>이제 message에 다른 값을 대입한다고 paragraph의 내용까지 저절로 다시 계산되는 것은 아닙니다. JavaScript는 실행된 명령이 만든 결과를 유지합니다. 새 값을 화면에 쓰려면 문서를 변경하는 명령을 다시 실행해야 합니다. 뒤의 상태와 화면 장에서는 이 연결을 왜 함수로 모으는지 설명합니다.</p>
+</section>
+<section class="concept" id="reading-route">
+<h2>이 책이 이어지는 순서</h2>
+<p>처음 두 장은 <strong>코드를 실행하는 쪽인 JavaScript</strong>와 <strong>조작할 대상인 DOM</strong>을 각각 설명합니다. 다음 장들은 문서를 바꾸는 방법, 사용자 행동을 전달받는 방법, 그 변화의 기준이 되는 상태를 다룹니다. 브라우저의 실행 순서, 폼·포커스, 접근성의 이름·역할·상태까지 이해한 뒤에는 같은 동작을 재사용하는 구조와 연결의 수명을 읽을 수 있습니다.</p>
+<p>각 장의 앞부분은 정의와 원리를 설명하는 본문입니다. 작은 코드를 줄마다 해설한 다음 한 가지 규칙에 집중한 독립 예제와 관찰할 결과를 보여줍니다. 코드를 수정하는 연습은 장 끝에 접어 두었습니다. 본문을 읽는 동안 문제를 먼저 풀 필요는 없습니다.</p>
+</section>
+<h2 id="contents">차례</h2>
+<ol class="lesson-list">
+<li><a href="lessons/01-javascript/"><strong>1 · 값, 변수, 함수와 실행</strong><span>이름에 값을 대입한다는 뜻, 객체 참조, 함수 호출과 클로저</span></a></li>
+<li><a href="lessons/02-dom/"><strong>2 · HTML에서 DOM 객체까지</strong><span>파싱과 객체 트리, Node와 Element, 선택자와 참조</span></a></li>
+<li><a href="lessons/03-dom-update/"><strong>3 · 문서의 내용과 현재 상태</strong><span>attribute와 property, 기본값과 현재값, CSS가 상태를 표현하는 방식</span></a></li>
+<li><a href="lessons/04-events/"><strong>4 · 이벤트가 행동을 전달하는 원리</strong><span>리스너 등록과 호출, 전파 경로, 브라우저 기본 동작</span></a></li>
+<li><a href="lessons/05-dom-create/"><strong>5 · DOM 트리의 생성과 변경</strong><span>객체 만들기와 문서 연결하기, 노드의 동일성, 이동·복제·제거</span></a></li>
+<li><a href="lessons/06-state-render/"><strong>6 · 상태와 화면을 연결하는 이유</strong><span>원본 데이터와 파생값, DOM과 메모리, 변경 경로와 상태 소유</span></a></li>
+<li><a href="lessons/07-browser-runtime/"><strong>7 · 브라우저는 언제 실행하고 그리는가</strong><span>호출 스택, task와 microtask, DOM 변경과 화면 갱신</span></a></li>
+<li><a href="lessons/08-focus-forms/"><strong>8 · 폼과 포커스의 기본 계약</strong><span>키보드 입력의 위치, 순차 탐색, 폼 데이터와 기본값</span></a></li>
+<li><a href="lessons/09-accessibility/"><strong>9 · 접근성의 의미와 동작</strong><span>DOM과 접근성 트리, 이름·역할·상태, 키보드, 펼침과 결과 알림</span></a></li>
+<li><a href="lessons/10-headless/"><strong>10 · 동작을 재사용하는 헤드리스 구조</strong><span>로직과 표현의 분리, 저장소와 구독, DOM을 연결하는 경계</span></a></li>
+<li><a href="lessons/11-lifecycle/"><strong>11 · 연결에는 수명이 있다</strong><span>등록한 함수가 남는 이유, 정리 함수와 클로저, 예약 작업의 종료</span></a></li>
+</ol>
+<p><a href="samples.html">작은 예제만 골라보기 →</a></p>
+<details id="open-guide"><summary>파일과 예제 이용 안내</summary><p>각 장의 본문을 먼저 읽고, 뒤에 있는 작은 예제로 설명한 동작을 확인할 수 있습니다.</p><p>여러 파일로 된 원본은 이 폴더에서 <code>npm run build</code> 후 <code>python3 -m http.server 4173 --bind 127.0.0.1 --directory dist/site</code>을 실행한 다음 브라우저로 <a href="http://127.0.0.1:4173">로컬 페이지</a>를 여세요.</p></details>
+<p class="muted"><a href="guide.html">읽기 안내와 용어 정리</a> · 참고: <a href="https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction">MDN · DOM 소개</a></p>
+</main></body></html>

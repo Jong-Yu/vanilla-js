@@ -1,0 +1,11 @@
+{
+  "name": "vanilla-js-switch-lab",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "build:pages": "npm run build",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "engines": { "node": ">=18" }
+}
