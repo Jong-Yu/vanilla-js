@@ -106,6 +106,29 @@ summary { cursor: pointer; color: var(--accent); }
 .concept-figure figcaption { font-weight: 650; font-size: .92rem; margin-bottom: 14px; }
 .concept-figure p { color: var(--muted); font-size: .9rem; }
 .concept-figure .flow { margin: 12px 0; }
+/* 도식: 본문을 요약하는 인라인 SVG입니다. 글자가 너무 작아지지 않도록 좁은 화면에서는 가로로 스크롤합니다. */
+.diagram-scroll { overflow-x: auto; margin: 4px 0; border-radius: 8px; }
+.diagram { display: block; width: 100%; min-width: 600px; height: auto; }
+.diagram text { fill: var(--ink); font-size: 14px; font-family: inherit; }
+.diagram .t-title { font-weight: 700; }
+.diagram .t-small { font-size: 12.5px; fill: var(--muted); }
+.diagram .t-code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; }
+.diagram .t-accent { fill: var(--accent); font-weight: 650; }
+.diagram .b-plain { fill: var(--surface); stroke: var(--control-line); stroke-width: 1.4; }
+.diagram .b-soft { fill: var(--soft); stroke: #b9cbb6; stroke-width: 1.2; }
+.diagram .b-accent { fill: #e3efe6; stroke: var(--accent); stroke-width: 2.2; }
+.diagram .b-ghost { fill: var(--bg); stroke: #a3b0a0; stroke-width: 1.3; stroke-dasharray: 5 4; }
+.diagram .b-panel { fill: none; stroke: var(--line); stroke-width: 1.2; }
+.diagram .l-tree { fill: none; stroke: #9aab9b; stroke-width: 1.4; }
+.diagram .l-arrow { fill: none; stroke: var(--accent); stroke-width: 2; }
+.diagram .l-muted { fill: none; stroke: var(--control-line); stroke-width: 1.6; }
+.diagram .l-dashed { stroke-dasharray: 6 5; }
+.diagram .m-accent { fill: var(--accent); }
+.diagram .m-muted { fill: var(--control-line); }
+.diagram .x-mark { fill: none; stroke: #a2453a; stroke-width: 2.2; stroke-linecap: round; }
+.concept-figure .diagram-note { margin: 12px 0 0; }
+.concept-figure .diagram-hint { display: none; margin: 0 0 8px; }
+@media (max-width: 700px) { .concept-figure .diagram-hint { display: block; } }
 .optional-practice { border-top: 1px solid var(--line); margin-top: 40px; padding: 24px 0; }
 .optional-practice > summary { font-weight: 650; }
 .optional-practice[open] > summary { margin-bottom: 18px; }
@@ -183,6 +206,13 @@ legend { font-weight: 650; }
   *, *::before, *::after { transition: none !important; }
 }
 @media (forced-colors: active) {
+  .diagram text, .diagram .t-small, .diagram .t-accent { fill: CanvasText; }
+  .diagram .b-plain, .diagram .b-soft, .diagram .b-ghost, .diagram .b-panel { fill: Canvas; stroke: CanvasText; }
+  .diagram .b-accent { fill: Canvas; stroke: Highlight; }
+  .diagram .l-tree, .diagram .l-muted, .diagram .x-mark { stroke: CanvasText; }
+  .diagram .l-arrow { stroke: Highlight; }
+  .diagram .m-accent { fill: Highlight; }
+  .diagram .m-muted { fill: CanvasText; }
   input.styled-switch { appearance: auto; width: 20px; height: 20px; padding: 0; }
   input.styled-switch::before { display: none; }
   pre:has(> code), .primary, .home-actions a:first-child { border: 1px solid ButtonText; }
