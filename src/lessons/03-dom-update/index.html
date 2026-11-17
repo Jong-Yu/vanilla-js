@@ -2,7 +2,7 @@
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>3장 · 문서의 내용과 현재 상태</title><link rel="stylesheet" href="../../styles.css"><script defer src="main.js"></script><style>.dom-update-lab input[type="text"] { max-width: 100%; font: inherit; padding: 8px 10px; border: 1px solid var(--control-line); border-radius: 6px; background: var(--surface); color: var(--ink); }</style></head><body><a class="skip-link" href="#main-content">본문으로 건너뛰기</a><main id="main-content" tabindex="-1" class="dom-update-lab">
 <header><a href="../../">차례</a><p class="eyebrow">3장 · 문서의 내용과 현재 상태</p><h1>객체를 바꾸면 화면은 어떻게 달라질까요?</h1><p class="intro">현재 입력값, HTML 속성, 문서 내용은 서로 다른 정보를 담습니다. 그 차이와 CSS로 이어지는 변경 과정을 이해합니다.</p></header>
 <aside class="learning-goals" aria-label="이 장의 학습 목표"><strong>이 장을 읽고 설명할 수 있는 것</strong><ul><li>문단의 텍스트와 입력 컨트롤의 현재값을 바꾸는 방법</li><li>attribute, property, 현재값, 기본값의 관계</li><li>문자열 상태를 CSS 표현과 연결하는 과정</li></ul></aside>
-<nav class="chapter-toc" aria-label="이 장의 읽기 순서"><a href="#changing-a-document">DOM 변경의 의미</a><a href="#two-representations">속성의 두 표현</a><a href="#current-default">현재값과 기본값</a><a href="#reading-state">한 줄씩 읽기</a><a href="#booleans-strings">불리언과 문자열</a><a href="#content-identity">내용과 객체 정체성</a><a href="#styles-rendering">CSS와 화면 갱신</a></nav>
+<nav class="chapter-toc" aria-label="이 장의 읽기 순서"><a href="#changing-a-document">DOM 변경의 의미</a><a href="#two-representations">속성의 두 표현</a><a href="#current-default">현재값과 기본값</a><a href="#reading-state">한 줄씩 읽기</a><a href="#booleans-strings">불리언과 문자열</a><a href="#content-identity">내용과 객체 정체성</a><a href="#styles-rendering">CSS와 화면 갱신</a><a href="#inline-styles">인라인 스타일과 계산된 값</a></nav>
 <nav class="sample-links" aria-label="작은 예제로 바로 이동"><a href="#sample-update-text">3-1 텍스트 넣기</a><a href="#sample-update-defaults">3-2 현재값과 기본값</a><a href="#sample-update-boolean">3-3 불리언 속성</a><a href="#sample-update-style">3-4 상태와 CSS</a></nav>
 <section class="concept" id="changing-a-document"><h2>DOM 수정은 객체의 어느 부분을 바꿀지 정하는 일입니다</h2>
 <p>앞 장에서 요소를 찾으면 실제 DOM 객체의 참조를 얻는다는 것을 보았습니다. 이제 그 객체에 새로운 값을 대입할 수 있습니다. 다만 요소는 글자 하나만 담은 단순한 상자가 아닙니다. 문서에 붙은 속성, 자식 노드, 폼 컨트롤의 현재 입력값처럼 서로 다른 정보를 관리합니다. 같은 “바꾼다”라는 말이라도 어느 정보를 대상으로 하는지에 따라 사용해야 할 API가 달라집니다.</p>
@@ -54,6 +54,16 @@ preview.classList.add(&quot;status&quot;);</code></pre>
 <p>DOM의 값은 코드가 대입한 뒤 바로 읽을 수 있지만, 실제 픽셀을 다시 그리는 과정은 별도의 브라우저 작업입니다. 브라우저는 변경에 따라 필요한 스타일을 계산하고, 필요하면 크기와 위치를 계산한 뒤 화면을 그립니다. 여러 변경이 한 번의 화면 갱신으로 모일 수도 있습니다. 따라서 DOM을 한 줄 바꿀 때마다 반드시 전체 화면을 즉시 다시 그린다고 생각할 필요는 없습니다.</p>
 <p>또 코드로 value나 checked를 대입했다고 사용자 입력에 따른 input·change 이벤트가 자동 발생하지는 않습니다. 아래 예제는 값을 읽어 문구를 만드는 updatePreview를 필요할 때 직접 호출합니다. 다음 장에서는 사용자의 행동이 어떻게 이벤트가 되고, 그 이벤트를 받아 어떤 변경 함수를 호출할지 연결하는 과정을 읽습니다.</p>
 <p class="muted">더 읽기: <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement/checked">MDN · checked</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent">MDN · textContent</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dataset">MDN · dataset</a>.</p>
+</section>
+<section class="concept" id="inline-styles"><h2>인라인 스타일, CSS 변수, 계산된 스타일은 서로 다른 값입니다</h2>
+<p>요소의 <code>style</code> property는 그 요소의 style attribute, 즉 인라인 스타일을 읽고 쓰는 창구입니다. <code>box.style.color = "red"</code>는 style attribute에 color 선언을 추가합니다. 반대로 스타일시트의 규칙으로 정해진 값은 style에 나타나지 않습니다. CSS 파일에서 글자색을 정했더라도 <code>box.style.color</code>는 빈 문자열일 수 있습니다. style은 “이 요소에 직접 적은 선언”일 뿐 “지금 적용된 모습”이 아닙니다.</p>
+<p>최종적으로 적용된 값을 알고 싶다면 <code>getComputedStyle(box)</code>를 사용합니다. 스타일시트, 상속, 인라인 스타일, 우선순위를 모두 계산한 결과를 읽기 전용 객체로 돌려줍니다. 색은 "red" 대신 "rgb(255, 0, 0)"처럼 정규화된 형태로 나올 수 있습니다. 계산된 값을 돌려주려면 브라우저가 스타일을 최신 상태로 다시 계산해야 합니다. 그래서 DOM을 바꾼 직후에 자주 읽으면 비용이 커지는데, 그 이유는 7장에서 자세히 봅니다.</p>
+<pre><code>box.style.setProperty("--offset", "24px");
+const inline = box.style.getPropertyValue("--offset");
+const computed = getComputedStyle(box).marginLeft;</code></pre>
+<ol class="line-explanation"><li>1행: CSS 변수(사용자 정의 속성) --offset을 인라인 스타일로 지정합니다. 하이픈 두 개로 시작하는 이름은 점 표기로 쓸 수 없으므로 setProperty로 다룹니다.</li><li>2행: 인라인 스타일에 적은 값을 그대로 읽습니다. 결과는 "24px"입니다.</li><li>3행: 스타일시트에 <code>margin-left: var(--offset)</code> 규칙이 있다면 계산된 margin-left는 "24px"입니다. 그런 규칙이 없다면 변수는 아무 효과가 없고 기본값이 나옵니다.</li></ol>
+<p>언제 무엇을 쓸까요? 켜짐·꺼짐처럼 몇 가지로 나뉘는 상태는 앞 절처럼 class나 data 속성으로 표시하고 모양은 CSS가 정하게 합니다. 디자인을 바꿀 때 JavaScript를 고치지 않아도 되기 때문입니다. 좌표나 진행률처럼 계산 결과가 연속적인 값일 때는 인라인 스타일이나 CSS 변수로 전달합니다. CSS 변수를 쓰면 JavaScript는 숫자만 넘기고, 그 숫자를 너비로 쓸지 색의 밝기로 쓸지는 CSS에 남겨 둘 수 있습니다.</p>
+<p class="muted">더 읽기: <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/style">MDN · style</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/getComputedStyle">MDN · getComputedStyle</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties">MDN · CSS 사용자 정의 속성</a>.</p>
 </section>
 <h2 id="demo-observe">작은 예제 · 바꾸는 대상 구분하기</h2>
 <p>현재값, 문구, 속성, 클래스는 별개의 대상입니다. 한 예제씩 실행하면서 어떤 부분만 달라지는지 확인합니다.</p>

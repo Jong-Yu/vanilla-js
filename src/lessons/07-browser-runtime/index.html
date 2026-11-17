@@ -3,7 +3,7 @@
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>7장 · 브라우저의 실행 순서</title><link rel="stylesheet" href="../../styles.css"><script defer src="main.js"></script></head>
 <body><a class="skip-link" href="#main-content">본문으로 건너뛰기</a><main id="main-content" tabindex="-1">
 <header><a href="../../">차례</a><p class="eyebrow">7장 · 브라우저의 실행 순서</p><h1>코드가 실행되는 시간과<br>화면이 바뀌는 시간</h1><p class="intro">JavaScript가 코드를 실행하는 방식과 브라우저가 그 실행을 배치하는 방식을 구분하면, 이벤트와 DOM의 동작을 시간 순서대로 이해할 수 있습니다.</p></header>
-<nav class="chapter-toc" aria-label="이 장의 읽기 순서"><a href="#engine">엔진과 브라우저</a><a href="#stack">동기 실행과 호출 스택</a><a href="#queues">예약된 실행의 순서</a><a href="#rendering">DOM과 화면 갱신</a><a href="#confusions">혼동하기 쉬운 경계</a><a href="#observation">동작 예제</a></nav>
+<nav class="chapter-toc" aria-label="이 장의 읽기 순서"><a href="#engine">엔진과 브라우저</a><a href="#stack">동기 실행과 호출 스택</a><a href="#queues">예약된 실행의 순서</a><a href="#rendering">DOM과 화면 갱신</a><a href="#confusions">혼동하기 쉬운 경계</a><a href="#promises">Promise와 async</a><a href="#layout-reads">크기와 위치 읽기</a><a href="#script-timing">스크립트 시작 시점</a><a href="#observation">동작 예제</a></nav>
 
 <section class="concept" id="engine"><h2>JavaScript 엔진과 브라우저는 역할이 다릅니다</h2>
 <p><strong>JavaScript 엔진</strong>은 JavaScript 코드를 해석하고 실행하는 프로그램입니다. 숫자를 더하거나 함수를 호출하고 객체의 값을 읽는 일은 엔진이 담당합니다. <strong>브라우저</strong>는 엔진을 포함하면서 문서 표시, 사용자 입력, 네트워크, 타이머 같은 기능도 제공합니다. 둘을 구분해야 “코드를 잠시 멈춘다”와 “다른 일을 예약한다”의 차이를 설명할 수 있습니다.</p>
@@ -53,8 +53,48 @@ label.textContent = "두 번째";</code></pre>
 <p>또한 “나중에 실행”은 그때도 같은 화면이 존재한다는 보장이 아닙니다. 예약 후 사용자가 화면을 닫았거나 다른 상태로 이동했을 수 있습니다. 아래 두 번째 예제는 실행 번호를 기억해 오래된 예약이 최신 로그를 덮어쓰지 않게 합니다. 이런 수명 관리가 컴포넌트의 연결 해제와 예약 작업 정리로 이어집니다.</p>
 </section>
 
+<section class="concept" id="promises"><h2>Promise와 async 함수는 나중에 정해질 결과를 이어 받습니다</h2>
+<p>네트워크 응답이나 사용자의 선택처럼 결과가 나중에 정해지는 작업이 있습니다. <strong>Promise</strong>는 그런 결과를 나타내는 객체입니다. 처음에는 대기(pending) 상태이고, 성공하면 값과 함께 이행(fulfilled), 실패하면 이유와 함께 거부(rejected) 상태가 됩니다. 한 번 정해진 상태는 다시 바뀌지 않습니다. then에 등록한 함수는 이행되었을 때, catch에 등록한 함수는 거부되었을 때 microtask로 호출됩니다. 이미 정해진 Promise에 나중에 등록해도 등록한 함수는 호출됩니다.</p>
+<p><strong>async 함수</strong>는 Promise를 다루는 코드를 위에서 아래로 읽히게 쓰는 문법입니다. async 함수를 호출하면 항상 Promise를 돌려받습니다. 함수 안의 <code>await</code>는 오른쪽 Promise가 정해질 때까지 <strong>그 함수의 나머지 부분</strong>을 멈추고 호출한 쪽으로 실행을 돌려줍니다. 페이지 전체나 다른 코드가 멈추는 것이 아닙니다. Promise가 정해지면 await 다음 부분이 microtask로 이어서 실행됩니다.</p>
+<pre><code>async function load() {
+  log("A");
+  await Promise.resolve();
+  log("C");
+}
+load();
+log("B");</code></pre>
+<ol class="line-explanation">
+<li>아래 설명은 줄 순서가 아니라 실행되는 순서를 따릅니다. 1~5행은 async 함수를 정의할 뿐 아무것도 출력하지 않습니다.</li>
+<li>6행: load를 호출합니다. 첫 await 전까지는 일반 함수처럼 동기적으로 실행되어 A를 출력합니다.</li>
+<li>다시 3행: 실행이 load 안에서 await를 만납니다. 이미 이행된 Promise라도 기다림이 생깁니다. load는 여기서 멈추고, 아직 정해지지 않은 Promise를 호출한 자리인 6행에 돌려줍니다.</li>
+<li>7행: load가 멈춘 사이 호출한 쪽의 다음 줄이 실행되어 B를 출력합니다.</li>
+<li>현재 작업이 끝나면 microtask로 load의 나머지가 실행되어 C를 출력합니다. 순서는 A, B, C입니다.</li>
+</ol>
+<p>await한 Promise가 거부되면 그 자리에서 예외가 발생한 것처럼 동작하므로 1장의 try와 catch로 처리합니다. 아무도 처리하지 않은 거부는 콘솔에 오류로 남습니다. await와 다음 줄 사이에는 다른 이벤트가 처리될 수 있다는 점도 기억합니다. 응답을 기다리는 동안 사용자가 화면을 닫거나 다른 요청을 시작할 수 있으므로, 결과를 화면에 반영하기 전에 그 결과가 아직 유효한지 확인합니다. 7-2 예제가 실행 번호를 비교하는 이유와 같습니다.</p>
+<p class="muted">더 읽기: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises">MDN · Promise 사용하기</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function">MDN · async function</a>.</p>
+</section>
+<section class="concept" id="layout-reads"><h2>크기와 위치를 읽으면 레이아웃 계산이 앞당겨질 수 있습니다</h2>
+<p>요소가 화면의 어디에 얼마나 크게 그려지는지는 layout 단계에서 정해집니다. <code>getBoundingClientRect()</code>는 요소의 테두리 상자를 x, y, width, height로 돌려줍니다. 좌표의 기준은 뷰포트, 즉 브라우저 창에서 페이지가 보이는 영역의 왼쪽 위입니다. offsetWidth, clientHeight, scrollTop 같은 property도 layout 결과를 읽습니다. 좌표는 뷰포트 기준이므로 페이지를 스크롤하면 같은 요소의 y값이 달라집니다. display: none으로 그려지지 않는 요소는 크기가 0입니다.</p>
+<p>브라우저는 DOM 변경을 모았다가 다음 화면 갱신 때 layout을 계산합니다. 그런데 DOM을 바꾼 직후 크기를 읽으면, 최신 값을 돌려주기 위해 그 자리에서 layout을 계산해야 합니다. 이를 <strong>강제 동기 레이아웃</strong>이라고 합니다. 한 번은 큰 문제가 아니지만, 반복문 안에서 쓰기와 읽기를 번갈아 하면 매번 layout을 다시 계산하게 됩니다.</p>
+<pre><code>for (const box of boxes) {
+  box.style.width = `${box.offsetWidth + 10}px`;
+}</code></pre>
+<p>이 코드는 반복할 때마다 한 상자의 너비를 바꾸고, 다음 반복에서 다른 상자의 너비를 읽습니다. 직전의 쓰기 때문에 읽을 때마다 layout이 다시 계산됩니다. 첫 반복에서 모든 너비를 읽어 배열에 모으고, 두 번째 반복에서 한꺼번에 쓰면 계산은 한 번으로 줄어듭니다. <strong>읽기를 모으고, 쓰기를 모은다</strong>가 기본 규칙입니다. 팝업 위치처럼 화면에 맞춰 반복해서 갱신하는 값은 requestAnimationFrame 콜백 안에서 한 번에 읽고 씁니다.</p>
+<p class="muted">더 읽기: <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/getBoundingClientRect">MDN · getBoundingClientRect</a>, <a href="https://web.dev/articles/avoid-large-complex-layouts-and-layout-thrashing">web.dev · 레이아웃 스래싱 피하기</a>.</p>
+</section>
+<section class="concept" id="script-timing"><h2>스크립트가 시작되는 시점은 연결 방식이 정합니다</h2>
+<p>HTML 파서는 문서를 위에서 아래로 읽습니다. 속성이 없는 <code>&lt;script src&gt;</code>를 만나면 파일을 받아 실행을 마칠 때까지 파싱을 멈춥니다. 이때 스크립트보다 아래에 있는 요소는 아직 만들어지지 않았으므로 검색하면 null입니다. 이 교재가 1장부터 defer를 사용한 이유입니다.</p>
+<table><caption>스크립트 연결 방식과 실행 시점</caption><thead><tr><th scope="col">연결 방식</th><th scope="col">파일을 받는 동안</th><th scope="col">실행 시점</th><th scope="col">여러 파일의 순서</th></tr></thead><tbody>
+<tr><th scope="row">script</th><td>파싱을 멈춤</td><td>받는 즉시</td><td>문서 순서</td></tr>
+<tr><th scope="row">script defer</th><td>파싱을 계속함</td><td>HTML 파싱이 끝난 뒤</td><td>문서 순서</td></tr>
+<tr><th scope="row">script async</th><td>파싱을 계속함</td><td>받는 즉시, 실행하는 동안은 파싱을 멈춤</td><td>먼저 받은 순서</td></tr>
+<tr><th scope="row">script type="module"</th><td>파싱을 계속함</td><td>defer와 같음</td><td>문서 순서</td></tr>
+</tbody></table>
+<p><code>DOMContentLoaded</code> 이벤트는 HTML 파싱과 defer 스크립트 실행이 끝났을 때 발생하고, <code>load</code> 이벤트는 이미지와 스타일시트 같은 하위 자원까지 모두 받았을 때 발생합니다. 요소를 찾는 코드는 DOMContentLoaded 시점이면 충분합니다. 이미지의 실제 크기처럼 자원이 있어야 정해지는 값을 읽을 때만 load를 기다립니다. 모듈 스크립트의 범위와 import는 10장에서 다룹니다.</p>
+<p class="muted">더 읽기: <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script">MDN · script 요소</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/API/Document/DOMContentLoaded_event">MDN · DOMContentLoaded</a>.</p>
+</section>
 <section id="observation"><h2>설명한 순서를 실제 문서에서 관찰하기</h2><p>첫 예제는 동기 호출, Promise, 타이머의 순서를 기록합니다. 두 번째 예제는 DOM의 중간값을 로그로 남기고 현재 화면의 값과 비교합니다. 로그가 어떤 시점의 값을 읽었는지에 초점을 맞춰 보세요.</p>
-<div class="sample-links"><a href="#sample-execution-order">7-1 · 실행 순서</a><a href="#sample-dom-paint">7-2 · DOM과 화면</a></div>
+<div class="sample-links"><a href="#sample-execution-order">7-1 · 실행 순서</a><a href="#sample-dom-paint">7-2 · DOM과 화면</a><a href="#sample-async-order">7-3 · async와 await</a></div>
 <section class="demo sample stack" id="sample-execution-order" aria-labelledby="order-title"><h3 id="order-title">7-1 · 동기 실행과 예약된 실행</h3><p class="prediction"><strong>먼저 예상하기.</strong> setTimeout을 Promise보다 먼저 적으면 타이머가 먼저 실행될까요?</p><pre><code>log("시작");
 setTimeout(() =&gt; log("타이머"), 0);
 Promise.resolve().then(() =&gt; log("Promise"));
@@ -63,6 +103,14 @@ log("끝");</code></pre><button id="run-order" type="button" class="primary">실
 console.log(element.textContent);
 element.textContent = "두 번째 값";
 // DOM은 즉시 바뀌지만 paint가 대입마다 발생하지는 않습니다.</code></pre><button id="run-dom" type="button">DOM 변경 순서 확인</button><p>현재 표시: <span id="dom-value" class="status">시작값</span></p><pre id="dom-log" aria-live="polite">아직 실행하지 않았습니다.</pre><p class="expected"><strong>관찰할 결과.</strong> 로그에는 중간값이 남지만 최종 문구는 “microtask에서 바꾼 값”입니다. requestAnimationFrame의 로그는 paint 완료의 증거가 아니라 갱신 전 콜백의 기록입니다. 화면을 그릴 기회는 브라우저가 정합니다.</p></section>
+<section class="demo sample stack" id="sample-async-order" aria-labelledby="async-title"><h3 id="async-title">7-3 · await 다음 줄은 언제 실행될까요?</h3><p class="prediction"><strong>먼저 예상하기.</strong> async 함수 안에서 await 다음에 적은 C는 함수를 호출한 다음 줄의 B보다 먼저 기록될까요? 미리 예약한 타이머 D와 비교하면 어떨까요?</p><pre><code>async function load() {
+  log("A");
+  await Promise.resolve();
+  log("C");
+}
+setTimeout(() =&gt; log("D 타이머"), 0);
+load();
+log("B");</code></pre><button id="run-async" type="button" class="primary">async 순서 확인</button><pre id="async-log" aria-live="polite">아직 실행하지 않았습니다.</pre><p class="expected"><strong>관찰할 결과.</strong> A, B, C, D 순서입니다. load는 await에서 멈추고 호출한 쪽으로 돌아가므로 B가 먼저 기록됩니다. await 다음의 C는 microtask로 이어지므로, 먼저 예약했더라도 task인 타이머 D보다 앞섭니다. 실행할 때마다 로그를 비웁니다.</p></section>
 <p><a href="main.js">이 장의 JavaScript 전체 읽기</a></p></section>
 <details class="optional-practice"><summary>선택 연습 · 동기 콜백 하나를 추가해보기</summary><p>첫 예제의 <code>doNow()</code> 호출 아래에 <code>["가", "나"].forEach(value =&gt; log(value))</code>를 추가하고 수정한 코드를 실행해보세요. forEach 콜백은 동기적으로 실행되므로 두 글자는 Promise 로그보다 먼저 기록됩니다. 함수가 콜백으로 전달되었다는 사실과 비동기 예약 여부를 구분할 수 있으면 충분합니다.</p></details>
 <p class="muted">공식 참고: <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTML_DOM_API/Microtask_guide">MDN · microtask</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/setTimeout">MDN · setTimeout</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/requestAnimationFrame">MDN · requestAnimationFrame</a></p>

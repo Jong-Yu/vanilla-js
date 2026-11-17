@@ -56,3 +56,29 @@ runDom.addEventListener("click", () => {
     log("requestAnimationFrame: 다음 화면 갱신의 paint 전에 콜백 실행");
   });
 });
+
+// 7-3. await는 그 함수의 나머지만 멈추고, 나머지는 microtask로 이어집니다.
+const runAsync = document.querySelector("#run-async");
+const asyncLog = document.querySelector("#async-log");
+let asyncRunning = false;
+runAsync.addEventListener("click", () => {
+  if (asyncRunning) return;
+  asyncRunning = true;
+  asyncLog.textContent = "";
+  const steps = [];
+  const log = (step) => {
+    steps.push(step);
+    asyncLog.textContent = steps.join("\n");
+  };
+  async function load() {
+    log("A · async 함수 안, await 전");
+    await Promise.resolve();
+    log("C · await 다음 (microtask)");
+  }
+  setTimeout(() => {
+    log("D · 타이머 (task)");
+    asyncRunning = false;
+  }, 0);
+  load();
+  log("B · load()를 호출한 다음 줄");
+});

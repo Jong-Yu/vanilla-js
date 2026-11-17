@@ -3,7 +3,7 @@
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>8장 · 폼과 포커스의 기본 계약</title><link rel="stylesheet" href="../../styles.css"><script defer src="main.js"></script><style>#focus-title:focus { outline: 3px solid var(--accent); outline-offset: 6px; } .focus-lab input:disabled { color: var(--muted); background: var(--code); } .focus-lab input[readonly] { background: var(--soft); }</style></head>
 <body><a class="skip-link" href="#main-content">본문으로 건너뛰기</a><main id="main-content" tabindex="-1" class="focus-lab">
 <header><a href="../../">차례</a><p class="eyebrow">8장 · 폼과 포커스의 기본 계약</p><h1>HTML 요소가 제공하는<br>입력과 이동의 규칙</h1><p class="intro">폼 요소는 화면에 그려진 모양 이상의 기능을 갖습니다. 브라우저가 제공하는 의미, 키보드 조작, 포커스, 데이터 수집 규칙을 이해하면 직접 구현할 동작의 경계가 보입니다.</p></header>
-<nav class="chapter-toc" aria-label="이 장의 읽기 순서"><a href="#native">네이티브 요소의 의미</a><a href="#focus">포커스와 이동 순서</a><a href="#form-data">폼 데이터의 구성</a><a href="#defaults">현재 값과 기본값</a><a href="#semantics">키보드와 접근성</a><a href="#observation">동작 예제</a></nav>
+<nav class="chapter-toc" aria-label="이 장의 읽기 순서"><a href="#native">네이티브 요소의 의미</a><a href="#focus">포커스와 이동 순서</a><a href="#form-data">폼 데이터의 구성</a><a href="#defaults">현재 값과 기본값</a><a href="#semantics">키보드와 접근성</a><a href="#validation">입력 검증</a><a href="#observation">동작 예제</a></nav>
 
 <section class="concept" id="native"><h2>네이티브 요소는 브라우저가 제공하는 동작의 묶음입니다</h2>
 <p><strong>네이티브 HTML 요소</strong>는 button, input, form처럼 브라우저가 의미와 기본 동작을 알고 있는 요소입니다. button을 사용하면 단지 버튼 모양의 영역이 생기는 데 그치지 않습니다. 브라우저는 그것이 활성화할 수 있는 조작임을 알고, 지원하는 키보드 입력으로 클릭을 발생시키며, 접근성 정보를 통해 보조 기술에도 그 역할을 전달합니다.</p>
@@ -21,6 +21,9 @@ console.log(document.activeElement === input);</code></pre>
 <ol class="line-explanation"><li>첫 줄은 이름 입력 요소를 찾아 변수에 보관합니다. 이 단계는 요소를 찾을 뿐 포커스를 이동하지 않습니다.</li><li>둘째 줄은 그 요소로 포커스 이동을 요청합니다. 대상이 포커스를 받을 수 있는 상태여야 실제로 이동합니다.</li><li>셋째 줄은 문서의 현재 포커스 요소와 찾은 입력이 같은 객체인지 비교합니다. 이 예제의 활성 입력에서는 true가 됩니다.</li></ol>
 <p><strong>순차 포커스 이동</strong>은 Tab이나 Shift+Tab으로 문서 안의 대상을 차례로 이동하는 방식입니다. <code>focus()</code>로 특정 대상을 지정하는 프로그램 이동과는 구분됩니다. <code>tabindex="0"</code>은 일반적인 문서 순서의 Tab 이동에 포함하고, <code>tabindex="-1"</code>은 Tab 순서에는 추가하지 않으면서 프로그램으로 포커스를 줄 수 있게 합니다.</p>
 <p>예를 들어 새 화면의 제목은 사용자가 Tab을 누를 때마다 들를 조작 대상은 아니지만, 화면이 바뀌었음을 알리려고 한 번 포커스를 옮길 수 있습니다. 이런 경우 제목에 -1을 사용합니다. 양수 tabindex로 순서를 강제로 재배열하기보다 문서 자체의 순서를 자연스럽게 구성하세요. 기본적인 순차 이동에는 브라우저와 운영체제의 키보드 탐색 설정도 영향을 줍니다.</p>
+<p>포커스가 옮겨갈 때는 이벤트가 발생합니다. 포커스를 잃는 요소에서 blur와 focusout이, 포커스를 받는 요소에서 focus와 focusin이 발생합니다. 두 쌍의 차이는 버블링입니다. focus와 blur는 버블링하지 않으므로 부모에 등록하면 자식의 포커스 변화를 받을 수 없습니다. focusin과 focusout은 버블링하므로 영역이나 document 한 곳에서 “안으로 들어왔다”와 “밖으로 나갔다”를 들을 수 있습니다.</p>
+<p>이 이벤트 객체의 <code>relatedTarget</code>은 이동의 상대편 요소입니다. focusout에서는 포커스가 갈 요소, focusin에서는 포커스가 떠난 요소를 가리킵니다. 포커스를 받을 수 없는 빈 곳을 클릭하거나 다른 창으로 이동하면 갈 곳이 없으므로 null입니다. 포커스가 영역 밖으로 나갔는지는 relatedTarget이 영역 안에 있는지로 판단하고, null인 경우를 어떻게 처리할지는 기능의 목적에 맞춰 따로 정합니다.</p>
+<p>포커스가 있다는 사실과 포커스 표시가 보이는 것도 구분합니다. CSS의 <code>:focus</code>는 포커스를 가진 요소에 언제나 일치하고, <code>:focus-visible</code>은 브라우저가 “지금 포커스 위치를 보여줄 필요가 있다”고 판단할 때만 일치합니다. 키보드로 이동했거나 텍스트 입력처럼 키보드로 쓸 요소라면 일치하고, 마우스로 버튼을 눌러 포커스가 생긴 경우에는 보통 일치하지 않습니다. 그래서 포커스 테두리를 :focus-visible에 그리면 마우스 사용자에게는 덜 거슬리면서 키보드 사용자에게는 위치를 알려줄 수 있습니다. 이 교재의 공통 스타일도 그렇게 합니다. <code>outline: none</code>으로 표시를 지울 때는 반드시 다른 뚜렷한 표시로 대신합니다. 프로그램으로 포커스를 옮기면서 화면이 그 요소까지 스크롤되는 것을 막으려면 <code>focus({ preventScroll: true })</code>를 사용합니다.</p>
 </section>
 
 <section class="concept" id="form-data"><h2>폼은 이름을 가진 입력들의 현재 값을 수집합니다</h2>
@@ -50,9 +53,18 @@ console.log(document.activeElement === input);</code></pre>
 <p>헤드리스 컴포넌트에서도 먼저 기본 요소가 이미 제공하는 책임을 확인해야 합니다. 그다음 Tabs의 방향키 이동이나 Dialog를 닫은 뒤 원래 버튼으로 돌아가는 동작처럼 추가로 필요한 규칙을 설계합니다. 포커스를 이동할 때는 대상이 문서에 존재하는지, 숨김이나 disabled 상태인지, 다른 코드가 다시 포커스를 옮기고 있는지도 함께 확인합니다.</p>
 </section>
 
+<section class="concept" id="validation"><h2>브라우저는 입력의 제약을 검사할 수 있습니다</h2>
+<p>required, type="email", minlength, pattern, min과 max 같은 속성은 입력이 지켜야 할 <strong>제약</strong>을 선언합니다. 제출할 때 브라우저는 폼의 각 입력을 검사하고, 하나라도 어긋나면 submit 이벤트를 발생시키지 않습니다. 대신 첫 번째로 잘못된 입력에 포커스를 옮기고 안내 문구를 보여줍니다. 8-2 예제에서 이름을 비우면 이전 결과가 그대로 남는 이유입니다.</p>
+<p>코드에서는 입력의 <code>validity</code> 객체로 어떤 제약을 어겼는지 읽습니다. valueMissing은 필수 값이 빠졌다는 뜻이고, typeMismatch는 이메일이나 URL 같은 형식이 맞지 않는다는 뜻입니다. 모든 제약을 지키면 valid가 true입니다. <code>checkValidity()</code>는 검사 결과를 true나 false로 돌려주고, 어긋난 입력에서 invalid 이벤트를 발생시킵니다. <code>reportValidity()</code>는 같은 검사를 하면서 브라우저의 안내도 보여줍니다. invalid 이벤트는 버블링하지 않으므로 폼에서 모아 들으려면 캡처 단계로 등록합니다.</p>
+<pre><code>input.setCustomValidity(taken ? "이미 사용 중인 이름입니다." : "");
+form.reportValidity();</code></pre>
+<ol class="line-explanation"><li>첫 줄은 HTML 속성으로 표현할 수 없는 규칙의 결과를 입력에 알려줍니다. 빈 문자열이 아닌 메시지를 지정하면 그 입력은 잘못된 상태(customError)가 됩니다. 문제가 해결되면 빈 문자열로 다시 지정해야 정상 상태로 돌아옵니다.</li><li>둘째 줄은 폼 전체를 검사하고 첫 번째 문제를 사용자에게 보여줍니다. 검사 결과는 true나 false로 돌려받습니다.</li></ol>
+<p>CSS의 <code>:invalid</code>는 페이지를 열자마자 빈 필수 입력에도 일치하므로, 아직 손대지 않은 칸을 오류처럼 보이게 할 수 있습니다. <code>:user-invalid</code>는 사용자가 값을 바꾸었거나 제출을 시도한 뒤에만 일치합니다. 브라우저의 기본 안내 대신 화면에 오류 문장을 직접 보여준다면, 그 문장을 aria-describedby로 입력에 연결하고 <code>aria-invalid="true"</code>를 함께 지정해 보조 기술에도 같은 정보를 전달합니다. form에 novalidate를 붙이면 제출할 때의 자동 검사를 끄고 검사 시점을 코드가 정할 수 있습니다. 어느 경우든 브라우저의 검사는 사용자를 돕는 장치이므로 서버에서도 다시 검사해야 합니다.</p>
+<p class="muted">더 읽기: <a href="https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/Form_validation">MDN · 클라이언트 측 폼 검증</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/API/ValidityState">MDN · ValidityState</a>.</p>
+</section>
 <section id="observation"><h2>하나의 규칙씩 확인하는 예제</h2>
-<p>포커스, 데이터 수집, 초기화는 각각 다른 브라우저 기능입니다. 아래 예제는 서로 다른 입력을 사용하므로 앞 예제의 조작이 다음 결과에 영향을 주지 않습니다.</p>
-<div class="sample-links"><a href="#sample-focus">8-1 · 포커스</a><a href="#sample-form-data">8-2 · 폼 데이터</a><a href="#sample-form-reset">8-3 · 초기화</a></div>
+<p>포커스, 데이터 수집, 초기화, 포커스 이벤트, 입력 검증은 각각 다른 브라우저 기능입니다. 아래 예제는 서로 다른 입력을 사용하므로 앞 예제의 조작이 다음 결과에 영향을 주지 않습니다.</p>
+<div class="sample-links"><a href="#sample-focus">8-1 · 포커스</a><a href="#sample-form-data">8-2 · 폼 데이터</a><a href="#sample-form-reset">8-3 · 초기화</a><a href="#sample-focus-events">8-4 · 포커스 이벤트</a><a href="#sample-validation">8-5 · 입력 검증</a></div>
 <section class="demo sample" id="sample-focus" aria-labelledby="focus-sample-title">
 <h3 id="focus-sample-title">8-1 · Tab 순서와 프로그램으로 옮기는 포커스</h3>
 <p class="prediction"><strong>먼저 예상하기.</strong> 제목에 포커스를 보낼 수 있다면 Tab으로도 그 제목에 멈출까요?</p>
@@ -98,8 +110,41 @@ heading.focus();
 });</code></pre>
 <p class="expected"><strong>관찰할 결과.</strong> 이름은 “민지”, 체크는 true로 돌아옵니다. 로그의 첫 줄은 reset 이벤트 안의 값, 둘째 줄은 기본 동작 이후 값입니다. 현재값(value, checked)과 기본값(defaultValue, defaultChecked)이 서로 다른 정보이기 때문입니다.</p>
 </section>
+<section class="demo sample" id="sample-focus-events" aria-labelledby="focus-events-title">
+<h3 id="focus-events-title">8-4 · 영역은 포커스가 들어오고 나가는 것을 알 수 있을까요?</h3>
+<p class="prediction"><strong>먼저 예상하기.</strong> 아래 영역에 focus 리스너와 focusin·focusout 리스너를 함께 등록했습니다. Tab으로 영역 안의 입력에 들어가면 어느 리스너가 기록할까요? 두 입력 사이를 오갈 때와 영역 밖으로 나갈 때 relatedTarget은 무엇일까요?</p>
+<div class="stack">
+<div class="row"><button id="before-focus-zone" type="button">영역 앞 버튼</button></div>
+<fieldset id="focus-zone" class="stack"><legend>검색 조건 영역</legend>
+<label class="stack" for="zone-keyword">검색어<input id="zone-keyword" type="text" autocomplete="off"></label>
+<label class="stack" for="zone-region">지역<input id="zone-region" type="text" autocomplete="off"></label>
+</fieldset>
+<div class="row"><button id="after-focus-zone" type="button">영역 뒤 버튼</button><button id="reset-focus-zone" type="button">포커스 기록 초기화</button></div>
+</div>
+<pre id="focus-zone-log" aria-label="영역의 포커스 이벤트 기록">아직 영역에 포커스가 들어오지 않았습니다.</pre>
+<pre><code>zone.addEventListener("focus", record);   // 버블링하지 않으므로 자식의 포커스는 받지 못합니다
+zone.addEventListener("focusin", record);
+zone.addEventListener("focusout", (event) =&gt; {
+  const next = event.relatedTarget;        // 포커스가 갈 요소 또는 null
+  const left = next === null || !zone.contains(next);
+});</code></pre>
+<p class="expected"><strong>관찰할 결과.</strong> 영역의 focus 리스너는 아무것도 기록하지 않습니다. 포커스를 받은 것은 영역이 아니라 안쪽 입력이기 때문입니다. focusin과 focusout은 입력에서 발생해 영역까지 버블링하므로 기록됩니다. 검색어에서 지역으로 이동하면 focusout의 relatedTarget이 지역 입력이므로 “영역 안에서 이동”으로 표시됩니다. 지역에서 영역 뒤 버튼으로 이동하면 “영역 밖으로 나감”입니다. 입력에 포커스를 둔 채 문서의 빈 곳을 클릭하면 relatedTarget은 null입니다. macOS의 일부 브라우저는 버튼을 클릭해도 포커스를 옮기지 않으므로 버튼으로 나가는 경우는 Tab으로 확인하세요.</p>
+</section>
+<section class="demo sample" id="sample-validation" aria-labelledby="validation-title">
+<h3 id="validation-title">8-5 · 형식이 틀린 입력은 어떻게 알려질까요?</h3>
+<p class="prediction"><strong>먼저 예상하기.</strong> 이메일 칸을 비우거나 “abc”를 적은 뒤 검사하면 validity의 어떤 값이 true가 될까요? 그 상태로 가입 요청을 누르면 submit 이벤트가 발생할까요?</p>
+<form id="signup-form" class="stack">
+<label class="stack" for="signup-email">이메일 · 필수<input id="signup-email" name="email" type="email" required autocomplete="off"></label>
+<div class="row"><button type="submit">가입 요청</button><button id="check-email" type="button">checkValidity()로 검사</button><button id="reset-validation" type="button">검증 실험 초기화</button></div>
+</form>
+<pre id="validation-result" aria-live="polite">아직 검사하지 않았습니다.</pre>
+<pre><code>const ok = input.checkValidity();
+const { valid, valueMissing, typeMismatch } = input.validity;
+form.addEventListener("invalid", record, { capture: true });</code></pre>
+<p class="expected"><strong>관찰할 결과.</strong> 빈 칸은 valueMissing이, “abc”는 typeMismatch가 true입니다. 검사 버튼은 결과만 기록하고 화면에 안내를 띄우지 않습니다. 가입 요청은 브라우저의 안내를 보여주고 포커스를 이메일 칸으로 옮기며 submit을 발생시키지 않습니다. 두 경우 모두 invalid 이벤트 횟수가 늘어납니다. 올바른 주소를 적으면 submit이 기록됩니다.</p>
+</section>
 <p><a href="main.js">이 장의 JavaScript 전체 읽기</a></p></section>
 <details class="optional-practice"><summary>선택 연습 · 표시된 값과 제출되는 값을 연결해보기</summary><p>메모 입력에 <code>name="memo"</code>를 추가하고 플랜의 disabled를 제거한 뒤 수정한 코드를 실행해보세요. 두 값 모두 FormData에 포함됩니다. 이 변화는 새로운 JavaScript 처리 없이 HTML 속성만 바꾸어 얻은 결과입니다. 브라우저가 담당하는 데이터 수집 규칙을 설명할 수 있으면 충분합니다.</p></details>
-<p class="muted">공식 참고: <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/focus">MDN · focus</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/tabindex">MDN · tabindex</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/disabled">MDN · disabled</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement/reset">MDN · reset</a></p>
+<p class="muted">공식 참고: <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/focus">MDN · focus</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/tabindex">MDN · tabindex</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/disabled">MDN · disabled</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement/reset">MDN · reset</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/focusin_event">MDN · focusin</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/API/FocusEvent/relatedTarget">MDN · relatedTarget</a></p>
 <nav><a href="../07-browser-runtime/">← 이전 · 브라우저 실행 순서</a><a href="../09-accessibility/">다음 · 접근성의 의미와 동작 →</a></nav>
 </main></body></html>

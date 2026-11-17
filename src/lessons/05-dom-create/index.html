@@ -27,6 +27,16 @@
 <h3>부모가 자식의 행동을 관리하는 방식</h3>
 <p>항목을 만들 때마다 삭제 버튼에 함수를 연결할 수도 있습니다. 여기서는 목록 부모에 click 리스너를 한 번 연결하고, 자식에서 올라온 클릭을 처리합니다. 이벤트의 버블링을 이용해 여러 자식의 처리를 부모에게 맡기는 방식을 <strong>이벤트 위임</strong>이라고 합니다. 부모 리스너는 새 자식이 추가되기 전부터 존재하므로, 나중에 생긴 버튼도 같은 규칙으로 처리할 수 있습니다.</p>
 <p>부모가 모든 클릭을 삭제로 처리하면 안 됩니다. 실제로 누른 대상인 event.target에서 삭제 버튼을 찾아야 합니다. 버튼 안에 span이나 아이콘이 들어갈 수 있으므로, target 자체부터 조상 방향으로 조건에 맞는 요소를 찾는 <code>closest</code>를 사용합니다. 찾은 버튼이 현재 목록 안에 있는지 확인한 뒤 그 버튼이 속한 li를 제거합니다. 위임은 자식별 등록을 줄여주지만, 처리할 대상을 정확히 판별하는 책임을 부모에 둡니다.</p>
+<h3>요소를 지울 때는 포커스가 갈 곳을 먼저 정합니다</h3>
+<p>포커스를 가진 요소를 문서에서 제거하면 포커스는 그 자리에 남지 않습니다. 브라우저는 포커스를 문서 전체로 돌리고, document.activeElement는 body가 됩니다. 마우스 사용자는 다음 항목을 바로 누를 수 있지만, 키보드 사용자는 다음 Tab이 문서의 처음부터 시작될 수 있고, 스크린 리더 사용자는 자신이 어디에 있었는지 잃습니다.</p>
+<p>그래서 삭제 버튼처럼 포커스를 가진 채로 자신이 속한 항목을 지우는 조작은 <strong>제거하기 전에</strong> 다음 포커스 대상을 정합니다. 보통 다음 항목의 같은 버튼으로, 다음 항목이 없으면 이전 항목으로, 목록이 비면 새 항목을 입력하는 칸으로 보냅니다. 대상을 먼저 찾는 이유는 제거한 뒤에는 지운 항목의 이웃을 찾을 기준이 사라지기 때문입니다.</p>
+<pre><code>const item = button.closest("li");
+const neighbor = item.nextElementSibling ?? item.previousElementSibling;
+const nextFocus = neighbor?.querySelector("button") ?? taskInput;
+item.remove();
+nextFocus.focus();</code></pre>
+<ol class="line-explanation"><li>1행: 누른 삭제 버튼에서 조상 방향으로 올라가 그 버튼이 속한 li를 찾습니다.</li><li>2행: 다음 형제 항목을 고르고, 없으면 이전 형제를 고릅니다. <code>??</code>는 왼쪽이 null일 때만 오른쪽을 고릅니다(1장).</li><li>3행: 이웃 항목의 삭제 버튼을 고르고, 이웃이 없으면 입력칸을 고릅니다. <code>?.</code>는 neighbor가 null이면 검색하지 않고 undefined를 돌려줍니다.</li><li>4행: 이제 항목을 제거합니다. 이 순간 포커스는 body로 빠집니다.</li><li>5행: 미리 정한 대상으로 포커스를 옮깁니다. 제거와 이동이 같은 동기 실행 안에서 이어지므로 사용자는 중간 상태를 보지 않습니다.</li></ol>
+<p>삭제했다는 사실도 함께 전달하면 좋습니다. 이 장의 예제는 항목 수 안내를 상태 메시지로 갱신해, 포커스를 옮기지 않고도 무엇이 지워졌는지 알립니다. 이런 상태 메시지는 9장에서 자세히 다룹니다.</p>
 </section>
 <section class="concept" id="reading-code">
 <h2>네 줄로 보는 생성과 연결</h2>
@@ -53,6 +63,9 @@ item.remove();</code></pre>
 <p>textContent를 부모 li에 대입하면 기존 자식이 텍스트로 교체된다는 점도 기억해야 합니다. 이름과 삭제 버튼을 이미 붙인 뒤 li.textContent를 바꾸면 버튼도 사라집니다. 항목의 이름만 바꾸려면 이름을 맡은 span의 내용을 수정해야 합니다. 어떤 객체의 어느 부분을 바꾸는지가 결과를 결정합니다.</p>
 <h3>현재 구조와 예전에 검색한 목록</h3>
 <p><code>querySelectorAll</code>은 검색한 시점의 결과를 담은 정적인 NodeList를 반환합니다. 나중에 항목을 추가해도 전에 얻어둔 목록의 길이는 늘지 않습니다. 반면 부모의 children은 현재 자식 요소의 변화를 반영하는 목록입니다. 어떤 컬렉션을 읽는지에 따라 “항목 수”의 기준 시점이 달라집니다. 현재 개수가 필요하면 다시 검색하거나 현재 children을 읽어야 합니다.</p>
+<h3>여러 요소를 한 번에 조립하는 방법</h3>
+<p>항목을 여러 개 추가할 때 하나씩 append해도 결과는 같습니다. 문서 밖에서 먼저 묶고 싶다면 <strong>DocumentFragment</strong>를 사용합니다. fragment는 부모 없이 자식들만 담는 가벼운 컨테이너입니다. fragment를 부모에 append하면 fragment 자체가 아니라 그 안의 자식들이 옮겨 가고 fragment는 비게 됩니다. append는 여러 인수를 받으므로 <code>list.append(a, b, c)</code>로 충분할 때도 많습니다.</p>
+<p>반복해서 만드는 구조가 복잡하다면 HTML의 <code>&lt;template&gt;</code> 요소에 모양을 선언해 둘 수 있습니다. template 안의 내용은 화면에 그려지지 않고, 안의 스크립트도 실행되지 않으며, 문서 검색에도 잡히지 않는 fragment로 보관됩니다. <code>template.content.cloneNode(true)</code>로 복사본을 만든 뒤 글자를 채워 붙입니다. 복사본마다 id가 겹치지 않게 주의할 점은 cloneNode와 같습니다. 이미 있는 요소의 앞이나 뒤에 넣을 때는 before와 after를, 다른 요소로 바꿔 끼울 때는 replaceWith를 사용합니다.</p>
 </section>
 <section id="live-example"><h2>작은 예제 · 생성, 연결, 행동을 차례로 나누기</h2><p>먼저 객체 하나의 연결을 관찰하고, 이동과 복제를 비교한 뒤, 마지막 예제에서 목록 만들기와 이벤트 위임을 조합합니다. 세 예제의 데이터는 서로 독립적입니다.</p>
 <section class="demo sample" id="sample-create-connect" aria-labelledby="connect-title">

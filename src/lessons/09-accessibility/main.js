@@ -37,3 +37,30 @@ recordButton.addEventListener("click", () => {
   completed += 1;
   practiceStatus.textContent = `연습 ${completed}회를 기록했습니다.`;
 });
+
+// 예제 9-5: aria-hidden은 접근성 정보만 숨기고, inert는 포커스·클릭·접근성 정보를 함께 막습니다.
+const hideAreaA = document.querySelector("#hide-area-a");
+const hideAreaB = document.querySelector("#hide-area-b");
+const applyAriaHidden = document.querySelector("#apply-aria-hidden");
+const applyInert = document.querySelector("#apply-inert");
+const hideResult = document.querySelector("#hide-result");
+const hideClicks = { A: 0, B: 0 };
+
+function applyHiding() {
+  // 새로고침한 브라우저가 체크 상태를 복원하는 경우에도 영역의 속성을 체크와 맞춥니다.
+  if (applyAriaHidden.checked) hideAreaA.setAttribute("aria-hidden", "true");
+  else hideAreaA.removeAttribute("aria-hidden");
+  hideAreaB.inert = applyInert.checked;
+  document.querySelector("#hide-area-a-state").textContent = applyAriaHidden.checked ? 'aria-hidden="true"' : "속성 없음";
+  document.querySelector("#hide-area-b-state").textContent = applyInert.checked ? "inert" : "속성 없음";
+}
+applyAriaHidden.addEventListener("change", applyHiding);
+applyInert.addEventListener("change", applyHiding);
+applyHiding();
+
+for (const [name, area] of [["A", hideAreaA], ["B", hideAreaB]]) {
+  area.querySelector("button").addEventListener("click", () => {
+    hideClicks[name] += 1;
+    hideResult.textContent = `A의 버튼 ${hideClicks.A}회 · B의 버튼 ${hideClicks.B}회 클릭했습니다.`;
+  });
+}

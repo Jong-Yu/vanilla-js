@@ -75,3 +75,61 @@
     show();
   });
 }
+
+// 1-5. 조건에서 거짓으로 취급되는 값과 ??가 기본값을 고르는 기준은 다릅니다.
+{
+  const result = document.querySelector("#falsy-result");
+  const candidates = { zero: 0, empty: "", text: "false", list: [], none: null, missing: undefined };
+  // JSON.stringify(undefined)는 문자열이 아니라 undefined를 돌려주므로 ??로 표시할 글자를 정합니다.
+  const show = (value) => JSON.stringify(value) ?? "undefined";
+  for (const button of document.querySelectorAll("[data-falsy]")) {
+    button.addEventListener("click", () => {
+      const value = candidates[button.dataset.falsy];
+      result.textContent = [
+        `값: ${show(value)}`,
+        `Boolean(value): ${Boolean(value)}`,
+        `value || "기본값": ${show(value || "기본값")}`,
+        `value ?? "기본값": ${show(value ?? "기본값")}`,
+      ].join("\n");
+    });
+  }
+}
+
+// 1-6. this는 함수를 정의한 곳이 아니라 호출한 방식으로 정해집니다.
+{
+  const result = document.querySelector("#this-result");
+  let lastThis;
+  const counter = {
+    report() {
+      lastThis = this;
+      return this;
+    },
+  };
+  function label(value) {
+    if (value === counter) return "counter 객체";
+    if (value === window) return "window (일반 스크립트의 전역 객체)";
+    if (value instanceof Element) return `${value.tagName.toLowerCase()}#${value.id} (리스너가 등록된 요소)`;
+    return String(value);
+  }
+  function show(call) {
+    result.textContent = `호출: ${call}\nthis: ${label(lastThis)}`;
+  }
+  document.querySelector("#call-method").addEventListener("click", () => {
+    counter.report();
+    show("counter.report()");
+  });
+  document.querySelector("#call-detached").addEventListener("click", () => {
+    const run = counter.report;
+    run();
+    show("const run = counter.report; run()");
+  });
+  document.querySelector("#call-wrapped").addEventListener("click", () => {
+    const wrapped = () => counter.report();
+    wrapped();
+    show("const wrapped = () => counter.report(); wrapped()");
+  });
+  const listenerButton = document.querySelector("#call-listener");
+  // 메서드를 그대로 리스너로 넘깁니다. 브라우저가 this를 버튼으로 정해 호출합니다.
+  listenerButton.addEventListener("click", counter.report);
+  listenerButton.addEventListener("click", () => show('addEventListener("click", counter.report)'));
+}

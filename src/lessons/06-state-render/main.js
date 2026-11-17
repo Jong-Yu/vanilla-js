@@ -68,3 +68,77 @@
   });
   render(); // 처음 화면도 직접 한 번 반영합니다.
 }
+
+// 6-4. 목록을 다시 그릴 때 요소를 새로 만들면 상태에 없는 포커스와 입력값이 사라집니다.
+{
+  const list = document.querySelector("#keyed-list");
+  const reuse = document.querySelector("#keyed-reuse");
+  const result = document.querySelector("#keyed-result");
+  const elements = new Map(); // 항목 id → 그 항목을 표현하는 li
+  let items = [];
+  let nextId = 1;
+
+  function createItem(item) {
+    const li = document.createElement("li");
+    const label = document.createElement("label");
+    label.className = "stack";
+    label.append(`${item.label} 메모`);
+    const input = document.createElement("input");
+    input.type = "text";
+    input.autocomplete = "off";
+    label.append(input);
+    li.append(label);
+    return li;
+  }
+  // 방식 1: 모든 li를 새로 만들어 교체합니다. Map도 새 요소로 다시 채웁니다.
+  function renderRecreate() {
+    elements.clear();
+    list.replaceChildren(...items.map((item) => {
+      const li = createItem(item);
+      elements.set(item.id, li);
+      return li;
+    }));
+  }
+  // 방식 2: id로 기존 li를 다시 쓰고, 제자리에 있는 요소는 옮기지 않습니다.
+  function renderReuse() {
+    let cursor = list.firstElementChild;
+    for (const item of items) {
+      const li = elements.get(item.id) ?? createItem(item);
+      elements.set(item.id, li);
+      if (li === cursor) cursor = cursor.nextElementSibling;
+      else list.insertBefore(li, cursor);
+    }
+    const ids = new Set(items.map((item) => item.id));
+    for (const [id, li] of elements) {
+      if (!ids.has(id)) {
+        li.remove();
+        elements.delete(id);
+      }
+    }
+  }
+  function describeFocus() {
+    const active = document.activeElement;
+    if (!active || active === document.body) return "body (목록 밖으로 빠짐)";
+    return list.contains(active) ? "목록 안의 입력 (유지됨)" : active.tagName.toLowerCase();
+  }
+  list.addEventListener("keydown", (event) => {
+    // 한글 조합을 확정하는 Enter는 새 항목을 만들지 않습니다 (4장 예제 4-8).
+    if (event.key !== "Enter" || event.isComposing || event.keyCode === 229) return;
+    if (!(event.target instanceof HTMLInputElement)) return;
+    event.preventDefault();
+    items = [{ id: nextId, label: `항목 ${nextId}` }, ...items].slice(0, 6);
+    nextId += 1;
+    if (reuse.checked) renderReuse();
+    else renderRecreate();
+    result.textContent = `${reuse.checked ? "다시 쓰기" : "새로 만들기"} · 항목 ${items.length}개 · 다시 그린 직후 포커스: ${describeFocus()}`;
+  });
+  function reset() {
+    items = [1, 2, 3].map((id) => ({ id, label: `항목 ${id}` }));
+    nextId = 4;
+    reuse.checked = false;
+    renderRecreate();
+    result.textContent = "아직 다시 그리지 않았습니다.";
+  }
+  document.querySelector("#reset-keyed").addEventListener("click", reset);
+  reset();
+}
