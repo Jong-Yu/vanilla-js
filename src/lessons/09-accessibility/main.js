@@ -5,12 +5,14 @@ let executionCount = 0;
 
 nativeButton.addEventListener("click", () => {
   executionCount += 1;
-  nativeResult.textContent = `실행 횟수: ${executionCount}회`;
+  showFields(nativeResult, [["click 리스너 실행", `${executionCount}회`]]);
 });
+
+showFields(nativeResult, [["click 리스너 실행", "0회"]]);
 
 document.querySelector("#native-reset").addEventListener("click", () => {
   executionCount = 0;
-  nativeResult.textContent = "실행 횟수: 0회";
+  showFields(nativeResult, [["click 리스너 실행", "0회"]]);
 });
 
 // 예제 9-2: label과 aria-describedby의 연결에는 JavaScript가 필요하지 않습니다.
@@ -19,12 +21,20 @@ document.querySelector("#native-reset").addEventListener("click", () => {
 const helpButton = document.querySelector("#help-toggle");
 const helpPanel = document.querySelector("#help-panel");
 const disclosureResult = document.querySelector("#disclosure-result");
+// 버튼의 aria-expanded와 패널의 hidden을 나란히 읽어 보여줍니다.
+function showDisclosure() {
+  showFields(disclosureResult, [
+    ["button의 aria-expanded", { code: JSON.stringify(helpButton.getAttribute("aria-expanded")) }],
+    ["panel.hidden", helpPanel.hidden],
+  ]);
+}
+showDisclosure();
 
 helpButton.addEventListener("click", () => {
   const expanded = helpButton.getAttribute("aria-expanded") === "true";
   helpButton.setAttribute("aria-expanded", String(!expanded));
   helpPanel.hidden = expanded;
-  disclosureResult.textContent = `aria-expanded="${!expanded}" · hidden=${expanded}`;
+  showDisclosure();
   // 키보드로 누른 버튼의 포커스를 패널로 강제로 이동하지 않습니다.
 });
 
@@ -61,6 +71,9 @@ applyHiding();
 for (const [name, area] of [["A", hideAreaA], ["B", hideAreaB]]) {
   area.querySelector("button").addEventListener("click", () => {
     hideClicks[name] += 1;
-    hideResult.textContent = `A의 버튼 ${hideClicks.A}회 · B의 버튼 ${hideClicks.B}회 클릭했습니다.`;
+    showFields(hideResult, [
+      ["A의 버튼 클릭", `${hideClicks.A}회`],
+      ["B의 버튼 클릭", `${hideClicks.B}회`],
+    ]);
   });
 }

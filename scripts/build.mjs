@@ -29,7 +29,7 @@ aliases["01-native-html/index.html"] = "lessons/01-javascript/index.html";
 aliases["03-events/index.html"] = "lessons/04-events/index.html";
 
 const paths = [
-  "index.html", "styles.css", "shared/switch-store.js", "shared/bind-switch.js",
+  "index.html", "styles.css", "shared/switch-store.js", "shared/bind-switch.js", "shared/output.js",
   ...lessons.flatMap(([directory]) => [`${directory}/index.html`, `${directory}/main.js`]),
 ];
 const files = Object.fromEntries(await Promise.all(paths.map(async path => [

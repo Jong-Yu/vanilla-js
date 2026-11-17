@@ -7,41 +7,46 @@ function showElements(elements, description) {
   for (const element of profile.querySelectorAll(".is-found")) {
     element.classList.remove("is-found");
   }
-  const descriptions = [];
+  const entries = [];
   for (const element of elements) {
     element.classList.add("is-found");
-    descriptions.push({
-      tag: element.tagName,
-      parent: element.parentElement.tagName,
-      childElementCount: element.children.length,
+    entries.push({
+      tag: element.tagName.toLowerCase(),
+      text: ["부모 ", { code: element.parentElement.tagName.toLowerCase() }, ` · 자식 요소 ${element.children.length}개`],
     });
   }
-  queryResult.textContent = `${description}\n${JSON.stringify(descriptions, null, 2)}`;
+  showOutput(queryResult, outputMessage(description), outputLog(entries));
 }
 
 document.querySelector("#find-one").addEventListener("click", () => {
-  showElements([profile], "요소 하나: section#profile");
+  showElements([profile], ["요소 하나: ", { code: "section#profile" }]);
 });
 document.querySelector("#find-many").addEventListener("click", () => {
   const topics = profile.querySelectorAll(".topic");
-  showElements(topics, `NodeList: 길이 ${topics.length}`);
+  showElements(topics, ["NodeList · 길이 ", topics.length]);
 });
 document.querySelector("#find-missing").addEventListener("click", () => {
   const missing = profile.querySelector(".missing");
   showElements([], "");
-  queryResult.textContent = `${missing} — 일치하는 요소가 없습니다.`;
+  showOutput(queryResult, outputFields([['querySelector(".missing")', missing]]), outputMessage("일치하는 요소가 없어 null을 돌려받았습니다.", "muted"));
 });
 
 // 예제 2-2 · 요소 사이의 글자도 Text 노드입니다.
 const sentence = document.querySelector("#node-sentence");
 document.querySelector("#inspect-nodes").addEventListener("click", () => {
+  // 노드마다 종류, 이름, 담긴 글자를 한 줄로 보여줍니다. 공백이 보이도록 글자는 따옴표로 감쌉니다.
   const nodes = [...sentence.childNodes].map((node) => ({
-    type: node.nodeType === Node.TEXT_NODE ? "Text" : "Element",
-    name: node.nodeName,
-    text: node.textContent,
+    tag: node.nodeType === Node.TEXT_NODE ? "Text" : "Element",
+    text: [{ code: node.nodeName }, "  ", { code: JSON.stringify(node.textContent) }],
   }));
-  document.querySelector("#nodes-result").textContent =
-    `children: ${sentence.children.length}개 / childNodes: ${sentence.childNodes.length}개\n${JSON.stringify(nodes, null, 2)}`;
+  showOutput(
+    document.querySelector("#nodes-result"),
+    outputFields([
+      ["children.length", sentence.children.length],
+      ["childNodes.length", sentence.childNodes.length],
+    ]),
+    outputLog(nodes),
+  );
 });
 
 // 예제 2-3 · 두 참조와 한 문자열을 같은 시점에 저장합니다.
@@ -49,8 +54,11 @@ const first = document.querySelector("#reference-text");
 const second = document.querySelector("#reference-text");
 const savedText = first.textContent;
 function describeReference() {
-  document.querySelector("#reference-result").textContent =
-    `first === second: ${first === second}\nsecond.textContent: ${second.textContent}\nsavedText: ${savedText}`;
+  showFields(document.querySelector("#reference-result"), [
+    ["first === second", first === second],
+    ["second.textContent", { code: JSON.stringify(second.textContent) }],
+    ["savedText", { code: JSON.stringify(savedText) }],
+  ]);
 }
 document.querySelector("#change-reference").addEventListener("click", () => {
   first.textContent = "바뀐 문구";
@@ -67,8 +75,12 @@ const collectionList = document.querySelector("#collection-list");
 let saved = collectionList.querySelectorAll("li");
 const live = collectionList.children;
 function describeCollections() {
-  document.querySelector("#collections-result").textContent =
-    `저장한 NodeList: ${saved.length}개\n저장한 children: ${live.length}개\n지금 다시 검색: ${collectionList.querySelectorAll("li").length}개\n저장한 첫 요소의 텍스트: ${saved[0].textContent}`;
+  showFields(document.querySelector("#collections-result"), [
+    ["저장한 NodeList의 길이", saved.length],
+    ["저장한 children의 길이", live.length],
+    ["지금 다시 검색한 길이", collectionList.querySelectorAll("li").length],
+    ["저장한 첫 요소의 글자", { code: JSON.stringify(saved[0].textContent) }],
+  ]);
 }
 document.querySelector("#append-collection").addEventListener("click", () => {
   const item = document.createElement("li");

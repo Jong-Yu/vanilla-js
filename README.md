@@ -29,7 +29,7 @@ src/
   styles.css              공통 스타일
   standalone-shell.html   단일 HTML의 탐색·코드 편집 화면
   lessons/                학습 순서에 맞춘 01–11장
-  shared/                 예제에서 공유하는 상태·DOM 연결 코드
+  shared/                 예제에서 공유하는 상태·DOM 연결 코드와 결과 표시 도우미(output.js)
 scripts/                  빌드와 HTML 생성
 tests/                    상태 저장소 테스트
 docs/guide.md             읽기 안내와 용어
@@ -41,7 +41,7 @@ dist/                     자동 생성되는 결과물 (Git 제외)
 ## 수정과 배포
 
 - 본문과 예제는 `src/lessons/`의 각 장에 있는 `index.html`, `main.js`를 수정합니다.
-- 공통 화면은 `src/styles.css`, 상태와 DOM 연결은 `src/shared/`에서 수정합니다.
+- 공통 화면은 `src/styles.css`, 상태와 DOM 연결은 `src/shared/`에서 수정합니다. 예제의 실행 결과는 `src/shared/output.js`의 함수로 기록 목록이나 이름·값 표로 보여줍니다.
 - 읽기 안내는 `docs/guide.md`에서 수정합니다. 예제 목록은 각 장의 `class="sample"` 섹션 제목으로 생성됩니다.
 - 수정 후 `npm test`와 `npm run build`를 실행합니다. `dist/` 안의 파일은 직접 수정하지 않습니다.
 

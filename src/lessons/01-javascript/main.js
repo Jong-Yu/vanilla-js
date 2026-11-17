@@ -7,7 +7,11 @@
     const saved = count;
     const message = `${count}개 완료`;
     count = 2;
-    result.textContent = `count: ${count}\nsaved: ${saved}\nmessage: ${message}`;
+    showFields(result, [
+      ["count", count],
+      ["saved", saved],
+      ["message", { code: JSON.stringify(message) }],
+    ]);
   });
 }
 
@@ -19,12 +23,13 @@
     const alias = original;
     const separate = { done: false };
     alias.done = true;
-    result.textContent = [
-      `original.done: ${original.done} · alias.done: ${alias.done}`,
-      `separate.done: ${separate.done}`,
-      `original === alias: ${original === alias}`,
-      `original === separate: ${original === separate}`,
-    ].join("\n");
+    showFields(result, [
+      ["original.done", original.done],
+      ["alias.done", alias.done],
+      ["separate.done", separate.done],
+      ["original === alias", original === alias],
+      ["original === separate", original === separate],
+    ]);
   });
 }
 
@@ -40,7 +45,12 @@
     const callback = describe;
     const before = calls;
     const message = callback(2);
-    result.textContent = `함수 전달 직후 calls: ${before}\n호출 후 calls: ${calls}\ntypeof callback: ${typeof callback}\nmessage: ${message}`;
+    showFields(result, [
+      ["함수를 전달한 직후 calls", before],
+      ["호출한 뒤 calls", calls],
+      ["typeof callback", { code: JSON.stringify(typeof callback) }],
+      ["message", { code: JSON.stringify(message) }],
+    ]);
   });
 }
 
@@ -57,7 +67,10 @@
   let lastA = 0;
   let lastB = 0;
   function show() {
-    result.textContent = `A: ${lastA} · B: ${lastB}`;
+    showFields(result, [
+      ["A가 마지막으로 돌려준 값", lastA],
+      ["B가 마지막으로 돌려준 값", lastB],
+    ]);
   }
   document.querySelector("#next-a").addEventListener("click", () => {
     lastA = nextA();
@@ -74,6 +87,7 @@
     lastB = 0;
     show();
   });
+  show();
 }
 
 // 1-5. 조건에서 거짓으로 취급되는 값과 ??가 기본값을 고르는 기준은 다릅니다.
@@ -81,16 +95,16 @@
   const result = document.querySelector("#falsy-result");
   const candidates = { zero: 0, empty: "", text: "false", list: [], none: null, missing: undefined };
   // JSON.stringify(undefined)는 문자열이 아니라 undefined를 돌려주므로 ??로 표시할 글자를 정합니다.
-  const show = (value) => JSON.stringify(value) ?? "undefined";
+  const literal = (value) => ({ code: JSON.stringify(value) ?? "undefined" });
   for (const button of document.querySelectorAll("[data-falsy]")) {
     button.addEventListener("click", () => {
       const value = candidates[button.dataset.falsy];
-      result.textContent = [
-        `값: ${show(value)}`,
-        `Boolean(value): ${Boolean(value)}`,
-        `value || "기본값": ${show(value || "기본값")}`,
-        `value ?? "기본값": ${show(value ?? "기본값")}`,
-      ].join("\n");
+      showFields(result, [
+        ["value", literal(value)],
+        ["Boolean(value)", Boolean(value)],
+        ['value || "기본값"', literal(value || "기본값")],
+        ['value ?? "기본값"', literal(value ?? "기본값")],
+      ]);
     });
   }
 }
@@ -112,7 +126,10 @@
     return String(value);
   }
   function show(call) {
-    result.textContent = `호출: ${call}\nthis: ${label(lastThis)}`;
+    showFields(result, [
+      ["호출한 방식", { code: call }],
+      ["this", label(lastThis)],
+    ]);
   }
   document.querySelector("#call-method").addEventListener("click", () => {
     counter.report();

@@ -5,7 +5,10 @@
   const result = document.querySelector("#memory-result");
   // 학습용 관찰 문구만 갱신합니다. 실제 알림 표시 view는 바꾸지 않습니다.
   function inspect() {
-    result.textContent = `메모리 checked: ${state.checked} · 마지막으로 쓴 화면: ${view.textContent}`;
+    showFields(result, [
+      ["메모리의 state.checked", state.checked],
+      ["화면에 마지막으로 쓴 글자", { code: JSON.stringify(view.textContent) }],
+    ]);
   }
   document.querySelector("#change-memory").addEventListener("click", () => {
     state.checked = true;
@@ -20,6 +23,7 @@
     view.textContent = "꺼짐";
     inspect();
   });
+  inspect();
 }
 
 // 6-2. 파생값은 하나의 원본에서 필요할 때 계산합니다.
@@ -29,7 +33,12 @@
     const summary = checked ? "켜짐" : "꺼짐";
     const dataState = checked ? "checked" : "unchecked";
     const json = JSON.stringify({ checked });
-    result.textContent = `원본 checked: ${checked}\n안내 문구: ${summary}\nCSS용 상태: ${dataState}\nJSON 표현: ${json}`;
+    showFields(result, [
+      ["원본 checked", checked],
+      ["안내 문구", { code: JSON.stringify(summary) }],
+      ["CSS용 data-state", { code: JSON.stringify(dataState) }],
+      ["JSON 표현", { code: json }],
+    ]);
   }
   document.querySelector("#derive-true").addEventListener("click", () => derive(true));
   document.querySelector("#derive-false").addEventListener("click", () => derive(false));
@@ -50,7 +59,7 @@
     input.checked = state.checked;
     input.dataset.state = state.checked ? "checked" : "unchecked";
     summary.textContent = state.checked ? "켜짐" : "꺼짐";
-    stateView.textContent = JSON.stringify(state, null, 2);
+    stateView.textContent = JSON.stringify(state);
     renderCount.textContent = String(renders);
   }
   function setChecked(checked) {
@@ -81,7 +90,7 @@
   function createItem(item) {
     const li = document.createElement("li");
     const label = document.createElement("label");
-    label.className = "stack";
+    label.className = "control";
     label.append(`${item.label} 메모`);
     const input = document.createElement("input");
     input.type = "text";
@@ -130,14 +139,23 @@
     nextId += 1;
     if (reuse.checked) renderReuse();
     else renderRecreate();
-    result.textContent = `${reuse.checked ? "다시 쓰기" : "새로 만들기"} · 항목 ${items.length}개 · 다시 그린 직후 포커스: ${describeFocus()}`;
+    const kept = list.contains(document.activeElement);
+    showOutput(
+      result,
+      outputFields([
+        ["그리는 방식", reuse.checked ? "id로 기존 요소를 다시 쓰기" : "모든 요소를 새로 만들기"],
+        ["항목 수", `${items.length}개`],
+        ["다시 그린 직후 포커스", describeFocus()],
+      ]),
+      outputMessage(kept ? "입력하던 칸에 포커스와 글자가 남아 있습니다." : "입력하던 칸이 사라져 포커스가 목록 밖으로 빠졌습니다.", kept ? "good" : "warn"),
+    );
   });
   function reset() {
     items = [1, 2, 3].map((id) => ({ id, label: `항목 ${id}` }));
     nextId = 4;
     reuse.checked = false;
     renderRecreate();
-    result.textContent = "아직 다시 그리지 않았습니다.";
+    showMessage(result, "아직 다시 그리지 않았습니다.", "muted");
   }
   document.querySelector("#reset-keyed").addEventListener("click", reset);
   reset();

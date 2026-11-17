@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ko">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>8장 · 폼과 포커스의 기본 계약</title><link rel="stylesheet" href="../../styles.css"><script defer src="main.js"></script><style>#focus-title:focus { outline: 3px solid var(--accent); outline-offset: 6px; } .focus-lab input:disabled { color: var(--muted); background: var(--code); } .focus-lab input[readonly] { background: var(--soft); }</style></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>8장 · 폼과 포커스의 기본 계약</title><link rel="stylesheet" href="../../styles.css"><script defer src="../../shared/output.js"></script><script defer src="main.js"></script><style>#focus-title:focus { outline: 3px solid var(--accent); outline-offset: 6px; } .focus-lab input:disabled { color: var(--muted); background: var(--code); } .focus-lab input[readonly] { background: var(--soft); }</style></head>
 <body><a class="skip-link" href="#main-content">본문으로 건너뛰기</a><main id="main-content" tabindex="-1" class="focus-lab">
 <header><a href="../../">차례</a><p class="eyebrow">8장 · 폼과 포커스의 기본 계약</p><h1>HTML 요소가 제공하는<br>입력과 이동의 규칙</h1><p class="intro">폼 요소는 화면에 그려진 모양 이상의 기능을 갖습니다. 브라우저가 제공하는 의미, 키보드 조작, 포커스, 데이터 수집 규칙을 이해하면 직접 구현할 동작의 경계가 보입니다.</p></header>
 <nav class="chapter-toc" aria-label="이 장의 읽기 순서"><a href="#native">네이티브 요소의 의미</a><a href="#focus">포커스와 이동 순서</a><a href="#form-data">폼 데이터의 구성</a><a href="#defaults">현재 값과 기본값</a><a href="#semantics">키보드와 접근성</a><a href="#validation">입력 검증</a><a href="#observation">동작 예제</a></nav>
@@ -66,53 +66,62 @@ form.reportValidity();</code></pre>
 <p>포커스, 데이터 수집, 초기화, 포커스 이벤트, 입력 검증은 각각 다른 브라우저 기능입니다. 아래 예제는 서로 다른 입력을 사용하므로 앞 예제의 조작이 다음 결과에 영향을 주지 않습니다.</p>
 <div class="sample-links"><a href="#sample-focus">8-1 · 포커스</a><a href="#sample-form-data">8-2 · 폼 데이터</a><a href="#sample-form-reset">8-3 · 초기화</a><a href="#sample-focus-events">8-4 · 포커스 이벤트</a><a href="#sample-validation">8-5 · 입력 검증</a></div>
 <section class="demo sample" id="sample-focus" aria-labelledby="focus-sample-title">
-<h3 id="focus-sample-title">8-1 · Tab 순서와 프로그램으로 옮기는 포커스</h3>
-<p class="prediction"><strong>먼저 예상하기.</strong> 제목에 포커스를 보낼 수 있다면 Tab으로도 그 제목에 멈출까요?</p>
-<div class="stack"><h4 id="focus-title" tabindex="-1">프로필 입력 영역</h4>
-<label for="focus-name-input">연습용 이름</label><input id="focus-name-input" type="text" value="민지">
-<div class="row"><button id="focus-name" type="button">이름으로 포커스 이동</button><button id="focus-heading" type="button">제목으로 포커스 이동</button></div>
-<p>현재 문서의 포커스: <span id="focus-result" class="status"></span></p></div>
+<p class="sample-meta">예제 8-1</p><h3 id="focus-sample-title">Tab 순서와 프로그램으로 옮기는 포커스</h3>
+<p class="prediction"><strong>예상하기</strong>제목에 포커스를 보낼 수 있다면 Tab으로도 그 제목에 멈출까요?</p>
 <pre><code>heading.tabIndex = -1;
 heading.focus();
 // document.activeElement === heading</code></pre>
-<p class="expected"><strong>관찰할 결과.</strong> 제목 이동 버튼을 누르면 제목에 테두리가 나타납니다. 제목의 tabindex="-1"은 프로그램으로 이동할 수 있게 하지만 일반 Tab 순서에는 넣지 않습니다. 제목에서 Tab을 누르면 다음 입력으로 이동합니다. 포커스 표시는 시각 관찰용이며 매 이동을 별도로 읽어주지 않습니다.</p>
+<div class="stack"><h4 id="focus-title" tabindex="-1">프로필 입력 영역</h4>
+<label for="focus-name-input">연습용 이름</label><input id="focus-name-input" type="text" value="민지">
+<div class="row"><button id="focus-name" type="button">이름으로 포커스 이동</button><button id="focus-heading" type="button">제목으로 포커스 이동</button></div>
+<div class="output" id="focus-result"></div></div>
+
+<p class="expected"><strong>확인할 결과</strong>제목 이동 버튼을 누르면 제목에 테두리가 나타납니다. 제목의 tabindex="-1"은 프로그램으로 이동할 수 있게 하지만 일반 Tab 순서에는 넣지 않습니다. 제목에서 Tab을 누르면 다음 입력으로 이동합니다. 포커스 표시는 시각 관찰용이며 매 이동을 별도로 읽어주지 않습니다.</p>
 </section>
 <section class="demo sample" id="sample-form-data" aria-labelledby="data-sample-title">
-<h3 id="data-sample-title">8-2 · 화면의 입력과 제출되는 데이터는 다릅니다</h3>
-<p class="prediction"><strong>먼저 예상하기.</strong> readonly, disabled, name 없음 중 어떤 입력이 FormData에 들어갈까요?</p>
+<p class="sample-meta">예제 8-2</p><h3 id="data-sample-title">화면의 입력과 제출되는 데이터는 다릅니다</h3>
+<p class="prediction"><strong>예상하기</strong>readonly, disabled, name 없음 중 어떤 입력이 FormData에 들어갈까요?</p>
+<pre><code>form.addEventListener("submit", (event) =&gt; {
+  event.preventDefault();
+  const entries = [...new FormData(form).entries()];
+});</code></pre>
 <form id="profile-form" class="stack">
 <label class="stack" for="nickname">이름 · 수정 가능<input id="nickname" name="nickname" type="text" value="민지" required autocomplete="off"></label>
 <label class="stack" for="account">계정 · readonly<input id="account" name="account" type="text" value="learner-001" readonly></label>
 <label class="stack" for="plan">플랜 · disabled<input id="plan" name="plan" type="text" value="basic" disabled></label>
 <label class="stack" for="memo">메모 · name 없음<input id="memo" type="text" value="화면에서만 읽는 메모" autocomplete="off"></label>
 <label class="control" for="news"><input id="news" name="news" type="checkbox" value="email" checked>이메일 소식 받기</label>
-<button type="submit">폼 값 읽기</button></form>
-<pre id="form-result" aria-live="polite">아직 폼 값을 읽지 않았습니다.</pre>
-<pre><code>form.addEventListener("submit", (event) =&gt; {
-  event.preventDefault();
-  const entries = [...new FormData(form).entries()];
-});</code></pre>
-<p class="expected"><strong>관찰할 결과.</strong> 처음에는 nickname, account, news만 포함됩니다. readonly는 포함되지만 disabled와 name 없는 입력은 제외됩니다. 알림을 해제하고 다시 읽으면 news 항목 자체가 사라집니다. 이름을 비우면 required 검증이 제출을 막으므로 이전 결과가 남습니다.</p>
+<div class="row"><button type="submit">폼 값 읽기</button></div></form>
+<div class="output" id="form-result" aria-live="polite"><p class="output-message" data-tone="muted">아직 폼 값을 읽지 않았습니다.</p></div>
+
+<p class="expected"><strong>확인할 결과</strong>처음에는 nickname, account, news만 포함됩니다. readonly는 포함되지만 disabled와 name 없는 입력은 제외됩니다. 알림을 해제하고 다시 읽으면 news 항목 자체가 사라집니다. 이름을 비우면 required 검증이 제출을 막으므로 이전 결과가 남습니다.</p>
 </section>
 <section class="demo sample" id="sample-form-reset" aria-labelledby="reset-sample-title">
-<h3 id="reset-sample-title">8-3 · reset은 빈 값이 아니라 기본값으로 돌아갑니다</h3>
-<p class="prediction"><strong>먼저 예상하기.</strong> 이름과 체크를 바꾼 뒤 초기화하면 빈 이름과 꺼진 체크가 될까요?</p>
-<form id="reset-form" class="stack">
-<label class="stack" for="reset-name">이름 · 기본값 민지<input id="reset-name" type="text" value="민지"></label>
-<label class="control" for="reset-news"><input id="reset-news" type="checkbox" checked>알림 · 기본값 켜짐</label>
-<button type="reset">이 예제의 기본값으로 초기화</button></form>
-<pre id="reset-result" aria-live="polite">이름과 체크를 바꾼 뒤 초기화해보세요.</pre>
+<p class="sample-meta">예제 8-3</p><h3 id="reset-sample-title">reset은 빈 값이 아니라 기본값으로 돌아갑니다</h3>
+<p class="prediction"><strong>예상하기</strong>이름과 체크를 바꾼 뒤 초기화하면 빈 이름과 꺼진 체크가 될까요?</p>
 <pre><code>form.addEventListener("reset", (event) =&gt; {
   // 이 자리에서는 아직 이전 값일 수 있습니다.
   setTimeout(() =&gt; {
     if (!event.defaultPrevented) readCurrentValues();
   }, 0);
 });</code></pre>
-<p class="expected"><strong>관찰할 결과.</strong> 이름은 “민지”, 체크는 true로 돌아옵니다. 로그의 첫 줄은 reset 이벤트 안의 값, 둘째 줄은 기본 동작 이후 값입니다. 현재값(value, checked)과 기본값(defaultValue, defaultChecked)이 서로 다른 정보이기 때문입니다.</p>
+<form id="reset-form" class="stack">
+<label class="stack" for="reset-name">이름 · 기본값 민지<input id="reset-name" type="text" value="민지"></label>
+<label class="control" for="reset-news"><input id="reset-news" type="checkbox" checked>알림 · 기본값 켜짐</label>
+<div class="row"><button type="reset">이 예제의 기본값으로 초기화</button></div></form>
+<div class="output" id="reset-result" aria-live="polite"><p class="output-message" data-tone="muted">이름과 체크를 바꾼 뒤 초기화해보세요.</p></div>
+
+<p class="expected"><strong>확인할 결과</strong>이름은 “민지”, 체크는 true로 돌아옵니다. 로그의 첫 줄은 reset 이벤트 안의 값, 둘째 줄은 기본 동작 이후 값입니다. 현재값(value, checked)과 기본값(defaultValue, defaultChecked)이 서로 다른 정보이기 때문입니다.</p>
 </section>
 <section class="demo sample" id="sample-focus-events" aria-labelledby="focus-events-title">
-<h3 id="focus-events-title">8-4 · 영역은 포커스가 들어오고 나가는 것을 알 수 있을까요?</h3>
-<p class="prediction"><strong>먼저 예상하기.</strong> 아래 영역에 focus 리스너와 focusin·focusout 리스너를 함께 등록했습니다. Tab으로 영역 안의 입력에 들어가면 어느 리스너가 기록할까요? 두 입력 사이를 오갈 때와 영역 밖으로 나갈 때 relatedTarget은 무엇일까요?</p>
+<p class="sample-meta">예제 8-4</p><h3 id="focus-events-title">영역은 포커스가 들어오고 나가는 것을 알 수 있을까요?</h3>
+<p class="prediction"><strong>예상하기</strong>아래 영역에 focus 리스너와 focusin·focusout 리스너를 함께 등록했습니다. Tab으로 영역 안의 입력에 들어가면 어느 리스너가 기록할까요? 두 입력 사이를 오갈 때와 영역 밖으로 나갈 때 relatedTarget은 무엇일까요?</p>
+<pre><code>zone.addEventListener("focus", record);   // 버블링하지 않으므로 자식의 포커스는 받지 못합니다
+zone.addEventListener("focusin", record);
+zone.addEventListener("focusout", (event) =&gt; {
+  const next = event.relatedTarget;        // 포커스가 갈 요소 또는 null
+  const left = next === null || !zone.contains(next);
+});</code></pre>
 <div class="stack">
 <div class="row"><button id="before-focus-zone" type="button">영역 앞 버튼</button></div>
 <fieldset id="focus-zone" class="stack"><legend>검색 조건 영역</legend>
@@ -121,27 +130,23 @@ heading.focus();
 </fieldset>
 <div class="row"><button id="after-focus-zone" type="button">영역 뒤 버튼</button><button id="reset-focus-zone" type="button">포커스 기록 초기화</button></div>
 </div>
-<pre id="focus-zone-log" aria-label="영역의 포커스 이벤트 기록">아직 영역에 포커스가 들어오지 않았습니다.</pre>
-<pre><code>zone.addEventListener("focus", record);   // 버블링하지 않으므로 자식의 포커스는 받지 못합니다
-zone.addEventListener("focusin", record);
-zone.addEventListener("focusout", (event) =&gt; {
-  const next = event.relatedTarget;        // 포커스가 갈 요소 또는 null
-  const left = next === null || !zone.contains(next);
-});</code></pre>
-<p class="expected"><strong>관찰할 결과.</strong> 영역의 focus 리스너는 아무것도 기록하지 않습니다. 포커스를 받은 것은 영역이 아니라 안쪽 입력이기 때문입니다. focusin과 focusout은 입력에서 발생해 영역까지 버블링하므로 기록됩니다. 검색어에서 지역으로 이동하면 focusout의 relatedTarget이 지역 입력이므로 “영역 안에서 이동”으로 표시됩니다. 지역에서 영역 뒤 버튼으로 이동하면 “영역 밖으로 나감”입니다. 입력에 포커스를 둔 채 문서의 빈 곳을 클릭하면 relatedTarget은 null입니다. macOS의 일부 브라우저는 버튼을 클릭해도 포커스를 옮기지 않으므로 버튼으로 나가는 경우는 Tab으로 확인하세요.</p>
+<div class="output" id="focus-zone-log" aria-label="영역의 포커스 이벤트 기록" role="group"><p class="output-message" data-tone="muted">아직 영역에 포커스가 들어오지 않았습니다.</p></div>
+
+<p class="expected"><strong>확인할 결과</strong>영역의 focus 리스너는 아무것도 기록하지 않습니다. 포커스를 받은 것은 영역이 아니라 안쪽 입력이기 때문입니다. focusin과 focusout은 입력에서 발생해 영역까지 버블링하므로 기록됩니다. 검색어에서 지역으로 이동하면 focusout의 relatedTarget이 지역 입력이므로 “영역 안에서 이동”으로 표시됩니다. 지역에서 영역 뒤 버튼으로 이동하면 “영역 밖으로 나감”입니다. 입력에 포커스를 둔 채 문서의 빈 곳을 클릭하면 relatedTarget은 null입니다. macOS의 일부 브라우저는 버튼을 클릭해도 포커스를 옮기지 않으므로 버튼으로 나가는 경우는 Tab으로 확인하세요.</p>
 </section>
 <section class="demo sample" id="sample-validation" aria-labelledby="validation-title">
-<h3 id="validation-title">8-5 · 형식이 틀린 입력은 어떻게 알려질까요?</h3>
-<p class="prediction"><strong>먼저 예상하기.</strong> 이메일 칸을 비우거나 “abc”를 적은 뒤 검사하면 validity의 어떤 값이 true가 될까요? 그 상태로 가입 요청을 누르면 submit 이벤트가 발생할까요?</p>
+<p class="sample-meta">예제 8-5</p><h3 id="validation-title">형식이 틀린 입력은 어떻게 알려질까요?</h3>
+<p class="prediction"><strong>예상하기</strong>이메일 칸을 비우거나 “abc”를 적은 뒤 검사하면 validity의 어떤 값이 true가 될까요? 그 상태로 가입 요청을 누르면 submit 이벤트가 발생할까요?</p>
+<pre><code>const ok = input.checkValidity();
+const { valid, valueMissing, typeMismatch } = input.validity;
+form.addEventListener("invalid", record, { capture: true });</code></pre>
 <form id="signup-form" class="stack">
 <label class="stack" for="signup-email">이메일 · 필수<input id="signup-email" name="email" type="email" required autocomplete="off"></label>
 <div class="row"><button type="submit">가입 요청</button><button id="check-email" type="button">checkValidity()로 검사</button><button id="reset-validation" type="button">검증 실험 초기화</button></div>
 </form>
-<pre id="validation-result" aria-live="polite">아직 검사하지 않았습니다.</pre>
-<pre><code>const ok = input.checkValidity();
-const { valid, valueMissing, typeMismatch } = input.validity;
-form.addEventListener("invalid", record, { capture: true });</code></pre>
-<p class="expected"><strong>관찰할 결과.</strong> 빈 칸은 valueMissing이, “abc”는 typeMismatch가 true입니다. 검사 버튼은 결과만 기록하고 화면에 안내를 띄우지 않습니다. 가입 요청은 브라우저의 안내를 보여주고 포커스를 이메일 칸으로 옮기며 submit을 발생시키지 않습니다. 두 경우 모두 invalid 이벤트 횟수가 늘어납니다. 올바른 주소를 적으면 submit이 기록됩니다.</p>
+<div class="output" id="validation-result" aria-live="polite"><p class="output-message" data-tone="muted">아직 검사하지 않았습니다.</p></div>
+
+<p class="expected"><strong>확인할 결과</strong>빈 칸은 valueMissing이, “abc”는 typeMismatch가 true입니다. 검사 버튼은 결과만 기록하고 화면에 안내를 띄우지 않습니다. 가입 요청은 브라우저의 안내를 보여주고 포커스를 이메일 칸으로 옮기며 submit을 발생시키지 않습니다. 두 경우 모두 invalid 이벤트 횟수가 늘어납니다. 올바른 주소를 적으면 submit이 기록됩니다.</p>
 </section>
 <p><a href="main.js">이 장의 JavaScript 전체 읽기</a></p></section>
 <details class="optional-practice"><summary>선택 연습 · 표시된 값과 제출되는 값을 연결해보기</summary><p>메모 입력에 <code>name="memo"</code>를 추가하고 플랜의 disabled를 제거한 뒤 수정한 코드를 실행해보세요. 두 값 모두 FormData에 포함됩니다. 이 변화는 새로운 JavaScript 처리 없이 HTML 속성만 바꾸어 얻은 결과입니다. 브라우저가 담당하는 데이터 수집 규칙을 설명할 수 있으면 충분합니다.</p></details>

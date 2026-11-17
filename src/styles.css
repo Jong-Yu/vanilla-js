@@ -42,7 +42,7 @@ strong { font-weight: 650; }
 .demo > :first-child { margin-top: 0; }
 .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 .stack { display: grid; gap: 16px; }
-input[type="text"] { font: inherit; color: var(--ink); background: #fcfdfa; border: 1px solid var(--control-line); border-radius: 9px; padding: 9px 13px; min-height: 44px; width: min(100%, 360px); }
+input:is([type="text"], [type="email"]) { font: inherit; color: var(--ink); background: #fcfdfa; border: 1px solid var(--control-line); border-radius: 9px; padding: 9px 13px; min-height: 44px; width: min(100%, 360px); }
 .is-found { outline: 3px solid var(--accent); outline-offset: 4px; }
 .task-list { padding: 0; list-style: none; display: grid; gap: 12px; }
 .task-list li { display: flex; gap: 16px; align-items: center; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
@@ -148,6 +148,40 @@ summary { cursor: pointer; color: var(--accent); }
 .sample { scroll-margin-top: 28px; margin: 32px 0; }
 .sample > h3 { font-size: 1.17rem; letter-spacing: -.025em; margin-top: 12px; }
 .sample-meta { display: inline-block; padding: 3px 10px; border-radius: 5px; background: var(--soft); color: #516c54; font-size: .75rem; margin-bottom: 4px; }
+/* 예제의 실행 결과: 코드(어두운 상자)와 설명(초록 상자) 사이에서 흰 패널로 구분합니다. */
+.output { position: relative; margin: 18px 0; padding: 34px 18px 14px; background: var(--surface); border: 1px solid #cfdccb; border-radius: 12px; font-size: .92rem; line-height: 1.7; box-shadow: 0 1px 0 #233c2e08; }
+.output::before { content: "실행 결과"; content: "실행 결과" / ""; position: absolute; top: 10px; left: 18px; font-size: .72rem; font-weight: 700; letter-spacing: .06em; color: var(--accent); }
+.output[data-label]::before { content: attr(data-label); content: attr(data-label) / ""; }
+.output + .output { margin-top: 10px; }
+.output-message { margin: 0; }
+.output-message + .output-message, .output-message + .output-fields, .output-fields + .output-message, .output-log + .output-message { margin-top: 10px; }
+.output-message[data-tone="muted"] { color: var(--muted); }
+.output-message[data-tone="good"] { color: #1d6b48; font-weight: 600; }
+.output-message[data-tone="warn"] { color: #8a3d32; font-weight: 600; }
+.output-fields { display: grid; grid-template-columns: minmax(7em, max-content) 1fr; gap: 6px 18px; margin: 0; align-items: baseline; }
+.output-fields dt { color: var(--muted); font-size: .86rem; }
+.output-fields dt code { padding: 0; border: 0; background: none; color: #4c6153; font-size: .84rem; }
+.output-fields + .output-log, .output-message + .output-log { margin-top: 12px; padding-top: 10px; border-top: 1px solid #edf1ea; }
+.output-fields dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.output-log { list-style: none; margin: 0; padding: 0; counter-reset: output-step; }
+.output-log li { counter-increment: output-step; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 0; padding: 7px 0 7px 34px; position: relative; border-top: 1px solid #edf1ea; }
+.output-log li:first-child { border-top: 0; padding-top: 2px; }
+.output-log li::before { content: counter(output-step); position: absolute; left: 0; top: 8px; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; background: var(--soft); color: #46634c; font-size: .72rem; font-weight: 700; }
+.output-log li:first-child::before { top: 3px; }
+.output-log li[data-tone="accent"]::before { background: var(--accent); color: #fff; }
+.output-log li[data-tone="muted"] { color: var(--muted); }
+.output-log li[data-tone="warn"] .output-text { color: #8a3d32; }
+.output-tag { display: inline-block; padding: 0 9px; border-radius: 999px; background: #e3efe6; color: #2b5a43; font-size: .76rem; font-weight: 650; line-height: 1.9; white-space: nowrap; }
+.output-text { min-width: 0; }
+.output-note { flex-basis: 100%; color: var(--muted); font-size: .84rem; }
+.output code.is-true { color: #1d6b48; background: #e1f0e6; border-color: #c4e0cd; }
+.output code.is-false { color: #8a3d32; background: #f8ece8; border-color: #ecd3cb; }
+.output-figure { margin: 10px 0 0; }
+/* 예제 안의 요소 사이 간격. 명시한 여백이 있는 요소(코드, 결과, 설명 상자)는 그 값을 따릅니다. */
+.sample > * + :not(:is(.prediction, .expected, .output, pre, h3)) { margin-top: 14px; }
+.sample .prediction, .sample .expected { max-width: none; }
+.prediction > strong:first-child, .expected > strong:first-child { display: block; margin-bottom: 2px; font-size: .74rem; letter-spacing: .06em; color: var(--accent); }
+.output:empty::after { content: "아직 기록이 없습니다."; content: "아직 기록이 없습니다." / ""; color: var(--muted); }
 .prediction { padding: 14px 18px; border-left: 3px solid #b5bd85; background: #f7f8ee; border-radius: 0 8px 8px 0; margin: 18px 0; font-size: .93rem; }
 .expected { padding: 18px 20px; background: var(--soft); border: 1px solid #e0e8d9; border-radius: 10px; margin-top: 20px; font-size: .93rem; }
 .sample-links { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 8px 12px; margin: 24px 0; padding: 16px 20px; background: #ffffffa6; border: 1px solid var(--line); border-radius: 12px; font-size: .85rem; }
@@ -185,6 +219,10 @@ legend { font-weight: 650; }
   .learning-route li { padding: 20px 16px; }
 }
 @media (max-width: 580px) {
+  .output { padding: 32px 14px 12px; }
+  .output-fields { grid-template-columns: 1fr; gap: 0; }
+  .output-fields dd { margin-bottom: 8px; }
+  .output-fields dd:last-child { margin-bottom: 0; }
   main { padding: 32px 20px 52px; }
   h1 { font-size: 2rem; }
   .home-hero h1 { font-size: 2.25rem; }
@@ -206,6 +244,7 @@ legend { font-weight: 650; }
   *, *::before, *::after { transition: none !important; }
 }
 @media (forced-colors: active) {
+  .output, .output-tag, .output-log li::before { border: 1px solid CanvasText; }
   .diagram text, .diagram .t-small, .diagram .t-accent { fill: CanvasText; }
   .diagram .b-plain, .diagram .b-soft, .diagram .b-ghost, .diagram .b-panel { fill: Canvas; stroke: CanvasText; }
   .diagram .b-accent { fill: Canvas; stroke: Highlight; }

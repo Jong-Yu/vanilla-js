@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>4장 · 이벤트가 행동을 전달하는 원리</title>
   <link rel="stylesheet" href="../../styles.css">
-  <script src="main.js" defer></script>
+  <script defer src="../../shared/output.js"></script><script src="main.js" defer></script>
   <style>
     .events-lab #event-zone { padding: 22px; border: 2px dashed var(--line); border-radius: 10px; }
     .events-lab #event-label { display: inline-block; margin-left: 8px; padding: 6px 10px; background: var(--soft); border-radius: 4px; }
@@ -106,17 +106,17 @@ console.log("C");</code></pre>
 <div class="sample-links"><a href="#sample-dispatch">1. 호출 순서</a> · <a href="#sample-propagation">2. 전달 경로</a> · <a href="#sample-submit">3. 기본 동작</a> · <a href="#sample-input-change">4. 입력과 확정</a> · <a href="#sample-key-code">5. 키의 의미와 위치</a> · <a href="#sample-key-default">6. 키의 기본 동작</a> · <a href="#sample-pointer-order">7. 누름과 뗌</a> · <a href="#sample-composition">8. 한글 조합</a> · <a href="#sample-custom-event">9. 직접 만든 이벤트</a></div>
 <section class="demo sample" id="sample-dispatch" aria-labelledby="dispatch-title">
 <p class="sample-meta">예제 4-1 · 등록과 실행 시점</p><h3 id="dispatch-title">dispatchEvent 뒤의 코드는 언제 실행될까요?</h3>
-<p class="prediction"><strong>예상하기:</strong> A, B, C 중 무엇이 먼저 기록될까요? “이벤트는 항상 나중에 실행된다”는 설명으로 맞힐 수 있을까요?</p>
+<p class="prediction"><strong>예상하기</strong>A, B, C 중 무엇이 먼저 기록될까요? “이벤트는 항상 나중에 실행된다”는 설명으로 맞힐 수 있을까요?</p>
 <pre><code>button.addEventListener("notice", () => log("B"));
 log("A");
 button.dispatchEvent(new Event("notice"));
 log("C");</code></pre>
-<button id="dispatch-notice" type="button">notice 이벤트 전달</button><pre id="dispatch-result" role="status">아직 전달하지 않았습니다.</pre>
-<p class="expected"><strong>확인할 결과:</strong> A → B → C입니다. 등록만으로 B가 실행되지는 않지만 dispatchEvent가 호출되면 핸들러 실행을 마친 뒤 다음 줄로 갑니다. 버튼을 누를 때마다 로그를 새로 만듭니다.</p>
+<button id="dispatch-notice" type="button">notice 이벤트 전달</button><div class="output" id="dispatch-result" role="status"><p class="output-message" data-tone="muted">아직 전달하지 않았습니다.</p></div>
+<p class="expected"><strong>확인할 결과</strong>A → B → C입니다. 등록만으로 B가 실행되지는 않지만 dispatchEvent가 호출되면 핸들러 실행을 마친 뒤 다음 줄로 갑니다. 버튼을 누를 때마다 로그를 새로 만듭니다.</p>
 </section>
 <section class="demo sample" id="sample-propagation" aria-labelledby="bubble-title">
 <p class="sample-meta">예제 4-2 · 전달 경로와 대상</p><h3 id="bubble-title">하나의 클릭을 세 위치에서 읽기</h3>
-<p class="prediction"><strong>예상하기:</strong> 안쪽 글자를 누르면 target도 리스너 위치마다 바뀔까요? 전파를 멈추면 부모의 캡처 기록도 사라질까요?</p>
+<p class="prediction"><strong>예상하기</strong>안쪽 글자를 누르면 target도 리스너 위치마다 바뀔까요? 전파를 멈추면 부모의 캡처 기록도 사라질까요?</p>
 <pre><code>parent.addEventListener("click", log, { capture: true });
 button.addEventListener("click", log);
 parent.addEventListener("click", log);</code></pre>
@@ -124,12 +124,12 @@ parent.addEventListener("click", log);</code></pre>
 <div id="event-zone"><button id="nested-button" type="button">버튼 영역<span id="event-label">안쪽 글자(span)</span></button></div>
 <p>마우스로 안쪽 글자를 눌러본 다음, Tab으로 버튼에 이동해 Enter나 Space로도 실행해보세요.</p>
 <button id="clear-log" type="button">전파 실험 초기화</button>
-<pre id="event-log" aria-label="클릭 이벤트 로그">아직 클릭하지 않았습니다.</pre>
-<p class="expected"><strong>확인할 결과:</strong> 부모 캡처 → 버튼 → 부모 버블 순서입니다. 글자를 직접 누르면 target은 계속 span이고 currentTarget은 리스너가 연결된 요소를 가리킵니다. 키보드로 버튼을 활성화하면 target은 버튼입니다. 전파를 멈추면 마지막 부모 버블 기록만 없어집니다. 매 클릭의 로그를 새로 표시합니다.</p>
+<div class="output" id="event-log" aria-label="클릭 이벤트 로그" role="group"><p class="output-message" data-tone="muted">아직 클릭하지 않았습니다.</p></div>
+<p class="expected"><strong>확인할 결과</strong>부모 캡처 → 버튼 → 부모 버블 순서입니다. 글자를 직접 누르면 target은 계속 span이고 currentTarget은 리스너가 연결된 요소를 가리킵니다. 키보드로 버튼을 활성화하면 target은 버튼입니다. 전파를 멈추면 마지막 부모 버블 기록만 없어집니다. 매 클릭의 로그를 새로 표시합니다.</p>
 </section>
 <section class="demo sample" id="sample-submit" aria-labelledby="form-title">
 <p class="sample-meta">예제 4-3 · 기본 동작과 전파의 차이</p><h3 id="form-title">제출을 취소해도 부모가 알 수 있을까요?</h3>
-<p class="prediction"><strong>예상하기:</strong> preventDefault를 호출하면 submit이 부모에게도 전달되지 않을까요?</p>
+<p class="prediction"><strong>예상하기</strong>preventDefault를 호출하면 submit이 부모에게도 전달되지 않을까요?</p>
 <pre><code>form.addEventListener("submit", (event) => {
   event.preventDefault();
   show(input.value);
@@ -138,36 +138,35 @@ parent.addEventListener("click", log);</code></pre>
 <label class="stack" for="message">제출할 문구<input id="message" name="message" type="text" value="안녕하세요" autocomplete="off"></label>
 <div class="row"><button type="submit" class="primary">문구 제출</button><button id="reset-submit" type="button">제출 실험 초기화</button></div>
 </form>
-<p id="submit-result" role="status">아직 제출하지 않았습니다.</p>
-<p id="submit-parent">부모에서 받은 submit: 0회</p>
-<p class="expected"><strong>확인할 결과:</strong> 페이지는 이동하지 않지만 부모의 submit 횟수는 증가합니다. 문구 입력창에서 Enter를 눌러도 같은 처리가 실행됩니다. submit을 처리하면 입력 수단마다 로직을 반복하지 않아도 됩니다.</p>
+<div class="output" id="submit-result" role="status"><p class="output-message" data-tone="muted">아직 제출하지 않았습니다.</p></div>
+<p class="expected"><strong>확인할 결과</strong>페이지는 이동하지 않지만 부모의 submit 횟수는 증가합니다. 문구 입력창에서 Enter를 눌러도 같은 처리가 실행됩니다. submit을 처리하면 입력 수단마다 로직을 반복하지 않아도 됩니다.</p>
 </section>
 <section class="demo sample" id="sample-input-change" aria-labelledby="change-title">
 <p class="sample-meta">예제 4-4 · 값 변경과 이벤트 발생</p><h3 id="change-title">입력 중, 입력 확정, 코드 대입 비교</h3>
-<p class="prediction"><strong>예상하기:</strong> 한 글자를 입력한 순간과 Tab으로 나간 순간은 같은 이벤트일까요? 코드로 value를 바꾸면 어떤 이벤트가 생길까요?</p>
+<p class="prediction"><strong>예상하기</strong>한 글자를 입력한 순간과 Tab으로 나간 순간은 같은 이벤트일까요? 코드로 value를 바꾸면 어떤 이벤트가 생길까요?</p>
 <pre><code>input.addEventListener("input", record);
 input.addEventListener("change", record);
 input.value = "코드에서 넣은 값"; // 이벤트를 보내지는 않음</code></pre>
 <label class="stack" for="typing-input">직접 입력할 문구<input id="typing-input" type="text" value="" autocomplete="off"></label>
 <div class="row"><button id="assign-value" type="button">코드로 value 대입</button><button id="reset-input-events" type="button">입력 실험 초기화</button></div>
-<pre id="input-event-log" aria-label="입력 이벤트 기록">input: 0회 · change: 0회</pre>
-<p id="assignment-notice" role="status">아직 코드로 대입하지 않았습니다.</p>
-<p class="expected"><strong>확인할 결과:</strong> 직접 편집하는 동안 input이 발생하고, 값을 바꾼 뒤 포커스를 옮기면 change가 발생합니다. 코드 대입 자체는 둘 다 발생시키지 않습니다. 다만 입력을 마치고 버튼으로 이동할 때 생긴 change와 버튼의 대입은 별개입니다. 한글 입력은 조합 과정에 따라 input 횟수가 다를 수 있습니다.</p>
+<div class="output" data-label="이벤트 기록" id="input-event-log" aria-label="입력 이벤트 기록" role="group"><p class="output-message" data-tone="muted">input: 0회 · change: 0회</p></div>
+<div class="output" data-label="코드 대입 결과" id="assignment-notice" role="status"><p class="output-message" data-tone="muted">아직 코드로 대입하지 않았습니다.</p></div>
+<p class="expected"><strong>확인할 결과</strong>직접 편집하는 동안 input이 발생하고, 값을 바꾼 뒤 포커스를 옮기면 change가 발생합니다. 코드 대입 자체는 둘 다 발생시키지 않습니다. 다만 입력을 마치고 버튼으로 이동할 때 생긴 change와 버튼의 대입은 별개입니다. 한글 입력은 조합 과정에 따라 input 횟수가 다를 수 있습니다.</p>
 </section>
 <section class="demo sample" id="sample-key-code" aria-labelledby="key-code-title">
 <p class="sample-meta">예제 4-5 · 키의 의미와 위치</p><h3 id="key-code-title">Space 키의 key 값은 무엇일까요?</h3>
-<p class="prediction"><strong>예상하기:</strong> Space, Shift+A, 아래 방향키를 차례로 누르면 key와 code는 각각 어떻게 기록될까요? 한글 입력으로 바꾼 뒤 같은 A 자리를 누르면 둘 중 무엇이 바뀔까요?</p>
+<p class="prediction"><strong>예상하기</strong>Space, Shift+A, 아래 방향키를 차례로 누르면 key와 code는 각각 어떻게 기록될까요? 한글 입력으로 바꾼 뒤 같은 A 자리를 누르면 둘 중 무엇이 바뀔까요?</p>
 <pre><code>field.addEventListener("keydown", (event) =&gt; {
   show(event.key, event.code, event.repeat);
 });</code></pre>
 <label class="stack" for="key-field">여기에 포커스를 두고 키를 눌러보세요<input id="key-field" type="text" autocomplete="off"></label>
 <button id="reset-key-log" type="button">키 기록 초기화</button>
-<pre id="key-log" aria-label="keydown 기록">아직 누른 키가 없습니다.</pre>
-<p class="expected"><strong>확인할 결과:</strong> Space의 key는 공백 문자라서 기록에 key: " "로 표시되고, code는 "Space"입니다. Shift+A의 key는 "A", code는 "KeyA"입니다. 한글 입력에서 같은 자리를 누르면 code는 그대로 "KeyA"이고 key는 "ㅁ"이나 "Process"처럼 달라집니다. 키를 길게 누르면 repeat가 true인 기록이 이어집니다. 최근 8개만 표시합니다.</p>
+<div class="output" id="key-log" aria-label="keydown 기록" role="group"><p class="output-message" data-tone="muted">아직 누른 키가 없습니다.</p></div>
+<p class="expected"><strong>확인할 결과</strong>Space의 key는 공백 문자라서 기록에 key: " "로 표시되고, code는 "Space"입니다. Shift+A의 key는 "A", code는 "KeyA"입니다. 한글 입력에서 같은 자리를 누르면 code는 그대로 "KeyA"이고 key는 "ㅁ"이나 "Process"처럼 달라집니다. 키를 길게 누르면 repeat가 true인 기록이 이어집니다. 최근 8개만 표시합니다.</p>
 </section>
 <section class="demo sample" id="sample-key-default" aria-labelledby="key-default-title">
 <p class="sample-meta">예제 4-6 · 키의 기본 동작</p><h3 id="key-default-title">방향키의 기본 동작을 취소하면 무엇이 사라질까요?</h3>
-<p class="prediction"><strong>예상하기:</strong> 목록 영역에 Tab으로 들어가 아래 방향키를 누르면 무엇이 움직일까요? 방향키를 직접 처리하도록 바꾼 뒤에도 Tab으로 영역을 빠져나갈 수 있을까요?</p>
+<p class="prediction"><strong>예상하기</strong>목록 영역에 Tab으로 들어가 아래 방향키를 누르면 무엇이 움직일까요? 방향키를 직접 처리하도록 바꾼 뒤에도 Tab으로 영역을 빠져나갈 수 있을까요?</p>
 <pre><code>const handledKeys = ["ArrowDown", "ArrowUp", "Home", "End"];
 area.addEventListener("keydown", (event) =&gt; {
   if (!handledKeys.includes(event.key)) return; // 처리하지 않는 키는 브라우저에 맡깁니다
@@ -176,14 +175,13 @@ area.addEventListener("keydown", (event) =&gt; {
 });</code></pre>
 <label class="control" for="handle-arrows"><input id="handle-arrows" type="checkbox">방향키·Home·End를 직접 처리하기</label>
 <div id="scroll-area" tabindex="0" role="region" aria-label="방향키 실험 목록"><ol><li data-highlighted>항목 1</li><li>항목 2</li><li>항목 3</li><li>항목 4</li><li>항목 5</li><li>항목 6</li><li>항목 7</li><li>항목 8</li><li>항목 9</li><li>항목 10</li><li>항목 11</li><li>항목 12</li></ol></div>
-<p id="scroll-position">영역의 스크롤 위치: 0px</p>
 <div class="row"><button id="after-scroll-area" type="button">영역 다음 버튼</button><button id="reset-key-default" type="button">기본 동작 실험 초기화</button></div>
-<pre id="key-default-log" aria-label="키와 기본 동작 기록">아직 누른 키가 없습니다.</pre>
-<p class="expected"><strong>확인할 결과:</strong> 처음에는 아래 방향키가 영역을 스크롤하고 스크롤 위치가 바뀝니다. 직접 처리하도록 바꾸면 기록에 defaultPrevented: true가 남고, 스크롤 대신 강조된 항목이 한 칸씩 이동합니다. 강조 항목이 보이는 범위를 벗어날 때만 코드가 그 항목까지 스크롤합니다. Space는 처리 목록에 없으므로 계속 영역을 스크롤하고, Tab은 어느 경우든 다음 버튼으로 이동합니다.</p>
+<div class="output" id="key-default-log" aria-label="키와 기본 동작 기록" role="group"><p class="output-message" data-tone="muted">아직 누른 키가 없습니다.</p></div>
+<p class="expected"><strong>확인할 결과</strong>처음에는 아래 방향키가 영역을 스크롤하고 스크롤 위치가 바뀝니다. 직접 처리하도록 바꾸면 기록에 defaultPrevented: true가 남고, 스크롤 대신 강조된 항목이 한 칸씩 이동합니다. 강조 항목이 보이는 범위를 벗어날 때만 코드가 그 항목까지 스크롤합니다. Space는 처리 목록에 없으므로 계속 영역을 스크롤하고, Tab은 어느 경우든 다음 버튼으로 이동합니다.</p>
 </section>
 <section class="demo sample" id="sample-pointer-order" aria-labelledby="pointer-title">
 <p class="sample-meta">예제 4-7 · 누름과 뗌</p><h3 id="pointer-title">누른 버튼과 뗀 버튼이 다르면 click은 누가 받을까요?</h3>
-<p class="prediction"><strong>예상하기:</strong> 버튼 A를 한 번 클릭하면 몇 줄이 기록될까요? A에서 누른 채로 B 위로 옮겨 떼면 A와 B 중 누가 click을 받을까요?</p>
+<p class="prediction"><strong>예상하기</strong>버튼 A를 한 번 클릭하면 몇 줄이 기록될까요? A에서 누른 채로 B 위로 옮겨 떼면 A와 B 중 누가 click을 받을까요?</p>
 <pre><code>const types = ["pointerdown", "mousedown", "focus", "pointerup", "mouseup", "click"];
 for (const type of types) {
   buttonA.addEventListener(type, record);
@@ -191,12 +189,12 @@ for (const type of types) {
 }</code></pre>
 <div class="row" id="pointer-zone"><button id="pointer-a" type="button">버튼 A</button><button id="pointer-b" type="button">버튼 B</button></div>
 <button id="reset-pointer-log" type="button">포인터 기록 초기화</button>
-<pre id="pointer-log" aria-label="포인터 이벤트 기록">아직 누르지 않았습니다.</pre>
-<p class="expected"><strong>확인할 결과:</strong> A를 클릭하면 pointerdown, mousedown, focus, pointerup, mouseup, click 순서로 기록됩니다. A에서 누르고 B에서 떼면 누름 기록은 A에, 뗌 기록은 B에 남고 두 버튼 모두 click이 없습니다. 이때 두 버튼을 감싼 영역이 click을 받는지는 브라우저에 따라 다를 수 있습니다. Tab으로 A에 이동해 Enter를 누르면 click 한 줄만 기록되고 detail은 0입니다. macOS의 일부 브라우저는 버튼을 클릭해도 포커스를 옮기지 않으므로 focus 기록이 없을 수 있고, 터치에서는 mousedown과 mouseup이 pointerup 뒤에 이어질 수 있습니다. 새로 누를 때마다 기록을 새로 시작합니다.</p>
+<div class="output" id="pointer-log" aria-label="포인터 이벤트 기록" role="group"><p class="output-message" data-tone="muted">아직 누르지 않았습니다.</p></div>
+<p class="expected"><strong>확인할 결과</strong>A를 클릭하면 pointerdown, mousedown, focus, pointerup, mouseup, click 순서로 기록됩니다. A에서 누르고 B에서 떼면 누름 기록은 A에, 뗌 기록은 B에 남고 두 버튼 모두 click이 없습니다. 이때 두 버튼을 감싼 영역이 click을 받는지는 브라우저에 따라 다를 수 있습니다. Tab으로 A에 이동해 Enter를 누르면 click 한 줄만 기록되고 detail은 0입니다. macOS의 일부 브라우저는 버튼을 클릭해도 포커스를 옮기지 않으므로 focus 기록이 없을 수 있고, 터치에서는 mousedown과 mouseup이 pointerup 뒤에 이어질 수 있습니다. 새로 누를 때마다 기록을 새로 시작합니다.</p>
 </section>
 <section class="demo sample" id="sample-composition" aria-labelledby="composition-title">
 <p class="sample-meta">예제 4-8 · 한글 조합과 Enter</p><h3 id="composition-title">글자를 확정하려고 누른 Enter도 제출일까요?</h3>
-<p class="prediction"><strong>예상하기:</strong> 한글로 “가”를 입력한 직후 Enter를 한 번 누르면, 조합을 확인하지 않는 처리와 확인하는 처리는 각각 몇 번 실행될까요?</p>
+<p class="prediction"><strong>예상하기</strong>한글로 “가”를 입력한 직후 Enter를 한 번 누르면, 조합을 확인하지 않는 처리와 확인하는 처리는 각각 몇 번 실행될까요?</p>
 <pre><code>field.addEventListener("keydown", (event) =&gt; {
   if (event.key !== "Enter") return;
   plainCount += 1;                                   // 조합 상태를 보지 않는 처리
@@ -205,13 +203,13 @@ for (const type of types) {
 });</code></pre>
 <label class="stack" for="composition-field">한글로 입력한 뒤 Enter를 눌러보세요<input id="composition-field" type="text" autocomplete="off"></label>
 <button id="reset-composition" type="button">조합 실험 초기화</button>
-<p id="composition-count" role="status">조합을 확인하지 않는 처리: 0회 · 조합을 확인하는 처리: 0회</p>
-<pre id="composition-log" aria-label="조합과 keydown 기록">아직 입력하지 않았습니다.</pre>
-<p class="expected"><strong>확인할 결과:</strong> 기록에서 compositionstart와 compositionend 사이의 keydown은 isComposing이 true이거나 keyCode가 229입니다. 조합을 확인하지 않는 처리는 글자를 확정하는 Enter까지 셀 수 있으므로 확인하는 처리보다 크거나 같습니다. 정확한 횟수는 브라우저와 입력기에 따라 다르므로 기록에서 각 Enter의 isComposing과 keyCode를 비교하세요. 영어로 입력하면 두 횟수가 같습니다. 최근 10개만 표시합니다.</p>
+<div class="output" data-label="처리 횟수" id="composition-count" role="status"><p class="output-message" data-tone="muted">조합을 확인하지 않는 처리: 0회 · 조합을 확인하는 처리: 0회</p></div>
+<div class="output" data-label="이벤트 기록" id="composition-log" aria-label="조합과 keydown 기록" role="group"><p class="output-message" data-tone="muted">아직 입력하지 않았습니다.</p></div>
+<p class="expected"><strong>확인할 결과</strong>기록에서 compositionstart와 compositionend 사이의 keydown은 isComposing이 true이거나 keyCode가 229입니다. 조합을 확인하지 않는 처리는 글자를 확정하는 Enter까지 셀 수 있으므로 확인하는 처리보다 크거나 같습니다. 정확한 횟수는 브라우저와 입력기에 따라 다르므로 기록에서 각 Enter의 isComposing과 keyCode를 비교하세요. 영어로 입력하면 두 횟수가 같습니다. 최근 10개만 표시합니다.</p>
 </section>
 <section class="demo sample" id="sample-custom-event" aria-labelledby="custom-event-title">
 <p class="sample-meta">예제 4-9 · 직접 만든 이벤트의 전달 범위</p><h3 id="custom-event-title">직접 만든 이벤트는 부모까지 올라갈까요?</h3>
-<p class="prediction"><strong>예상하기:</strong> bubbles 없이 만든 이벤트를 안쪽 요소에 전달하면 부모의 리스너가 실행될까요? 부모가 preventDefault를 호출하면 dispatchEvent는 무엇을 돌려줄까요?</p>
+<p class="prediction"><strong>예상하기</strong>bubbles 없이 만든 이벤트를 안쪽 요소에 전달하면 부모의 리스너가 실행될까요? 부모가 preventDefault를 호출하면 dispatchEvent는 무엇을 돌려줄까요?</p>
 <pre><code>const event = new CustomEvent("choose", {
   bubbles, cancelable: true, detail: { value: "A" },
 });
@@ -220,8 +218,8 @@ const proceed = inner.dispatchEvent(event);
 <div class="row"><label class="control" for="custom-bubbles"><input id="custom-bubbles" type="checkbox">bubbles: true로 만들기</label><label class="control" for="custom-cancel"><input id="custom-cancel" type="checkbox">부모 리스너에서 preventDefault 호출</label></div>
 <div id="custom-parent"><p>부모 요소</p><span id="custom-inner">안쪽 요소</span></div>
 <div class="row"><button id="dispatch-choose" type="button">choose 이벤트 전달</button><button id="reset-custom-event" type="button">직접 만든 이벤트 실험 초기화</button></div>
-<pre id="custom-log" aria-label="직접 만든 이벤트 기록">아직 전달하지 않았습니다.</pre>
-<p class="expected"><strong>확인할 결과:</strong> bubbles를 끄면 안쪽 리스너만 실행되고 dispatchEvent는 true입니다. 켜면 부모 리스너도 같은 detail.value를 읽습니다. 버블링을 켠 상태에서 부모가 취소하면 dispatchEvent가 false를 돌려주고, 보낸 쪽이 “기본 처리를 건너뜀”으로 기록합니다. 버블링을 끈 상태에서는 부모의 취소 설정이 아무 효과도 없습니다. isTrusted는 항상 false입니다.</p>
+<div class="output" id="custom-log" aria-label="직접 만든 이벤트 기록" role="group"><p class="output-message" data-tone="muted">아직 전달하지 않았습니다.</p></div>
+<p class="expected"><strong>확인할 결과</strong>bubbles를 끄면 안쪽 리스너만 실행되고 dispatchEvent는 true입니다. 켜면 부모 리스너도 같은 detail.value를 읽습니다. 버블링을 켠 상태에서 부모가 취소하면 dispatchEvent가 false를 돌려주고, 보낸 쪽이 “기본 처리를 건너뜀”으로 기록합니다. 버블링을 끈 상태에서는 부모의 취소 설정이 아무 효과도 없습니다. isTrusted는 항상 false입니다.</p>
 </section>
 <p><a href="main.js">이 장의 JavaScript 전체 읽기</a></p></section>
 <p class="muted">개념 참고: <a href="https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/dispatchEvent">MDN · 이벤트의 직접 전달</a> · <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/input_event">MDN · 입력 이벤트</a> · <a href="https://developer.mozilla.org/en-US/docs/Web/API/Event/preventDefault">MDN · 기본 동작 취소</a> · <a href="https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key">MDN · KeyboardEvent.key</a> · <a href="https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events">MDN · 포인터 이벤트</a> · <a href="https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/isComposing">MDN · isComposing</a>.</p>

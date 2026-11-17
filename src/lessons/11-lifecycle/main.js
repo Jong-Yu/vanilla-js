@@ -75,7 +75,10 @@ disconnectButton.addEventListener("click", () => {
 });
 form.addEventListener("submit", (event) => {
   event.preventDefault(); // 이 실습에서는 서버로 전송하지 않고 값만 확인합니다.
-  formResult.textContent = JSON.stringify([...new FormData(form).entries()], null, 2);
+  const entries = [...new FormData(form).entries()];
+  // 항목마다 "이름: 값" 조각을 만들고, 항목이 없으면 그 사실을 글로 보여줍니다.
+  const parts = entries.flatMap(([name, value], index) => [index ? " " : "", { code: `${name}: ${JSON.stringify(value)}` }]);
+  showOutput(formResult, ...(parts.length ? parts : ["항목 없음"]).map(outputPart));
 });
 
 connect();
@@ -89,7 +92,10 @@ let listenerConnected = true;
 let listenerCount = 0;
 function showListener() {
   listenerToggle.setAttribute("aria-pressed", String(listenerConnected));
-  listenerResult.textContent = `${listenerConnected ? "연결됨" : "연결 해제됨"} · 호출 ${listenerCount}회`;
+  showFields(listenerResult, [
+    ["리스너", listenerConnected ? "연결됨" : "연결 해제됨"],
+    ["countClick 호출", `${listenerCount}회`],
+  ]);
 }
 function countClick() {
   listenerCount++;

@@ -16,7 +16,7 @@ bindSwitch(styledInput, store);
 function showState() {
   const state = store.getState();
   summary.textContent = state.checked ? "켜짐" : "꺼짐";
-  stateView.textContent = JSON.stringify(state, null, 2);
+  stateView.textContent = JSON.stringify(state);
   notifyCount.textContent = String(notifications);
 }
 
@@ -38,7 +38,11 @@ let calls = 0;
 let subscriptionNotifications = 0;
 const subscriptionResult = document.querySelector("#subscription-result");
 function showSubscription() {
-  subscriptionResult.textContent = `현재값 ${subscriptionStore.getState().checked} · 호출 ${calls}회 · 변경 알림 ${subscriptionNotifications}회`;
+  showFields(subscriptionResult, [
+    ["getState().checked", subscriptionStore.getState().checked],
+    ["setChecked(true) 호출", `${calls}회`],
+    ["변경 알림", `${subscriptionNotifications}회`],
+  ]);
 }
 function resetSubscription() {
   if (stopSubscription) stopSubscription();

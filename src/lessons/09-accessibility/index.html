@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ko">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>9장 · 의미와 동작을 함께 전달하는 접근성</title><link rel="stylesheet" href="../../styles.css"><script defer src="main.js"></script><style>.hide-area { padding: 18px; border: 1px dashed var(--line); border-radius: 10px; } .hide-area p { margin-top: 0; }</style></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>9장 · 의미와 동작을 함께 전달하는 접근성</title><link rel="stylesheet" href="../../styles.css"><script defer src="../../shared/output.js"></script><script defer src="main.js"></script><style>.hide-area { padding: 18px; border: 1px dashed var(--line); border-radius: 10px; } .hide-area p { margin-top: 0; }</style></head>
 <body><a class="skip-link" href="#main-content">본문으로 건너뛰기</a><main id="main-content" tabindex="-1">
 <header><a href="../../">차례</a><p class="eyebrow">9장 · 의미와 동작을 함께 전달하는 접근성</p><h1>화면의 변화가<br>모든 사용자에게 전달되려면</h1><p class="intro">요소가 보인다는 것, 키보드로 조작된다는 것, 보조 기술에 의미가 전달된다는 것은 서로 연결되지만 같은 일이 아닙니다. DOM을 바꿀 때 함께 지켜야 할 이름, 역할, 상태와 포커스의 관계를 살펴봅니다.</p></header>
 
@@ -52,50 +52,50 @@
 
 <section class="demo sample" id="sample-native-keyboard" aria-labelledby="native-sample-title">
 <p class="sample-meta">예제 9-1 · 네이티브 요소와 키보드</p><h3 id="native-sample-title">click 리스너 하나로 키보드 활성화도 받을 수 있을까?</h3>
-<p class="prediction"><strong>예상하기</strong> · Tab으로 버튼에 도착한 뒤 Enter 또는 Space를 누르면 실행 횟수가 바뀔까요? 다음 체크박스로 이동하기만 해도 체크될까요?</p>
-<div class="row"><button type="button" id="native-run">한 번 실행하기</button><button type="button" id="native-reset">횟수 초기화</button></div>
-<p id="native-result" role="status">실행 횟수: 0회</p>
-<label class="control" for="native-news"><input type="checkbox" id="native-news">이메일 소식 받기</label>
+<p class="prediction"><strong>예상하기</strong>Tab으로 버튼에 도착한 뒤 Enter 또는 Space를 누르면 실행 횟수가 바뀔까요? 다음 체크박스로 이동하기만 해도 체크될까요?</p>
 <pre><code>button.addEventListener("click", () =&gt; {
   count += 1;
   result.textContent = `실행 횟수: ${count}회`;
 });</code></pre>
-<p class="expected"><strong>관찰할 결과</strong> · 버튼은 Enter·Space로 한 번씩 실행됩니다. 체크박스는 포커스만 받아서는 바뀌지 않고 Space로 선택이 바뀝니다. keydown 리스너는 작성하지 않았습니다. 네이티브 버튼에 같은 동작의 keydown까지 더하면 중복 실행될 수 있습니다.</p>
+<div class="row"><button type="button" id="native-run">한 번 실행하기</button><button type="button" id="native-reset">횟수 초기화</button></div>
+<div class="output" id="native-result" role="status"><p class="output-message" data-tone="muted">실행 횟수: 0회</p></div>
+<label class="control" for="native-news"><input type="checkbox" id="native-news">이메일 소식 받기</label>
+
+<p class="expected"><strong>확인할 결과</strong>버튼은 Enter·Space로 한 번씩 실행됩니다. 체크박스는 포커스만 받아서는 바뀌지 않고 Space로 선택이 바뀝니다. keydown 리스너는 작성하지 않았습니다. 네이티브 버튼에 같은 동작의 keydown까지 더하면 중복 실행될 수 있습니다.</p>
 </section>
 
 <section class="demo sample" id="sample-accessible-name" aria-labelledby="name-sample-title">
 <p class="sample-meta">예제 9-2 · 이름, 설명, 현재 값</p><h3 id="name-sample-title">입력값을 바꾸어도 입력의 이름은 그대로일까?</h3>
-<p class="prediction"><strong>예상하기</strong> · “별명”이라는 글자를 클릭한 뒤 이름을 적어보세요. 화면의 레이블, 안내, 입력한 값 중 어떤 것이 이 요소의 이름일까요?</p>
-<label class="stack" for="accessible-nickname">별명<input id="accessible-nickname" type="text" name="nickname" aria-describedby="nickname-hint" autocomplete="off" value="민지"></label>
-<p id="nickname-hint">다른 학습자에게 보여줄 이름을 적으세요. 실제 이름일 필요는 없습니다.</p>
+<p class="prediction"><strong>예상하기</strong>“별명”이라는 글자를 클릭한 뒤 이름을 적어보세요. 화면의 레이블, 안내, 입력한 값 중 어떤 것이 이 요소의 이름일까요?</p>
 <pre><code>&lt;label for="accessible-nickname"&gt;별명&lt;/label&gt;
 &lt;input id="accessible-nickname" type="text"
   aria-describedby="nickname-hint" value="민지"&gt;
 &lt;p id="nickname-hint"&gt;다른 학습자에게 보여줄 이름을 적으세요.&lt;/p&gt;</code></pre>
-<p class="expected"><strong>관찰할 결과</strong> · 레이블을 클릭하면 입력에 포커스가 갑니다. 입력값을 바꿔도 이름은 “별명”으로 유지됩니다. 개발자 도구의 접근성 패널에서 이름과 설명을 따로 확인하세요. 위 코드는 설명 문장을 줄인 발췌이며, 이 연결에는 JavaScript가 필요하지 않습니다.</p>
+<label class="stack" for="accessible-nickname">별명<input id="accessible-nickname" type="text" name="nickname" aria-describedby="nickname-hint" autocomplete="off" value="민지"></label>
+<p id="nickname-hint">다른 학습자에게 보여줄 이름을 적으세요. 실제 이름일 필요는 없습니다.</p>
+
+<p class="expected"><strong>확인할 결과</strong>레이블을 클릭하면 입력에 포커스가 갑니다. 입력값을 바꿔도 이름은 “별명”으로 유지됩니다. 개발자 도구의 접근성 패널에서 이름과 설명을 따로 확인하세요. 위 코드는 설명 문장을 줄인 발췌이며, 이 연결에는 JavaScript가 필요하지 않습니다.</p>
 </section>
 
 <section class="demo sample" id="sample-disclosure" aria-labelledby="disclosure-sample-title">
 <p class="sample-meta">예제 9-3 · 표시 상태와 접근성 상태</p><h3 id="disclosure-sample-title">패널을 펼칠 때 함께 바꿔야 할 정보는 무엇일까?</h3>
-<p class="prediction"><strong>예상하기</strong> · 버튼을 눌러 내용을 펼치고 다시 접어보세요. hidden과 aria-expanded는 각각 어떤 값을 가져야 할까요?</p>
-<button type="button" id="help-toggle" aria-expanded="false" aria-controls="help-panel">학습 도움말</button>
-<div id="help-panel" hidden><p>먼저 결과를 예상하고, 실행한 뒤 코드의 어느 줄이 상태를 바꾸었는지 찾아보세요.</p><p><a href="../02-dom/">DOM 개념 다시 읽기</a></p></div>
-<p id="disclosure-result">aria-expanded="false" · hidden=true</p>
+<p class="prediction"><strong>예상하기</strong>버튼을 눌러 내용을 펼치고 다시 접어보세요. hidden과 aria-expanded는 각각 어떤 값을 가져야 할까요?</p>
 <pre><code>button.addEventListener("click", () =&gt; {
   const expanded = button.getAttribute("aria-expanded") === "true";
   button.setAttribute("aria-expanded", String(!expanded));
   panel.hidden = expanded;
 });</code></pre>
-<p class="expected"><strong>관찰할 결과</strong> · 펼치면 aria-expanded="true", hidden=false입니다. 키보드로 활성화한 뒤 포커스는 버튼에 남고, 다음 Tab으로 열린 패널의 링크에 갈 수 있습니다. 접은 상태에서는 그 링크가 Tab 순서에 나타나지 않습니다. aria-controls는 관계를 설명하고 실제 표시 변경은 JavaScript가 수행합니다.</p>
+<button type="button" id="help-toggle" aria-expanded="false" aria-controls="help-panel">학습 도움말</button>
+<div id="help-panel" hidden><p>먼저 결과를 예상하고, 실행한 뒤 코드의 어느 줄이 상태를 바꾸었는지 찾아보세요.</p><p><a href="../02-dom/">DOM 개념 다시 읽기</a></p></div>
+<div class="output" id="disclosure-result"><p class="output-message" data-tone="muted">aria-expanded="false" · hidden=true</p></div>
+
+<p class="expected"><strong>확인할 결과</strong>펼치면 aria-expanded="true", hidden=false입니다. 키보드로 활성화한 뒤 포커스는 버튼에 남고, 다음 Tab으로 열린 패널의 링크에 갈 수 있습니다. 접은 상태에서는 그 링크가 Tab 순서에 나타나지 않습니다. aria-controls는 관계를 설명하고 실제 표시 변경은 JavaScript가 수행합니다.</p>
 <p class="muted">패턴 참고: <a href="https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/">WAI · 펼침 영역(Disclosure)</a></p>
 </section>
 
 <section class="demo sample" id="sample-live-status" aria-labelledby="status-sample-title">
 <p class="sample-meta">예제 9-4 · 포커스를 유지하는 결과 안내</p><h3 id="status-sample-title">결과를 알리기 위해 반드시 포커스를 옮겨야 할까?</h3>
-<p class="prediction"><strong>예상하기</strong> · 아래 버튼을 키보드로 실행하세요. 결과 문장이 바뀔 때 포커스는 어디에 남아 있어야 다음 실행을 이어가기 쉬울까요?</p>
-<button type="button" id="record-practice">연습 완료 기록하기</button>
-<p id="practice-status" role="status"></p>
-<p class="muted">이 기록은 현재 예제의 메모리에만 남습니다. 페이지를 다시 열면 0회에서 시작합니다.</p>
+<p class="prediction"><strong>예상하기</strong>아래 버튼을 키보드로 실행하세요. 결과 문장이 바뀔 때 포커스는 어디에 남아 있어야 다음 실행을 이어가기 쉬울까요?</p>
 <pre><code>&lt;p id="practice-status" role="status"&gt;&lt;/p&gt;
 
 button.addEventListener("click", () =&gt; {
@@ -103,20 +103,25 @@ button.addEventListener("click", () =&gt; {
   status.textContent = `연습 ${completed}회를 기록했습니다.`;
   // focus()를 호출하지 않습니다.
 });</code></pre>
-<p class="expected"><strong>관찰할 결과</strong> · 기록 횟수가 증가하고 버튼의 키보드 포커스가 유지됩니다. 스크린 리더에서는 현재 작업을 방해하지 않는 시점에 결과 알림이 전달되는지 확인합니다. 화면의 문구가 바뀌었다는 것만으로 실제 낭독까지 검증한 것은 아닙니다.</p>
+<button type="button" id="record-practice">연습 완료 기록하기</button>
+<p id="practice-status" class="output" role="status"></p>
+<p class="muted">이 기록은 현재 예제의 메모리에만 남습니다. 페이지를 다시 열면 0회에서 시작합니다.</p>
+
+<p class="expected"><strong>확인할 결과</strong>기록 횟수가 증가하고 버튼의 키보드 포커스가 유지됩니다. 스크린 리더에서는 현재 작업을 방해하지 않는 시점에 결과 알림이 전달되는지 확인합니다. 화면의 문구가 바뀌었다는 것만으로 실제 낭독까지 검증한 것은 아닙니다.</p>
 </section>
 <section class="demo sample" id="sample-inert" aria-labelledby="inert-sample-title">
 <p class="sample-meta">예제 9-5 · 접근성 정보 숨기기와 사용 중지</p><h3 id="inert-sample-title">aria-hidden과 inert 중 무엇이 Tab을 막을까?</h3>
-<p class="prediction"><strong>예상하기</strong> · 두 영역에 각각 속성을 적용한 뒤 Tab으로 지나가고 버튼을 클릭해보세요. 화면에서 사라지는 영역이 있을까요? 어느 영역의 버튼이 포커스와 클릭을 받을까요?</p>
+<p class="prediction"><strong>예상하기</strong>두 영역에 각각 속성을 적용한 뒤 Tab으로 지나가고 버튼을 클릭해보세요. 화면에서 사라지는 영역이 있을까요? 어느 영역의 버튼이 포커스와 클릭을 받을까요?</p>
+<pre><code>areaA.setAttribute("aria-hidden", "true"); // 접근성 정보만 숨깁니다
+areaB.inert = true;                         // 포커스, 클릭, 접근성 정보를 함께 막습니다</code></pre>
 <div class="row"><label class="control" for="apply-aria-hidden"><input type="checkbox" id="apply-aria-hidden">영역 A에 aria-hidden="true" 적용</label><label class="control" for="apply-inert"><input type="checkbox" id="apply-inert">영역 B에 inert 적용</label></div>
 <div class="two-views">
 <div class="hide-area" id="hide-area-a"><p><strong>영역 A</strong> · <span id="hide-area-a-state">속성 없음</span></p><button type="button" id="hide-area-a-button">A의 버튼</button></div>
 <div class="hide-area" id="hide-area-b"><p><strong>영역 B</strong> · <span id="hide-area-b-state">속성 없음</span></p><button type="button" id="hide-area-b-button">B의 버튼</button></div>
 </div>
-<p id="hide-result" role="status">아직 누른 버튼이 없습니다.</p>
-<pre><code>areaA.setAttribute("aria-hidden", "true"); // 접근성 정보만 숨깁니다
-areaB.inert = true;                         // 포커스, 클릭, 접근성 정보를 함께 막습니다</code></pre>
-<p class="expected"><strong>관찰할 결과</strong> · 두 영역 모두 화면에 그대로 보입니다. aria-hidden을 적용한 A의 버튼은 여전히 Tab으로 도착하고, 클릭하면 횟수가 늘어납니다. 접근성 패널에서는 A가 빠져 있으므로 스크린 리더 사용자는 아무 정보도 없는 곳에 포커스가 머무는 상황을 만나게 됩니다. 일부 브라우저는 포커스가 들어 있는 영역의 aria-hidden을 무시하고 개발자 도구에 경고를 남깁니다. inert를 적용한 B의 버튼은 Tab 순서에서 빠지고 클릭해도 횟수가 늘지 않습니다. A의 조합은 문제를 보여주기 위한 것이므로 실제 화면에서는 포커스 가능한 요소를 aria-hidden으로 숨기지 않습니다.</p>
+<div class="output" id="hide-result" role="status"><p class="output-message" data-tone="muted">아직 누른 버튼이 없습니다.</p></div>
+
+<p class="expected"><strong>확인할 결과</strong>두 영역 모두 화면에 그대로 보입니다. aria-hidden을 적용한 A의 버튼은 여전히 Tab으로 도착하고, 클릭하면 횟수가 늘어납니다. 접근성 패널에서는 A가 빠져 있으므로 스크린 리더 사용자는 아무 정보도 없는 곳에 포커스가 머무는 상황을 만나게 됩니다. 일부 브라우저는 포커스가 들어 있는 영역의 aria-hidden을 무시하고 개발자 도구에 경고를 남깁니다. inert를 적용한 B의 버튼은 Tab 순서에서 빠지고 클릭해도 횟수가 늘지 않습니다. A의 조합은 문제를 보여주기 위한 것이므로 실제 화면에서는 포커스 가능한 요소를 aria-hidden으로 숨기지 않습니다.</p>
 </section>
 </section>
 

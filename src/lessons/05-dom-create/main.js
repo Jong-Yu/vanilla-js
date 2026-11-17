@@ -3,12 +3,13 @@ const connectionList = document.querySelector("#connection-list");
 const detachedItem = document.createElement("li");
 detachedItem.textContent = "연결을 기다리는 항목";
 function describeConnection() {
-  document.querySelector("#connection-result").textContent = JSON.stringify({
-    "item.isConnected": detachedItem.isConnected,
-    "item.parentElement": detachedItem.parentElement?.tagName ?? null,
-    "item.textContent": detachedItem.textContent,
-    "목록의 요소 수": connectionList.children.length,
-  }, null, 2);
+  const parent = detachedItem.parentElement;
+  showFields(document.querySelector("#connection-result"), [
+    ["item.isConnected", detachedItem.isConnected],
+    ["item.parentElement", parent ? { code: parent.tagName.toLowerCase() } : null],
+    ["item.textContent", { code: JSON.stringify(detachedItem.textContent) }],
+    ["목록의 요소 수", `${connectionList.children.length}개`],
+  ]);
 }
 document.querySelector("#connect-node").addEventListener("click", () => {
   connectionList.append(detachedItem);
@@ -26,8 +27,16 @@ const right = document.querySelector("#identity-right");
 const original = left.querySelector("li");
 let identityMessage = "처음에는 왼쪽에 원본 하나만 있습니다.";
 function describeIdentity() {
-  document.querySelector("#identity-result").textContent =
-    `${identityMessage}\n왼쪽: ${left.children.length}개 / 오른쪽: ${right.children.length}개\n전체: ${left.children.length + right.children.length}개\n원본의 부모: ${original.parentElement.id}`;
+  showOutput(
+    document.querySelector("#identity-result"),
+    outputMessage(identityMessage),
+    outputFields([
+      ["왼쪽 목록", `${left.children.length}개`],
+      ["오른쪽 목록", `${right.children.length}개`],
+      ["전체", `${left.children.length + right.children.length}개`],
+      ["원본의 부모", { code: `#${original.parentElement.id}` }],
+    ]),
+  );
 }
 document.querySelector("#move-node").addEventListener("click", () => {
   right.append(original);
@@ -37,7 +46,7 @@ document.querySelector("#move-node").addEventListener("click", () => {
 document.querySelector("#clone-node").addEventListener("click", () => {
   const copy = original.cloneNode(true);
   right.append(copy);
-  identityMessage = `복사본을 추가했습니다. original === copy: ${original === copy}`;
+  identityMessage = ["복사본을 추가했습니다. ", { code: "original === copy" }, "의 결과는 ", original === copy, "입니다."];
   describeIdentity();
 });
 document.querySelector("#reset-identity").addEventListener("click", () => {
@@ -56,7 +65,7 @@ const taskStatus = document.querySelector("#task-status");
 const initialTopics = ["DOM 구조 읽기", "요소 직접 만들기"];
 
 function updateCount(message) {
-  taskStatus.textContent = `${message} 현재 ${list.children.length}개입니다.`;
+  showOutput(taskStatus, outputMessage(message), outputFields([["목록의 항목 수", `${list.children.length}개`]]));
 }
 function addTask(text) {
   const item = document.createElement("li");
@@ -79,7 +88,7 @@ form.addEventListener("submit", (event) => {
   event.preventDefault();
   const text = taskInput.value.trim();
   if (text === "") {
-    taskStatus.textContent = "공백이 아닌 주제를 입력하세요.";
+    showMessage(taskStatus, "공백이 아닌 주제를 입력하세요.", "warn");
     taskInput.focus();
     return;
   }

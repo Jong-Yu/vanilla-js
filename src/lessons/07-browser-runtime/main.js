@@ -9,51 +9,52 @@ let orderRunning = false;
 runOrder.addEventListener("click", () => {
   if (orderRunning) return;
   orderRunning = true;
-  orderLog.textContent = "";
+  showOutput(orderLog);
   runOrder.setAttribute("aria-disabled", "true");
   const lines = [];
-  function log(message) {
-    lines.push(message);
-    orderLog.textContent = lines.join("\n");
+  // 기록 번호는 결과 화면이 실행된 순서대로 붙입니다.
+  function log(tag, text, tone) {
+    lines.push({ tag, text, tone });
+    showLog(orderLog, lines);
   }
 
-  log("1. 클릭 콜백 시작 · 동기 실행");
+  log("동기", "클릭 콜백 시작");
   setTimeout(() => {
-    log("5. setTimeout 콜백 · 나중의 task");
+    log("task", "setTimeout 콜백 · 나중의 task");
     orderRunning = false;
     runOrder.removeAttribute("aria-disabled");
   }, 0);
   Promise.resolve().then(() => {
-    log("4. Promise.then 콜백 · microtask");
+    log("microtask", "Promise.then 콜백", "accent");
   });
   function doNow() {
-    log("2. 직접 호출한 함수 · 동기 실행");
+    log("동기", "직접 호출한 함수");
   }
   doNow();
-  log("3. 클릭 콜백 끝 · 동기 실행");
+  log("동기", "클릭 콜백 끝");
 });
 
 runDom.addEventListener("click", () => {
   // 연속으로 실행하면 이전 실행의 화면 갱신 로그는 무시합니다.
   const currentRun = ++domRun;
   const lines = [];
-  function log(message) {
-    lines.push(message);
-    domLog.textContent = lines.join("\n");
+  function log(tag, text, tone) {
+    lines.push({ tag, text, tone });
+    showLog(domLog, lines);
   }
 
   domValue.textContent = "첫 번째 값";
-  log(`첫 대입 직후 읽기: ${domValue.textContent}`);
+  log("동기", ["첫 대입 직후 읽기 ", { code: JSON.stringify(domValue.textContent) }]);
   domValue.textContent = "두 번째 값";
-  log(`두 번째 대입 직후 읽기: ${domValue.textContent}`);
+  log("동기", ["두 번째 대입 직후 읽기 ", { code: JSON.stringify(domValue.textContent) }]);
   Promise.resolve().then(() => {
     if (currentRun !== domRun) return;
     domValue.textContent = "microtask에서 바꾼 값";
-    log(`microtask에서 읽기: ${domValue.textContent}`);
+    log("microtask", ["바꾼 뒤 읽기 ", { code: JSON.stringify(domValue.textContent) }], "accent");
   });
   requestAnimationFrame(() => {
     if (currentRun !== domRun) return;
-    log("requestAnimationFrame: 다음 화면 갱신의 paint 전에 콜백 실행");
+    log("rAF", "다음 화면 갱신의 paint 전에 콜백 실행");
   });
 });
 
@@ -64,21 +65,21 @@ let asyncRunning = false;
 runAsync.addEventListener("click", () => {
   if (asyncRunning) return;
   asyncRunning = true;
-  asyncLog.textContent = "";
+  showOutput(asyncLog);
   const steps = [];
-  const log = (step) => {
-    steps.push(step);
-    asyncLog.textContent = steps.join("\n");
+  const log = (tag, text, tone) => {
+    steps.push({ tag, text, tone });
+    showLog(asyncLog, steps);
   };
   async function load() {
-    log("A · async 함수 안, await 전");
+    log("A", "async 함수 안, await 전 · 동기");
     await Promise.resolve();
-    log("C · await 다음 (microtask)");
+    log("C", "await 다음 · microtask", "accent");
   }
   setTimeout(() => {
-    log("D · 타이머 (task)");
+    log("D", "타이머 콜백 · task");
     asyncRunning = false;
   }, 0);
   load();
-  log("B · load()를 호출한 다음 줄");
+  log("B", "load()를 호출한 다음 줄 · 동기");
 });
