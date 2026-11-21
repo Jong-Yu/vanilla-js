@@ -1,6 +1,6 @@
 # 바닐라 JS와 DOM
 
-JavaScript와 브라우저의 기본 동작을 배우는 11개 장, 47개 실행 예제입니다. 각 장은 개념 설명과 도식, 짧은 코드 해설, 직접 조작하는 예제로 구성됩니다.
+JavaScript와 브라우저의 기본 동작을 배우는 11개 장, 47개 실행 예제입니다. 각 장은 개념 설명과 도식, 짧은 코드 해설, 직접 조작하는 예제로 구성됩니다. 도식은 객체 관계, 실행 순서, 변경 전후를 보여주며 읽는 순서와 핵심 규칙을 함께 설명합니다. 차례와 상단 메뉴의 **학습 도식 모아보기**에서 원하는 그림으로 바로 이동할 수 있습니다.
 
 [온라인 교재](https://jong-yu.github.io/vanilla-js/) · [읽기 안내와 용어](docs/guide.md)
 
@@ -41,8 +41,10 @@ dist/                     자동 생성되는 결과물 (Git 제외)
 ## 수정과 배포
 
 - 본문과 예제는 `src/lessons/`의 각 장에 있는 `index.html`, `main.js`를 수정합니다.
+- 예제는 질문과 예상 아래에 코드·실습 영역을 나란히 배치하고, 결과 해설을 아래에 표시합니다. 좁은 화면과 비교 실습은 세로로 정렬됩니다. 예제 목록은 본문의 번호·주제·질문을 읽어 3개 학습 경로로 묶습니다.
 - 공통 화면은 `src/styles.css`, 상태와 DOM 연결은 `src/shared/`에서 수정합니다. 예제의 실행 결과는 `src/shared/output.js`의 함수로 기록 목록이나 이름·값 표로 보여줍니다.
 - 읽기 안내는 `docs/guide.md`에서 수정합니다. 예제 목록은 각 장의 `class="sample"` 섹션 제목으로 생성됩니다.
+- 도식 목록은 `scripts/render-visuals.mjs`가 본문의 SVG 그림에서 자동 생성합니다. 그림에는 `figcaption`과 그림 또는 캡션의 고유 `id`를 지정하고, SVG에 `title`·`desc`를 연결합니다. 새 그림은 `learning-visual`, `diagram-summary`, `diagram-reading`, `diagram-takeaway`를 사용해 질문·그림·해설·핵심 규칙을 같은 형식으로 표시합니다.
 - 수정 후 `npm test`와 `npm run build`를 실행합니다. `dist/` 안의 파일은 직접 수정하지 않습니다.
 
 `npm run build`는 단일 HTML과 배포 파일을 함께 생성합니다. `npm run build:pages`도 같은 명령의 호환 별칭입니다. `main`의 교재 파일이 변경되면 GitHub Actions가 루트에서 테스트와 빌드를 실행하고 `dist/site/`를 배포합니다. GitHub Pages의 게시 방식은 **GitHub Actions**를 사용합니다.

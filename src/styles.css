@@ -128,6 +128,23 @@ summary { cursor: pointer; color: var(--accent); }
 .diagram .x-mark { fill: none; stroke: #a2453a; stroke-width: 2.2; stroke-linecap: round; }
 .concept-figure .diagram-note { margin: 12px 0 0; }
 .concept-figure .diagram-hint { display: none; margin: 0 0 8px; }
+/* 그림의 질문 → 관계도 → 읽는 순서 → 핵심 규칙을 같은 리듬으로 보여줍니다. */
+.learning-visual { scroll-margin-top: 28px; border-top: 3px solid #87a68e; padding-top: 22px; }
+.learning-visual figcaption { font-size: 1.04rem; line-height: 1.65; margin-bottom: 8px; word-break: keep-all; }
+.learning-visual .diagram-summary { margin: 0 0 20px; max-width: none; }
+.learning-visual .diagram-scroll { padding: 12px 0; background: #fafcf9; border: 1px solid #e5ece1; }
+.diagram-reading { list-style: none; counter-reset: diagram-step; padding: 0; margin: 20px 0 0; display: grid; gap: 12px; }
+.diagram-reading li { position: relative; counter-increment: diagram-step; margin: 0; padding-left: 38px; font-size: .9rem; line-height: 1.8; overflow-wrap: anywhere; }
+.diagram-reading li::before { content: counter(diagram-step); position: absolute; left: 0; top: 1px; display: grid; place-items: center; width: 25px; height: 25px; border: 1px solid #c7d8c6; border-radius: 7px; background: var(--soft); color: var(--accent); font: 650 .8rem/1.2 ui-monospace, monospace; }
+.learning-visual .diagram-takeaway { max-width: none; margin: 20px 0 0; padding: 14px 16px; background: var(--soft); border-radius: 8px; color: var(--ink); }
+.diagram-takeaway > strong:first-child { display: block; margin-bottom: 4px; color: var(--accent); font-size: .82rem; }
+.visual-index { list-style: none; padding: 0; margin: 20px 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.visual-index li { margin: 0; min-width: 0; }
+.visual-index a { display: block; height: 100%; padding: 22px; border: 1px solid var(--line); border-top: 3px solid #87a68e; border-radius: 10px; background: var(--surface); text-decoration: none; }
+.visual-index a:hover { background: #f3f7f0; border-color: #87a68e; }
+.visual-index strong { display: block; color: var(--ink); line-height: 1.65; word-break: keep-all; }
+.visual-index span { display: block; margin-top: 10px; color: var(--muted); font-size: .88rem; line-height: 1.8; }
+.visual-count { color: var(--muted); font-size: .85rem; font-weight: 400; white-space: nowrap; }
 @media (max-width: 700px) { .concept-figure .diagram-hint { display: block; } }
 .optional-practice { border-top: 1px solid var(--line); margin-top: 40px; padding: 24px 0; }
 .optional-practice > summary { font-weight: 650; }
@@ -145,9 +162,36 @@ summary { cursor: pointer; color: var(--accent); }
 .learning-route strong { display: block; font-size: 1rem; line-height: 1.65; word-break: keep-all; }
 .learning-route p { font-size: .87rem; color: var(--muted); margin: 10px 0 20px; }
 .learning-route a { margin-top: auto; font-size: .82rem; font-weight: 600; }
-.sample { scroll-margin-top: 28px; margin: 32px 0; }
-.sample > h3 { font-size: 1.17rem; letter-spacing: -.025em; margin-top: 12px; }
-.sample-meta { display: inline-block; padding: 3px 10px; border-radius: 5px; background: var(--soft); color: #516c54; font-size: .75rem; margin-bottom: 4px; }
+/* 각 실험은 질문, 예상, 코드와 조작, 해설을 같은 위치에서 읽습니다. */
+main:has(.sample) { width: min(1080px, 100%); }
+.sample.demo { scroll-margin-top: 28px; margin: 36px 0; padding: 0; border-color: #d1ddd1; border-radius: 18px; box-shadow: 0 6px 22px #233c2e06; }
+.sample-heading { margin: 0; padding: 26px 28px 22px; }
+.sample-heading h3 { margin: 12px 0 0; font-size: 1.3rem; line-height: 1.55; letter-spacing: -.035em; }
+.sample-meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; margin: 0; color: var(--muted); font-size: .8rem; }
+.sample-number { display: inline-flex; padding: 3px 10px; border-radius: 6px; background: var(--soft); color: var(--accent); font-size: .77rem; font-weight: 700; white-space: nowrap; }
+.sample-topic { min-width: 0; overflow-wrap: anywhere; }
+.sample-workspace { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); align-items: stretch; }
+.sample-code, .sample-playground { min-width: 0; padding: 24px; }
+.sample-code { background: #f7f9f5; border-right: 1px solid #e0e7dc; }
+.sample-panel-heading { display: flex; align-items: center; gap: 9px; margin: 0 0 18px; font-size: .88rem; line-height: 1.5; color: #4c6454; }
+.sample-step { display: grid; place-items: center; flex-shrink: 0; width: 27px; height: 27px; border: 1px solid #d4dfd1; border-radius: 7px; font: 650 .72rem/1 ui-monospace, monospace; color: var(--accent); background: #fff; }
+.sample-code pre, .sample-code pre:has(> code) { margin: 0; padding: 20px; font-size: .8rem; line-height: 1.9; border-radius: 10px; }
+.sample-playground { background: var(--surface); }
+.sample-playground > :last-child { margin-bottom: 0; }
+.sample-playground > * + :not(.sample-panel-heading) { margin-top: 16px; }
+.sample-playground > .sample-panel-heading + * { margin-top: 0; }
+.sample-playground .row { gap: 8px; }
+.sample-playground .stack { gap: 12px; }
+.sample-playground input:is([type="text"], [type="email"]) { max-width: 100%; }
+.sample-playground .control { max-width: 100%; }
+.sample-playground button { font-size: .84rem; padding: 9px 12px; }
+.sample-playground .output { margin-top: 20px; border-radius: 10px; box-shadow: none; background: #fbfcfa; }
+.sample-playground .output + .output { margin-top: 10px; }
+.sample-playground .output-fields { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); }
+.sample-workspace--stacked { grid-template-columns: minmax(0, 1fr); }
+.sample-workspace--stacked .sample-code { border-right: 0; border-bottom: 1px solid #e0e7dc; }
+.sample-notes { padding: 18px 28px 22px; font-size: .88rem; border-top: 1px solid var(--line); }
+.sample-notes > p { max-width: none; }
 /* 예제의 실행 결과: 코드(어두운 상자)와 설명(초록 상자) 사이에서 흰 패널로 구분합니다. */
 .output { position: relative; margin: 18px 0; padding: 34px 18px 14px; background: var(--surface); border: 1px solid #cfdccb; border-radius: 12px; font-size: .92rem; line-height: 1.7; box-shadow: 0 1px 0 #233c2e08; }
 .output::before { content: "실행 결과"; content: "실행 결과" / ""; position: absolute; top: 10px; left: 18px; font-size: .72rem; font-weight: 700; letter-spacing: .06em; color: var(--accent); }
@@ -177,20 +221,90 @@ summary { cursor: pointer; color: var(--accent); }
 .output code.is-true { color: #1d6b48; background: #e1f0e6; border-color: #c4e0cd; }
 .output code.is-false { color: #8a3d32; background: #f8ece8; border-color: #ecd3cb; }
 .output-figure { margin: 10px 0 0; }
-/* 예제 안의 요소 사이 간격. 명시한 여백이 있는 요소(코드, 결과, 설명 상자)는 그 값을 따릅니다. */
-.sample > * + :not(:is(.prediction, .expected, .output, pre, h3)) { margin-top: 14px; }
-.sample .prediction, .sample .expected { max-width: none; }
+/* 예상은 시작 전에, 결과 해설은 실습 아래에서 확인합니다. */
+.sample > .prediction, .sample > .expected { max-width: none; margin: 0; padding: 18px 28px; border-radius: 0; font-size: .9rem; }
+.sample > .prediction { border: 0; border-block: 1px solid #e1e7d8; background: #f5f7ee; }
+.sample > .expected { border: 0; border-top: 1px solid #dce6d7; background: #eff5ee; }
+.sample > .expected:last-child { border-radius: 0 0 17px 17px; }
 .prediction > strong:first-child, .expected > strong:first-child { display: block; margin-bottom: 2px; font-size: .74rem; letter-spacing: .06em; color: var(--accent); }
 .output:empty::after { content: "아직 기록이 없습니다."; content: "아직 기록이 없습니다." / ""; color: var(--muted); }
 .prediction { padding: 14px 18px; border-left: 3px solid #b5bd85; background: #f7f8ee; border-radius: 0 8px 8px 0; margin: 18px 0; font-size: .93rem; }
 .expected { padding: 18px 20px; background: var(--soft); border: 1px solid #e0e8d9; border-radius: 10px; margin-top: 20px; font-size: .93rem; }
 .sample-links { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 8px 12px; margin: 24px 0; padding: 16px 20px; background: #ffffffa6; border: 1px solid var(--line); border-radius: 12px; font-size: .85rem; }
 .sample-links a { padding: 3px 0; }
+main:has(.sample) .sample-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; padding: 14px; background: #eef3eb; }
+main:has(.sample) .sample-links a { display: flex; align-items: center; min-height: 44px; padding: 10px 12px; border: 1px solid #dce5d7; border-radius: 8px; background: var(--surface); text-decoration: none; font-size: .82rem; line-height: 1.6; }
+main:has(.sample) .sample-links a:hover { border-color: #92ae91; background: #f8fbf5; }
 .sample-index { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .sample-index li { margin: 0; }
-.sample-index a { display: block; height: 100%; padding: 20px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); text-decoration: none; color: var(--ink); font-weight: 600; font-size: .95rem; box-shadow: var(--shadow); transition: background 150ms, border-color 150ms; }
-.sample-index a:hover { border-color: #92ae91; background: #fcfdf8; }
-.sample-index small { display: block; margin-top: 12px; font-size: .76rem; font-weight: 400; }
+/* 예제 모음: 학습 경로, 장 소개, 질문 카드를 구분합니다. */
+.sample-library { width: min(1080px, 100%); }
+.sample-catalog-hero { padding-bottom: 28px; margin-bottom: 28px; border-bottom: 1px solid var(--line); }
+.sample-catalog-hero h1 { max-width: 22ch; }
+.sample-catalog-hero .intro { max-width: 62ch; }
+.sample-catalog-stats { display: flex; flex-wrap: wrap; gap: 12px 24px; margin-top: 24px; color: var(--muted); font-size: .9rem; }
+.sample-catalog-stats strong { margin-right: 5px; color: var(--ink); font-size: 1.2rem; font-variant-numeric: tabular-nums; }
+.sample-track-links { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; border: 0; padding: 0; margin: 28px 0 20px; }
+.sample-track-links a, .sample-track { --track-accent: var(--accent); --track-soft: #edf3eb; }
+.sample-track-links a:nth-child(2), #track-interactions { --track-accent: #79612d; --track-soft: #f5f0e3; }
+.sample-track-links a:nth-child(3), #track-interfaces { --track-accent: #476a7b; --track-soft: #edf2f5; }
+.sample-track-links a { display: flex; flex-direction: column; gap: 9px; min-width: 0; padding: 22px; border: 1px solid var(--line); border-top: 3px solid var(--track-accent); border-radius: 12px; background: var(--surface); text-decoration: none; transition: background 150ms, border-color 150ms; }
+.sample-track-links a:hover { background: var(--track-soft); border-color: var(--track-accent); }
+.sample-track-links small { color: var(--track-accent); font-size: .8rem; font-weight: 650; }
+.sample-track-links strong { color: var(--ink); font-size: 1rem; line-height: 1.65; word-break: keep-all; overflow-wrap: anywhere; }
+.sample-track-links span { color: var(--muted); font-size: .88rem; line-height: 1.8; word-break: keep-all; overflow-wrap: anywhere; }
+.sample-catalog-nav { margin: 20px 0 44px; }
+.sample-catalog-nav > summary { padding: 12px 18px; border: 1px solid var(--line); border-radius: 9px; color: var(--accent); background: var(--surface); font-size: .9rem; font-weight: 600; }
+.sample-catalog-nav .chapter-toc { margin: 12px 0 0; }
+.sample-track { margin: 48px 0 64px; scroll-margin-top: 28px; }
+.sample-track-heading { margin-bottom: 30px; padding: 22px 26px; border-left: 4px solid var(--track-accent); border-radius: 0 12px 12px 0; background: var(--track-soft); }
+.sample-track-heading .eyebrow { margin: 0 0 7px; color: var(--track-accent); }
+.sample-track-heading .eyebrow::before { background: var(--track-accent); }
+.sample-track-heading h2 { margin: 0 0 7px; font-size: clamp(1.35rem, 2.5vw, 1.65rem); line-height: 1.5; }
+.sample-track-description { color: var(--muted); font-size: .94rem; }
+.sample-chapter { margin: 34px 0 42px; scroll-margin-top: 28px; }
+.sample-chapter-heading { display: flex; align-items: flex-start; gap: 16px; justify-content: space-between; margin: 0 0 18px; }
+.sample-chapter-heading > div { min-width: 0; }
+.sample-chapter-heading h3 { margin: 0 0 6px; font-size: 1.1rem; line-height: 1.6; }
+.sample-chapter-heading h3 a { color: var(--ink); text-decoration: none; }
+.sample-chapter-heading h3 a:hover { color: var(--accent); text-decoration: underline; }
+.sample-chapter-description { max-width: 66ch; color: var(--muted); font-size: .9rem; line-height: 1.8; }
+.sample-count { flex-shrink: 0; margin-top: 2px; padding: 3px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--muted); font-size: .78rem; font-variant-numeric: tabular-nums; }
+.sample-library .sample-index { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 0; }
+.sample-library .sample-index li { min-width: 0; margin: 0; }
+.sample-library .sample-index .sample-card-link { display: flex; flex-direction: column; align-items: flex-start; gap: 0; height: 100%; padding: 24px; border: 1px solid var(--line); border-radius: 13px; background: var(--surface); box-shadow: 0 3px 12px #233c2e04; color: var(--ink); text-decoration: none; font-weight: 400; transition: background 150ms, border-color 150ms; }
+.sample-library .sample-index .sample-card-link:hover { background: #fcfefb; border-color: #91ac96; }
+.sample-card-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-bottom: 15px; font-size: .78rem; line-height: 1.6; }
+.sample-card-number { flex-shrink: 0; padding: 3px 8px; border-radius: 5px; background: var(--track-soft, var(--soft)); color: var(--track-accent, var(--accent)); font-weight: 650; font-variant-numeric: tabular-nums; }
+.sample-card-topic { color: var(--muted); overflow-wrap: anywhere; }
+.sample-library .sample-card-title { margin: 0 0 12px; color: var(--ink); font-size: 1.07rem; line-height: 1.65; font-weight: 650; letter-spacing: -.025em; }
+.sample-card-prediction { margin: 0 0 22px; color: var(--muted); font-size: .9rem; line-height: 1.85; }
+.sample-card-action { align-self: stretch; margin-top: auto; padding-top: 13px; border-top: 1px solid #e8eee4; color: var(--accent); font-size: .85rem; font-weight: 650; }
+.sample-card-link:hover .sample-card-action { color: var(--accent-hover); }
+@media (max-width: 760px) {
+  .sample-track-links { gap: 10px; }
+  .sample-track-links a { padding: 18px 16px; }
+  .sample-library .sample-index .sample-card-link { padding: 20px; }
+}
+@media (max-width: 580px) {
+  .sample-catalog-hero { padding-bottom: 22px; }
+  .sample-track-links { grid-template-columns: 1fr; gap: 10px; }
+  .sample-track-links a { padding: 18px; gap: 6px; }
+  .sample-track { margin: 36px 0 48px; }
+  .sample-track-heading { padding: 20px 18px; margin-bottom: 24px; }
+  .sample-chapter { margin: 28px 0 34px; }
+  .sample-chapter-heading { flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+  .sample-count { margin: 0; }
+  .sample-library .sample-index { grid-template-columns: 1fr; gap: 12px; }
+  .sample-library .sample-index .sample-card-link { padding: 18px; }
+  .sample-library .sample-card-title { font-size: 1.03rem; }
+  .sample-card-meta { margin-bottom: 12px; }
+}
+@media (forced-colors: active) {
+  .sample-track-links a, .sample-track-heading, .sample-count, .sample-card-number { border-color: CanvasText; }
+  .sample-track-heading, .sample-card-number { background: Canvas; color: CanvasText; }
+  .sample-card-action { border-color: CanvasText; }
+}
 fieldset { min-width: 0; border: 1px solid var(--line); border-radius: 10px; padding: 18px; }
 legend { font-weight: 650; }
 /* 첫 화면은 작은 학습 노트 표지처럼, 본문은 차분한 읽기 폭을 유지합니다. */
@@ -212,6 +326,10 @@ legend { font-weight: 650; }
 .home-actions a:first-child { background: var(--accent); border-color: var(--accent); color: #fff; }
 .home-actions a:hover { background: var(--soft); color: var(--accent-hover); border-color: #92ae91; }
 .home-actions a:first-child:hover { background: var(--accent-hover); color: #fff; }
+@media (max-width: 860px) {
+  .sample-workspace { grid-template-columns: minmax(0, 1fr); }
+  .sample-code { border-right: 0; border-bottom: 1px solid #e0e7dc; }
+}
 @media (max-width: 700px) {
   .home-hero { grid-template-columns: minmax(0, 1fr); gap: 0; }
   .hero-note { display: none; }
@@ -220,13 +338,21 @@ legend { font-weight: 650; }
 }
 @media (max-width: 580px) {
   .output { padding: 32px 14px 12px; }
-  .output-fields { grid-template-columns: 1fr; gap: 0; }
+  .output-fields, .sample-playground .output-fields { grid-template-columns: 1fr; gap: 0; }
   .output-fields dd { margin-bottom: 8px; }
   .output-fields dd:last-child { margin-bottom: 0; }
   main { padding: 32px 20px 52px; }
   h1 { font-size: 2rem; }
   .home-hero h1 { font-size: 2.25rem; }
   .demo { padding: 20px; }
+  .sample.demo { margin: 28px 0; }
+  .sample-heading { padding: 22px 18px 18px; }
+  .sample-heading h3 { font-size: 1.15rem; }
+  .sample-code, .sample-playground { padding: 20px 18px; }
+  .sample-code pre, .sample-code pre:has(> code) { padding: 16px; font-size: .78rem; }
+  .sample > .prediction, .sample > .expected { padding: 16px 18px; }
+  .sample-notes { padding: 16px 18px 20px; }
+  main:has(.sample) .sample-links { grid-template-columns: minmax(0, 1fr); }
   pre, pre:has(> code) { padding: 18px; font-size: .8rem; }
   .two-views { grid-template-columns: 1fr; gap: 16px; }
   th, td { padding: 12px 6px; font-size: .88rem; }
@@ -238,12 +364,16 @@ legend { font-weight: 650; }
   .learning-route p { margin-bottom: 14px; }
   .learning-goals { padding: 20px; }
   .concept-figure { padding: 20px; }
+  .learning-visual { padding: 18px 14px; }
+  .visual-index { grid-template-columns: 1fr; }
   .home-actions { margin: 24px 0 32px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; }
 }
 @media (forced-colors: active) {
+  .sample-step, .sample-number, .sample-code { border: 1px solid CanvasText; }
+  .learning-visual .diagram-takeaway, .diagram-reading li::before { border: 1px solid CanvasText; }
   .output, .output-tag, .output-log li::before { border: 1px solid CanvasText; }
   .diagram text, .diagram .t-small, .diagram .t-accent { fill: CanvasText; }
   .diagram .b-plain, .diagram .b-soft, .diagram .b-ghost, .diagram .b-panel { fill: Canvas; stroke: CanvasText; }

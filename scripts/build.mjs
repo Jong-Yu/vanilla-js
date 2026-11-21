@@ -3,6 +3,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { renderGuide } from "./render-guide.mjs";
 import { renderSamples } from "./render-samples.mjs";
+import { renderVisuals } from "./render-visuals.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const output = join(root, "dist");
@@ -36,6 +37,7 @@ const files = Object.fromEntries(await Promise.all(paths.map(async path => [
   path, await readFile(join(root, "src", path), "utf8"),
 ])));
 files["samples.html"] = renderSamples(lessons, files);
+files["visuals.html"] = renderVisuals(lessons, files);
 // 저장소에서 읽는 Markdown 링크를 배포 사이트와 단일 파일의 경로로 맞춥니다.
 const guide = (await readFile(join(root, "docs/guide.md"), "utf8"))
   .replaceAll("](../src/", "](")

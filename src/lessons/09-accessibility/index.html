@@ -29,6 +29,20 @@
 <p>버튼에 보이는 글자가 이미 충분한 이름을 제공한다면 같은 내용을 aria-label로 중복 작성할 필요가 없습니다. aria-label은 기존 이름을 덮어쓸 수 있으므로 화면의 글자와 다른 이름을 만들지 않도록 주의합니다.</p>
 <p>이름의 출처가 여러 개면 브라우저는 정해진 우선순위로 하나를 고릅니다. 단순화하면 <code>aria-labelledby</code>로 가리킨 요소의 글자, <code>aria-label</code>, label·alt 같은 HTML의 연결, 버튼처럼 내용에서 이름을 가져오는 요소의 글자, title 순서입니다. 그래서 aria-labelledby를 붙이면 보이는 label보다 앞섭니다. 대화 상자처럼 내용에서 이름을 가져오지 않는 역할에는 제목을 aria-labelledby로 연결해 이름을 줍니다. 툴팁처럼 덧붙이는 안내는 이름이 아니라 설명으로 연결합니다.</p>
 <p class="muted">참고: <a href="https://www.w3.org/WAI/ARIA/apg/practices/names-and-descriptions/">WAI · 접근 가능한 이름과 설명</a></p>
+
+<figure class="concept-figure learning-visual" id="visual-accessible-control">
+<figcaption id="visual-accessible-control-caption">체크박스 하나를 이름·역할·상태로 나누어 읽기</figcaption>
+<p class="diagram-summary">보이는 글자와 네이티브 입력의 정보가 각각 어떤 의미를 제공하는지 따라갑니다.</p>
+<p class="diagram-hint">화면이 좁으면 도식을 옆으로 밀어서 볼 수 있습니다.</p>
+<div class="diagram-scroll" role="region" tabindex="0" aria-labelledby="visual-accessible-control-caption">
+<svg class="diagram" viewBox="0 0 640 378" role="img" aria-labelledby="visual-accessible-control-title visual-accessible-control-desc">
+<title id="visual-accessible-control-title">체크박스 하나를 이름·역할·상태로 나누어 읽기</title><desc id="visual-accessible-control-desc">이메일 소식 받기라는 레이블이 연결된 체크박스에서 이름은 이메일 소식 받기, 역할은 checkbox, 상태는 선택됨이다. 이름은 레이블에서, 역할은 input type에서, 상태는 현재 checked에서 비롯된다.</desc>
+<defs><marker id="visual-accessible-control-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="m-accent" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<rect class="b-soft" x="20" y="110" width="256" height="156" rx="10"/><text x="36" y="134" class="t-title" text-anchor="start" dominant-baseline="central">화면의 네이티브 체크박스</text><text x="36" y="162" class="t-title" text-anchor="start" dominant-baseline="central">☑  이메일 소식 받기</text><text x="36" y="186" class="t-code" text-anchor="start" dominant-baseline="central">input type=&quot;checkbox&quot;</text><text x="36" y="210" class="t-code" text-anchor="start" dominant-baseline="central">checked = true</text><rect class="b-accent" x="352" y="18" width="268" height="86" rx="10"/><text x="368" y="42" class="t-title" text-anchor="start" dominant-baseline="central">이름 · 어떤 조작인가?</text><text x="368" y="70" class="t-small" text-anchor="start" dominant-baseline="central">연결된 label: 이메일 소식 받기</text><rect class="b-accent" x="352" y="128" width="268" height="86" rx="10"/><text x="368" y="152" class="t-title" text-anchor="start" dominant-baseline="central">역할 · 어떤 종류인가?</text><text x="368" y="180" class="t-small" text-anchor="start" dominant-baseline="central">input의 기본 역할: checkbox</text><rect class="b-accent" x="352" y="238" width="268" height="86" rx="10"/><text x="368" y="262" class="t-title" text-anchor="start" dominant-baseline="central">상태 · 현재 어떤가?</text><text x="368" y="290" class="t-small" text-anchor="start" dominant-baseline="central">checked가 true: 선택됨</text><path class="l-arrow" d="M276,148 H310 V61 H352" marker-end="url(#visual-accessible-control-arrow)"/><path class="l-arrow" d="M276,188 H328 V171 H352" marker-end="url(#visual-accessible-control-arrow)"/><path class="l-arrow" d="M276,226 H310 V281 H352" marker-end="url(#visual-accessible-control-arrow)"/><text x="20" y="358" class="t-small" text-anchor="start" dominant-baseline="central">보조 기술은 이 정보를 조합해 조작의 의미를 전달합니다.</text>
+</svg></div>
+<ol class="diagram-reading"><li><strong>이름:</strong> <code>label</code>을 input과 연결하면 “이메일 소식 받기”가 어떤 설정을 바꾸는 조작인지 설명합니다.</li><li><strong>역할:</strong> <code>type="checkbox"</code>가 체크박스의 기본 의미와 Space로 선택을 바꾸는 기본 동작을 제공합니다. 네이티브 입력에 같은 role을 덧붙일 필요는 없습니다.</li><li><strong>상태:</strong> 사용자가 선택을 바꾸면 현재 <code>checked</code>가 바뀝니다. 정확한 낭독 문장과 순서는 브라우저와 보조 기술에 따라 다를 수 있습니다.</li></ol>
+<p class="diagram-takeaway"><strong>기억할 점</strong> 색이나 모양만 바꾸어서는 이름·역할·상태를 모두 표현할 수 없습니다. 의미와 실제 동작이 함께 맞아야 합니다.</p>
+</figure>
 </section>
 
 <section class="concept" id="native-and-aria"><h2>HTML은 기본 동작을 제공하고, ARIA는 의미를 보충합니다</h2>
@@ -38,6 +52,20 @@
 <p><strong>ARIA는 동작 코드를 설치하지 않습니다.</strong> div에 role="button"을 적어도 Tab 이동이나 Enter·Space 활성화가 자동으로 생기지 않습니다. aria-expanded="true"를 적어도 패널이 저절로 보이지 않습니다. 개발자는 의미로 약속한 상태와 실제 동작을 맞춰야 합니다.</p>
 <p>단순한 펼침 영역에는 <code>&lt;details&gt;</code>와 <code>&lt;summary&gt;</code>도 사용할 수 있습니다. 아래 예제는 상태의 연결 원리를 관찰하기 위해 button, aria-expanded, hidden을 직접 연결합니다. 구현의 출발점은 언제나 목적에 맞는 기본 HTML 요소입니다.</p>
 <p class="muted">참고: <a href="https://www.w3.org/WAI/ARIA/apg/practices/read-me-first/">WAI · ARIA의 역할은 동작에 대한 약속</a></p>
+
+<figure class="concept-figure learning-visual" id="visual-disclosure-contract">
+<figcaption id="visual-disclosure-contract-caption">펼침 동작은 의미·화면·포커스를 함께 확인합니다</figcaption>
+<p class="diagram-summary">키보드로 펼침 버튼을 활성화하는 경우를, 변경 전후로 나란히 비교합니다.</p>
+<p class="diagram-hint">화면이 좁으면 도식을 옆으로 밀어서 볼 수 있습니다.</p>
+<div class="diagram-scroll" role="region" tabindex="0" aria-labelledby="visual-disclosure-contract-caption">
+<svg class="diagram" viewBox="0 0 640 355" role="img" aria-labelledby="visual-disclosure-contract-title visual-disclosure-contract-desc">
+<title id="visual-disclosure-contract-title">펼침 동작은 의미·화면·포커스를 함께 확인합니다</title><desc id="visual-disclosure-contract-desc">닫힌 상태에서는 버튼의 aria-expanded가 false이고 패널의 hidden이 true다. 버튼을 키보드로 활성화하면 aria-expanded는 true, hidden은 false가 된다. 이 단순한 펼침 동작에서는 포커스가 같은 버튼에 남는다.</desc>
+<defs><marker id="visual-disclosure-contract-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="m-accent" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<rect class="b-soft" x="20" y="28" width="250" height="272" rx="10"/><text x="36" y="52" class="t-title" text-anchor="start" dominant-baseline="central">닫힌 상태</text><text x="36" y="80" class="t-code" text-anchor="start" dominant-baseline="central">expanded = false</text><rect class="b-accent" x="370" y="28" width="250" height="272" rx="10"/><text x="386" y="52" class="t-title" text-anchor="start" dominant-baseline="central">열린 상태</text><text x="386" y="80" class="t-code" text-anchor="start" dominant-baseline="central">expanded = true</text><path class="l-arrow" d="M270,68 H370" marker-end="url(#visual-disclosure-contract-arrow)"/><text x="320" y="40" class="t-small" text-anchor="middle" dominant-baseline="central">활성화</text><text x="36" y="103" class="t-small" text-anchor="start" dominant-baseline="central">버튼의 의미</text><text x="36" y="127" class="t-code" text-anchor="start" dominant-baseline="central">aria-expanded=&quot;false&quot;</text><text x="386" y="103" class="t-small" text-anchor="start" dominant-baseline="central">버튼의 의미</text><text x="386" y="127" class="t-code" text-anchor="start" dominant-baseline="central">aria-expanded=&quot;true&quot;</text><text x="36" y="169" class="t-small" text-anchor="start" dominant-baseline="central">패널의 표시</text><text x="36" y="193" class="t-code" text-anchor="start" dominant-baseline="central">panel.hidden = true</text><text x="386" y="169" class="t-small" text-anchor="start" dominant-baseline="central">패널의 표시</text><text x="386" y="193" class="t-code" text-anchor="start" dominant-baseline="central">panel.hidden = false</text><text x="36" y="235" class="t-small" text-anchor="start" dominant-baseline="central">키보드 위치</text><text x="36" y="259" class="t-code" text-anchor="start" dominant-baseline="central">펼침 버튼에 포커스</text><text x="386" y="235" class="t-small" text-anchor="start" dominant-baseline="central">키보드 위치</text><text x="386" y="259" class="t-code" text-anchor="start" dominant-baseline="central">같은 버튼에 포커스</text><text x="320" y="334" class="t-title" text-anchor="middle" dominant-baseline="central">하나의 expanded 값으로 의미와 표시를 함께 갱신</text>
+</svg></div>
+<ol class="diagram-reading"><li><strong>기준값 변경:</strong> 버튼의 click 처리에서 펼침 상태 <code>expanded</code>를 뒤집습니다. 네이티브 버튼은 키보드 활성화도 click 처리로 이어줍니다.</li><li><strong>두 곳에 반영:</strong> 버튼에는 <code>aria-expanded</code>를, 패널에는 <code>hidden = !expanded</code>를 설정합니다. <code>aria-controls</code>에는 패널의 고유 id를 연결합니다.</li><li><strong>포커스 확인:</strong> 이 단순 펼침에서는 버튼에 있던 포커스를 유지합니다. 패널 안에 포커스가 있는 동안 다른 경로로 닫는 기능이라면 숨기기 전에 돌아갈 위치도 정해야 합니다.</li></ol>
+<p class="diagram-takeaway"><strong>기억할 점</strong> aria-expanded만 바꾸어도 패널이 열리지는 않습니다. 상태 설명과 실제 표시를 같은 기준값으로 맞춥니다.</p>
+</figure>
 </section>
 
 <section class="concept" id="focus-and-feedback"><h2>변화를 알리는 일과 포커스를 옮기는 일은 다릅니다</h2>
@@ -51,51 +79,89 @@
 <nav class="sample-links" aria-label="접근성 예제 바로가기"><a href="#sample-native-keyboard">9-1 · 기본 키보드 동작</a><a href="#sample-accessible-name">9-2 · 이름과 설명</a><a href="#sample-disclosure">9-3 · 펼침 상태</a><a href="#sample-live-status">9-4 · 결과 알림</a><a href="#sample-inert">9-5 · 숨김과 사용 중지</a></nav>
 
 <section class="demo sample" id="sample-native-keyboard" aria-labelledby="native-sample-title">
-<p class="sample-meta">예제 9-1 · 네이티브 요소와 키보드</p><h3 id="native-sample-title">click 리스너 하나로 키보드 활성화도 받을 수 있을까?</h3>
+<header class="sample-heading">
+<p class="sample-meta"><span class="sample-number">예제 9-1</span><span class="sample-topic"> · 네이티브 요소와 키보드</span></p>
+<h3 id="native-sample-title">click 리스너 하나로 키보드 활성화도 받을 수 있을까?</h3>
+</header>
 <p class="prediction"><strong>예상하기</strong>Tab으로 버튼에 도착한 뒤 Enter 또는 Space를 누르면 실행 횟수가 바뀔까요? 다음 체크박스로 이동하기만 해도 체크될까요?</p>
+<div class="sample-workspace">
+<div class="sample-code" role="group" aria-labelledby="sample-native-keyboard-code-title">
+<h4 class="sample-panel-heading" id="sample-native-keyboard-code-title"><span class="sample-step" aria-hidden="true">01</span>코드 읽기</h4>
 <pre><code>button.addEventListener("click", () =&gt; {
   count += 1;
   result.textContent = `실행 횟수: ${count}회`;
 });</code></pre>
+</div>
+<section class="sample-playground" aria-labelledby="sample-native-keyboard-play-title">
+<h4 class="sample-panel-heading" id="sample-native-keyboard-play-title"><span class="sample-step" aria-hidden="true">02</span>직접 실행하기</h4>
 <div class="row"><button type="button" id="native-run">한 번 실행하기</button><button type="button" id="native-reset">횟수 초기화</button></div>
 <div class="output" id="native-result" role="status"><p class="output-message" data-tone="muted">실행 횟수: 0회</p></div>
 <label class="control" for="native-news"><input type="checkbox" id="native-news">이메일 소식 받기</label>
-
+</section>
+</div>
 <p class="expected"><strong>확인할 결과</strong>버튼은 Enter·Space로 한 번씩 실행됩니다. 체크박스는 포커스만 받아서는 바뀌지 않고 Space로 선택이 바뀝니다. keydown 리스너는 작성하지 않았습니다. 네이티브 버튼에 같은 동작의 keydown까지 더하면 중복 실행될 수 있습니다.</p>
 </section>
 
 <section class="demo sample" id="sample-accessible-name" aria-labelledby="name-sample-title">
-<p class="sample-meta">예제 9-2 · 이름, 설명, 현재 값</p><h3 id="name-sample-title">입력값을 바꾸어도 입력의 이름은 그대로일까?</h3>
+<header class="sample-heading">
+<p class="sample-meta"><span class="sample-number">예제 9-2</span><span class="sample-topic"> · 이름, 설명, 현재 값</span></p>
+<h3 id="name-sample-title">입력값을 바꾸어도 입력의 이름은 그대로일까?</h3>
+</header>
 <p class="prediction"><strong>예상하기</strong>“별명”이라는 글자를 클릭한 뒤 이름을 적어보세요. 화면의 레이블, 안내, 입력한 값 중 어떤 것이 이 요소의 이름일까요?</p>
+<div class="sample-workspace">
+<div class="sample-code" role="group" aria-labelledby="sample-accessible-name-code-title">
+<h4 class="sample-panel-heading" id="sample-accessible-name-code-title"><span class="sample-step" aria-hidden="true">01</span>코드 읽기</h4>
 <pre><code>&lt;label for="accessible-nickname"&gt;별명&lt;/label&gt;
 &lt;input id="accessible-nickname" type="text"
   aria-describedby="nickname-hint" value="민지"&gt;
 &lt;p id="nickname-hint"&gt;다른 학습자에게 보여줄 이름을 적으세요.&lt;/p&gt;</code></pre>
+</div>
+<section class="sample-playground" aria-labelledby="sample-accessible-name-play-title">
+<h4 class="sample-panel-heading" id="sample-accessible-name-play-title"><span class="sample-step" aria-hidden="true">02</span>직접 실행하기</h4>
 <label class="stack" for="accessible-nickname">별명<input id="accessible-nickname" type="text" name="nickname" aria-describedby="nickname-hint" autocomplete="off" value="민지"></label>
 <p id="nickname-hint">다른 학습자에게 보여줄 이름을 적으세요. 실제 이름일 필요는 없습니다.</p>
-
+</section>
+</div>
 <p class="expected"><strong>확인할 결과</strong>레이블을 클릭하면 입력에 포커스가 갑니다. 입력값을 바꿔도 이름은 “별명”으로 유지됩니다. 개발자 도구의 접근성 패널에서 이름과 설명을 따로 확인하세요. 위 코드는 설명 문장을 줄인 발췌이며, 이 연결에는 JavaScript가 필요하지 않습니다.</p>
 </section>
 
 <section class="demo sample" id="sample-disclosure" aria-labelledby="disclosure-sample-title">
-<p class="sample-meta">예제 9-3 · 표시 상태와 접근성 상태</p><h3 id="disclosure-sample-title">패널을 펼칠 때 함께 바꿔야 할 정보는 무엇일까?</h3>
+<header class="sample-heading">
+<p class="sample-meta"><span class="sample-number">예제 9-3</span><span class="sample-topic"> · 표시 상태와 접근성 상태</span></p>
+<h3 id="disclosure-sample-title">패널을 펼칠 때 함께 바꿔야 할 정보는 무엇일까?</h3>
+</header>
 <p class="prediction"><strong>예상하기</strong>버튼을 눌러 내용을 펼치고 다시 접어보세요. hidden과 aria-expanded는 각각 어떤 값을 가져야 할까요?</p>
+<div class="sample-workspace">
+<div class="sample-code" role="group" aria-labelledby="sample-disclosure-code-title">
+<h4 class="sample-panel-heading" id="sample-disclosure-code-title"><span class="sample-step" aria-hidden="true">01</span>코드 읽기</h4>
 <pre><code>button.addEventListener("click", () =&gt; {
   const expanded = button.getAttribute("aria-expanded") === "true";
   button.setAttribute("aria-expanded", String(!expanded));
   panel.hidden = expanded;
 });</code></pre>
+</div>
+<section class="sample-playground" aria-labelledby="sample-disclosure-play-title">
+<h4 class="sample-panel-heading" id="sample-disclosure-play-title"><span class="sample-step" aria-hidden="true">02</span>직접 실행하기</h4>
 <button type="button" id="help-toggle" aria-expanded="false" aria-controls="help-panel">학습 도움말</button>
 <div id="help-panel" hidden><p>먼저 결과를 예상하고, 실행한 뒤 코드의 어느 줄이 상태를 바꾸었는지 찾아보세요.</p><p><a href="../02-dom/">DOM 개념 다시 읽기</a></p></div>
 <div class="output" id="disclosure-result"><p class="output-message" data-tone="muted">aria-expanded="false" · hidden=true</p></div>
-
+</section>
+</div>
 <p class="expected"><strong>확인할 결과</strong>펼치면 aria-expanded="true", hidden=false입니다. 키보드로 활성화한 뒤 포커스는 버튼에 남고, 다음 Tab으로 열린 패널의 링크에 갈 수 있습니다. 접은 상태에서는 그 링크가 Tab 순서에 나타나지 않습니다. aria-controls는 관계를 설명하고 실제 표시 변경은 JavaScript가 수행합니다.</p>
+<div class="sample-notes">
 <p class="muted">패턴 참고: <a href="https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/">WAI · 펼침 영역(Disclosure)</a></p>
+</div>
 </section>
 
 <section class="demo sample" id="sample-live-status" aria-labelledby="status-sample-title">
-<p class="sample-meta">예제 9-4 · 포커스를 유지하는 결과 안내</p><h3 id="status-sample-title">결과를 알리기 위해 반드시 포커스를 옮겨야 할까?</h3>
+<header class="sample-heading">
+<p class="sample-meta"><span class="sample-number">예제 9-4</span><span class="sample-topic"> · 포커스를 유지하는 결과 안내</span></p>
+<h3 id="status-sample-title">결과를 알리기 위해 반드시 포커스를 옮겨야 할까?</h3>
+</header>
 <p class="prediction"><strong>예상하기</strong>아래 버튼을 키보드로 실행하세요. 결과 문장이 바뀔 때 포커스는 어디에 남아 있어야 다음 실행을 이어가기 쉬울까요?</p>
+<div class="sample-workspace">
+<div class="sample-code" role="group" aria-labelledby="sample-live-status-code-title">
+<h4 class="sample-panel-heading" id="sample-live-status-code-title"><span class="sample-step" aria-hidden="true">01</span>코드 읽기</h4>
 <pre><code>&lt;p id="practice-status" role="status"&gt;&lt;/p&gt;
 
 button.addEventListener("click", () =&gt; {
@@ -103,24 +169,38 @@ button.addEventListener("click", () =&gt; {
   status.textContent = `연습 ${completed}회를 기록했습니다.`;
   // focus()를 호출하지 않습니다.
 });</code></pre>
+</div>
+<section class="sample-playground" aria-labelledby="sample-live-status-play-title">
+<h4 class="sample-panel-heading" id="sample-live-status-play-title"><span class="sample-step" aria-hidden="true">02</span>직접 실행하기</h4>
 <button type="button" id="record-practice">연습 완료 기록하기</button>
 <p id="practice-status" class="output" role="status"></p>
 <p class="muted">이 기록은 현재 예제의 메모리에만 남습니다. 페이지를 다시 열면 0회에서 시작합니다.</p>
-
+</section>
+</div>
 <p class="expected"><strong>확인할 결과</strong>기록 횟수가 증가하고 버튼의 키보드 포커스가 유지됩니다. 스크린 리더에서는 현재 작업을 방해하지 않는 시점에 결과 알림이 전달되는지 확인합니다. 화면의 문구가 바뀌었다는 것만으로 실제 낭독까지 검증한 것은 아닙니다.</p>
 </section>
 <section class="demo sample" id="sample-inert" aria-labelledby="inert-sample-title">
-<p class="sample-meta">예제 9-5 · 접근성 정보 숨기기와 사용 중지</p><h3 id="inert-sample-title">aria-hidden과 inert 중 무엇이 Tab을 막을까?</h3>
+<header class="sample-heading">
+<p class="sample-meta"><span class="sample-number">예제 9-5</span><span class="sample-topic"> · 접근성 정보 숨기기와 사용 중지</span></p>
+<h3 id="inert-sample-title">aria-hidden과 inert 중 무엇이 Tab을 막을까?</h3>
+</header>
 <p class="prediction"><strong>예상하기</strong>두 영역에 각각 속성을 적용한 뒤 Tab으로 지나가고 버튼을 클릭해보세요. 화면에서 사라지는 영역이 있을까요? 어느 영역의 버튼이 포커스와 클릭을 받을까요?</p>
+<div class="sample-workspace sample-workspace--stacked">
+<div class="sample-code" role="group" aria-labelledby="sample-inert-code-title">
+<h4 class="sample-panel-heading" id="sample-inert-code-title"><span class="sample-step" aria-hidden="true">01</span>코드 읽기</h4>
 <pre><code>areaA.setAttribute("aria-hidden", "true"); // 접근성 정보만 숨깁니다
 areaB.inert = true;                         // 포커스, 클릭, 접근성 정보를 함께 막습니다</code></pre>
+</div>
+<section class="sample-playground" aria-labelledby="sample-inert-play-title">
+<h4 class="sample-panel-heading" id="sample-inert-play-title"><span class="sample-step" aria-hidden="true">02</span>직접 실행하기</h4>
 <div class="row"><label class="control" for="apply-aria-hidden"><input type="checkbox" id="apply-aria-hidden">영역 A에 aria-hidden="true" 적용</label><label class="control" for="apply-inert"><input type="checkbox" id="apply-inert">영역 B에 inert 적용</label></div>
 <div class="two-views">
 <div class="hide-area" id="hide-area-a"><p><strong>영역 A</strong> · <span id="hide-area-a-state">속성 없음</span></p><button type="button" id="hide-area-a-button">A의 버튼</button></div>
 <div class="hide-area" id="hide-area-b"><p><strong>영역 B</strong> · <span id="hide-area-b-state">속성 없음</span></p><button type="button" id="hide-area-b-button">B의 버튼</button></div>
 </div>
 <div class="output" id="hide-result" role="status"><p class="output-message" data-tone="muted">아직 누른 버튼이 없습니다.</p></div>
-
+</section>
+</div>
 <p class="expected"><strong>확인할 결과</strong>두 영역 모두 화면에 그대로 보입니다. aria-hidden을 적용한 A의 버튼은 여전히 Tab으로 도착하고, 클릭하면 횟수가 늘어납니다. 접근성 패널에서는 A가 빠져 있으므로 스크린 리더 사용자는 아무 정보도 없는 곳에 포커스가 머무는 상황을 만나게 됩니다. 일부 브라우저는 포커스가 들어 있는 영역의 aria-hidden을 무시하고 개발자 도구에 경고를 남깁니다. inert를 적용한 B의 버튼은 Tab 순서에서 빠지고 클릭해도 횟수가 늘지 않습니다. A의 조합은 문제를 보여주기 위한 것이므로 실제 화면에서는 포커스 가능한 요소를 aria-hidden으로 숨기지 않습니다.</p>
 </section>
 </section>

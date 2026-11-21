@@ -78,6 +78,50 @@ console.log("C");</code></pre>
 <li>전달 도중 핸들러가 호출되어 B와 notice가 출력됩니다. dispatchEvent가 반환한 뒤 마지막 줄이 C를 출력하므로 순서는 A → B → C입니다.</li>
 </ol>
 <p>연결이 필요 없어지면 같은 요소에서 같은 종류와 함수로 <code>removeEventListener("notice", handleNotice)</code>를 호출합니다. 본문이 같은 새 함수를 만들면 다른 함수 객체이므로 기존 연결을 지우지 못합니다. 캡처로 등록했다면 해제할 때도 같은 capture 값을 사용해야 합니다.</p>
+
+<figure class="concept-figure learning-visual" id="visual-event-registration">
+<figcaption id="visual-event-registration-caption">등록한 함수는 언제 실행될까요?</figcaption>
+<p class="diagram-summary">위쪽은 함수를 보관하는 과정, 아래쪽은 같은 함수를 실제로 호출하는 과정입니다.</p>
+<p class="diagram-hint">화면이 좁으면 도식을 옆으로 밀어서 볼 수 있습니다.</p>
+<div class="diagram-scroll" role="region" tabindex="0" aria-labelledby="visual-event-registration-caption">
+<svg class="diagram" viewBox="0 0 640 378" role="img" aria-labelledby="visual-event-registration-title visual-event-registration-desc">
+<title id="visual-event-registration-title">등록한 함수는 언제 실행될까요?</title><desc id="visual-event-registration-desc">위에서는 함수 정의, 리스너 등록, 다음 줄 실행이 이어집니다. 아래에서는 A 출력 후 dispatchEvent를 호출하고, 등록된 핸들러가 B를 출력한 뒤 반환해야 C가 출력됩니다.</desc>
+<defs><marker id="event-registration-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="m-accent" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<text x="18" y="26" text-anchor="start" class="t-accent">준비할 때</text>
+<rect class="b-plain" x="18" y="46" width="178" height="96" rx="10"/>
+<text x="107.0" y="75.0" text-anchor="middle" class="t-title">함수 정의</text>
+<text x="107.0" y="99.0" text-anchor="middle" class="t-code">handleNotice</text>
+<text x="107.0" y="123.0" text-anchor="middle" class="t-small">아직 본문 실행 안 함</text>
+<path class="l-arrow" d="M198,94 H228" marker-end="url(#event-registration-arrow)"/>
+<rect class="b-soft" x="230" y="46" width="180" height="96" rx="10"/>
+<text x="320.0" y="75.0" text-anchor="middle" class="t-title">리스너 등록</text>
+<text x="320.0" y="99.0" text-anchor="middle" class="t-code">&quot;notice&quot; ↔ 함수</text>
+<text x="320.0" y="123.0" text-anchor="middle" class="t-small">연결 정보 보관</text>
+<path class="l-arrow" d="M412,94 H442" marker-end="url(#event-registration-arrow)"/>
+<rect class="b-plain" x="444" y="46" width="178" height="96" rx="10"/>
+<text x="533.0" y="75.0" text-anchor="middle" class="t-title">등록 다음 줄</text>
+<text x="533.0" y="99.0" text-anchor="middle" class="">계속 실행</text>
+<text x="533.0" y="123.0" text-anchor="middle" class="t-small">이벤트를 기다리지 않음</text>
+<text x="18" y="186" text-anchor="start" class="t-accent">dispatchEvent로 직접 전달할 때</text>
+<rect class="b-plain" x="18" y="206" width="178" height="112" rx="10"/>
+<text x="107.0" y="243.0" text-anchor="middle" class="t-title">A 출력</text>
+<text x="107.0" y="267.0" text-anchor="middle" class="t-code">dispatchEvent 호출</text>
+<text x="107.0" y="291.0" text-anchor="middle" class="t-small">호출한 코드는 잠시 대기</text>
+<path class="l-arrow" d="M198,262 H228" marker-end="url(#event-registration-arrow)"/>
+<rect class="b-accent" x="230" y="206" width="180" height="112" rx="10"/>
+<text x="320.0" y="243.0" text-anchor="middle" class="t-title">핸들러 실행</text>
+<text x="320.0" y="267.0" text-anchor="middle" class="t-code">B 출력</text>
+<text x="320.0" y="291.0" text-anchor="middle" class="t-small">event 객체를 인수로 받음</text>
+<path class="l-arrow" d="M412,262 H442" marker-end="url(#event-registration-arrow)"/>
+<rect class="b-plain" x="444" y="206" width="178" height="112" rx="10"/>
+<text x="533.0" y="243.0" text-anchor="middle" class="t-code">dispatchEvent 반환</text>
+<text x="533.0" y="267.0" text-anchor="middle" class="t-title">C 출력</text>
+<text x="533.0" y="291.0" text-anchor="middle" class="t-small">호출한 코드로 돌아옴</text>
+<text x="320" y="355" text-anchor="middle" class="t-small">실제 사용자 입력은 나중 작업에서 처리될 수 있지만, 직접 dispatch는 동기 실행입니다.</text>
+</svg></div>
+<ol class="diagram-reading"><li><strong>등록:</strong> <code>handleNotice</code>는 함수 객체입니다. 괄호를 붙인 <code>handleNotice()</code>는 지금 실행한 결과이므로 전달하는 값부터 다릅니다.</li><li><strong>호출:</strong> <code>dispatchEvent</code>가 이벤트를 전달하는 동안 핸들러를 호출합니다. 호출한 곳의 다음 줄은 핸들러 처리가 끝난 뒤 실행됩니다.</li><li><strong>관찰:</strong> 이 코드의 출력은 A → B → C입니다. “콜백”이라는 말만으로 실행이 나중으로 미뤄진다고 판단하지 않습니다.</li></ol>
+<p class="diagram-takeaway"><strong>기억할 점</strong> 함수를 만드는 시점, 등록하는 시점, 실행하는 시점을 각각 찾아보세요.</p>
+</figure>
 </section>
 <section class="concept" id="comparison">
 <h2>이벤트 전달과 기본 동작을 구분하기</h2>
@@ -85,6 +129,46 @@ console.log("C");</code></pre>
 <p>반대로 <code>stopPropagation</code>은 다음 요소로 이벤트가 전파되는 것을 멈춥니다. 폼의 submit 전파를 멈추어도 그 자체로 기본 제출을 취소하지는 않습니다. 이미 실행된 조상의 캡처 핸들러를 되돌리지도 않습니다. “부모가 알지 못하게 한다”와 “브라우저가 원래 하려던 일을 하지 않게 한다”를 구분하면 두 메서드의 역할이 분명해집니다.</p>
 <p>input, change, submit도 서로 다른 사실을 전달합니다. 텍스트 입력의 input은 사용자 편집으로 값이 바뀌는 동안 발생합니다. change는 값의 변경이 확정될 때 발생하며, 텍스트 입력에서는 값을 바꾼 뒤 포커스를 옮길 때 관찰할 수 있습니다. 체크박스의 change는 선택을 바꾸는 순간 발생합니다. submit은 개별 입력의 변화가 아니라 폼 제출의 시도를 뜻합니다.</p>
 <p>프로그램에서 value나 checked만 대입하면 input이나 change가 자동으로 발생하지 않습니다. 값이 바뀌었다는 사실과 특정 이벤트가 발생했다는 사실은 같은 조건이 아니기 때문입니다. 화면을 갱신할 목적이라면 필요한 함수를 직접 호출할 수 있으며, 이벤트를 일부러 만들어 보내야 하는 것은 아닙니다.</p>
+
+<figure class="concept-figure learning-visual" id="visual-event-cancellation">
+<figcaption id="visual-event-cancellation-caption">이벤트 전달과 기본 동작은 따로 제어합니다</figcaption>
+<p class="diagram-summary">유효한 폼의 취소 가능한 submit 이벤트를 예로, 두 메서드가 바꾸는 부분을 나눠 봅니다.</p>
+<p class="diagram-hint">화면이 좁으면 도식을 옆으로 밀어서 볼 수 있습니다.</p>
+<div class="diagram-scroll" role="region" tabindex="0" aria-labelledby="visual-event-cancellation-caption">
+<svg class="diagram" viewBox="0 0 640 376" role="img" aria-labelledby="visual-event-cancellation-title visual-event-cancellation-desc">
+<title id="visual-event-cancellation-title">이벤트 전달과 기본 동작은 따로 제어합니다</title><desc id="visual-event-cancellation-desc">preventDefault는 부모로 가는 버블 전파를 유지하고 기본 제출을 취소합니다. stopPropagation은 이후 조상으로 가는 전파를 멈추지만 기본 제출을 취소하지 않습니다. 이미 실행된 캡처 리스너는 되돌릴 수 없습니다.</desc>
+<defs><marker id="event-cancellation-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="m-accent" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<text x="18" y="26" text-anchor="start" class="t-small">폼의 submit 리스너 안에서 한 가지만 호출한 경우</text>
+<text x="138" y="64" text-anchor="middle" class="t-title">실행한 메서드</text>
+<text x="365" y="64" text-anchor="middle" class="t-title">부모의 버블 리스너</text>
+<text x="554" y="64" text-anchor="middle" class="t-title">기본 제출</text>
+<rect class="b-accent" x="18" y="84" width="242" height="78" rx="10"/>
+<text x="139.0" y="116.0" text-anchor="middle" class="t-code">preventDefault()</text>
+<text x="139.0" y="140.0" text-anchor="middle" class="t-small">취소 가능한 동작을 취소</text>
+<path class="l-arrow" d="M262,123 H286" marker-end="url(#event-cancellation-arrow)"/>
+<rect class="b-soft" x="290" y="84" width="150" height="78" rx="10"/>
+<text x="365.0" y="116.0" text-anchor="middle" class="t-title">계속 전달</text>
+<text x="365.0" y="140.0" text-anchor="middle" class="t-small">부모도 알 수 있음</text>
+<rect class="b-ghost" x="462" y="84" width="160" height="78" rx="10"/>
+<text x="542.0" y="116.0" text-anchor="middle" class="t-title">취소됨</text>
+<text x="542.0" y="140.0" text-anchor="middle" class="t-small">페이지 이동 막기</text>
+<rect class="b-accent" x="18" y="186" width="242" height="78" rx="10"/>
+<text x="139.0" y="218.0" text-anchor="middle" class="t-code">stopPropagation()</text>
+<text x="139.0" y="242.0" text-anchor="middle" class="t-small">다음 대상까지 전파를 중지</text>
+<path class="l-arrow" d="M262,225 H286" marker-end="url(#event-cancellation-arrow)"/>
+<rect class="b-ghost" x="290" y="186" width="150" height="78" rx="10"/>
+<text x="365.0" y="218.0" text-anchor="middle" class="t-title">전달 안 됨</text>
+<text x="365.0" y="242.0" text-anchor="middle" class="t-small">이후 조상은 못 받음</text>
+<rect class="b-soft" x="462" y="186" width="160" height="78" rx="10"/>
+<text x="542.0" y="218.0" text-anchor="middle" class="t-title">취소 안 됨</text>
+<text x="542.0" y="242.0" text-anchor="middle" class="t-small">전파와 별개</text>
+<rect class="b-soft" x="18" y="292" width="604" height="64" rx="10"/>
+<text x="320" y="318" text-anchor="middle" class="t-title">이미 실행한 캡처 리스너는 되돌리지 않습니다.</text>
+<text x="320" y="341" text-anchor="middle" class="t-small">같은 대상의 다른 리스너까지 막는 것은 stopImmediatePropagation()입니다.</text>
+</svg></div>
+<ol class="diagram-reading"><li><strong>기본 동작을 막기:</strong> <code>preventDefault()</code>는 취소 가능한 이벤트에서만 효과가 있습니다. <code>passive</code> 리스너 안에서는 취소할 수 없습니다.</li><li><strong>다음 대상으로 전파를 막기:</strong> <code>stopPropagation()</code>은 이벤트 전달 경로를 제어합니다. 같은 대상에 이미 등록된 다른 리스너의 호출을 막는 메서드는 아닙니다.</li><li><strong>두 결과를 따로 확인:</strong> 부모에 로그가 남았는지와 폼의 기본 제출이 취소됐는지는 별개의 관찰입니다. 예제 4-3에서 함께 비교할 수 있습니다.</li></ol>
+<p class="diagram-takeaway"><strong>기억할 점</strong> “어디까지 알릴까?”는 전파, “브라우저가 원래 할 일을 허용할까?”는 기본 동작의 문제입니다.</p>
+</figure>
 </section>
 <section class="concept" id="input-devices">
 <h2>입력 장치마다 이벤트 객체가 알려주는 정보가 다릅니다</h2>
@@ -103,122 +187,229 @@ console.log("C");</code></pre>
 </section>
 <section id="live-example"><h2>이벤트의 질문을 하나씩 따로 실험하기</h2>
 <p>언제 호출되는가, 어디로 전달되는가, 기본 동작을 취소하는가, 어떤 변화가 이벤트를 만드는가를 나눠서 봅니다. 뒤의 네 예제는 키의 의미와 위치, 키의 기본 동작, 포인터의 누름과 뗌, 한글 조합을 차례로 봅니다. 마지막 예제는 코드가 직접 만든 이벤트가 어디까지 전달되는지 봅니다. 한 예제의 조작은 다른 예제의 기록을 바꾸지 않습니다.</p>
-<div class="sample-links"><a href="#sample-dispatch">1. 호출 순서</a> · <a href="#sample-propagation">2. 전달 경로</a> · <a href="#sample-submit">3. 기본 동작</a> · <a href="#sample-input-change">4. 입력과 확정</a> · <a href="#sample-key-code">5. 키의 의미와 위치</a> · <a href="#sample-key-default">6. 키의 기본 동작</a> · <a href="#sample-pointer-order">7. 누름과 뗌</a> · <a href="#sample-composition">8. 한글 조합</a> · <a href="#sample-custom-event">9. 직접 만든 이벤트</a></div>
+<div class="sample-links"><a href="#sample-dispatch">1. 호출 순서</a>
+<a href="#sample-propagation">2. 전달 경로</a>
+<a href="#sample-submit">3. 기본 동작</a>
+<a href="#sample-input-change">4. 입력과 확정</a>
+<a href="#sample-key-code">5. 키의 의미와 위치</a>
+<a href="#sample-key-default">6. 키의 기본 동작</a>
+<a href="#sample-pointer-order">7. 누름과 뗌</a>
+<a href="#sample-composition">8. 한글 조합</a>
+<a href="#sample-custom-event">9. 직접 만든 이벤트</a></div>
 <section class="demo sample" id="sample-dispatch" aria-labelledby="dispatch-title">
-<p class="sample-meta">예제 4-1 · 등록과 실행 시점</p><h3 id="dispatch-title">dispatchEvent 뒤의 코드는 언제 실행될까요?</h3>
+<header class="sample-heading">
+<p class="sample-meta"><span class="sample-number">예제 4-1</span><span class="sample-topic"> · 등록과 실행 시점</span></p>
+<h3 id="dispatch-title">dispatchEvent 뒤의 코드는 언제 실행될까요?</h3>
+</header>
 <p class="prediction"><strong>예상하기</strong>A, B, C 중 무엇이 먼저 기록될까요? “이벤트는 항상 나중에 실행된다”는 설명으로 맞힐 수 있을까요?</p>
+<div class="sample-workspace">
+<div class="sample-code" role="group" aria-labelledby="sample-dispatch-code-title">
+<h4 class="sample-panel-heading" id="sample-dispatch-code-title"><span class="sample-step" aria-hidden="true">01</span>코드 읽기</h4>
 <pre><code>button.addEventListener("notice", () => log("B"));
 log("A");
 button.dispatchEvent(new Event("notice"));
 log("C");</code></pre>
+</div>
+<section class="sample-playground" aria-labelledby="sample-dispatch-play-title">
+<h4 class="sample-panel-heading" id="sample-dispatch-play-title"><span class="sample-step" aria-hidden="true">02</span>직접 실행하기</h4>
 <button id="dispatch-notice" type="button">notice 이벤트 전달</button><div class="output" id="dispatch-result" role="status"><p class="output-message" data-tone="muted">아직 전달하지 않았습니다.</p></div>
+</section>
+</div>
 <p class="expected"><strong>확인할 결과</strong>A → B → C입니다. 등록만으로 B가 실행되지는 않지만 dispatchEvent가 호출되면 핸들러 실행을 마친 뒤 다음 줄로 갑니다. 버튼을 누를 때마다 로그를 새로 만듭니다.</p>
 </section>
 <section class="demo sample" id="sample-propagation" aria-labelledby="bubble-title">
-<p class="sample-meta">예제 4-2 · 전달 경로와 대상</p><h3 id="bubble-title">하나의 클릭을 세 위치에서 읽기</h3>
+<header class="sample-heading">
+<p class="sample-meta"><span class="sample-number">예제 4-2</span><span class="sample-topic"> · 전달 경로와 대상</span></p>
+<h3 id="bubble-title">하나의 클릭을 세 위치에서 읽기</h3>
+</header>
 <p class="prediction"><strong>예상하기</strong>안쪽 글자를 누르면 target도 리스너 위치마다 바뀔까요? 전파를 멈추면 부모의 캡처 기록도 사라질까요?</p>
+<div class="sample-workspace">
+<div class="sample-code" role="group" aria-labelledby="sample-propagation-code-title">
+<h4 class="sample-panel-heading" id="sample-propagation-code-title"><span class="sample-step" aria-hidden="true">01</span>코드 읽기</h4>
 <pre><code>parent.addEventListener("click", log, { capture: true });
 button.addEventListener("click", log);
 parent.addEventListener("click", log);</code></pre>
+</div>
+<section class="sample-playground" aria-labelledby="sample-propagation-play-title">
+<h4 class="sample-panel-heading" id="sample-propagation-play-title"><span class="sample-step" aria-hidden="true">02</span>직접 실행하기</h4>
 <label class="control" for="stop-bubbling"><input id="stop-bubbling" type="checkbox">버튼에서 stopPropagation() 실행하기</label>
 <div id="event-zone"><button id="nested-button" type="button">버튼 영역<span id="event-label">안쪽 글자(span)</span></button></div>
 <p>마우스로 안쪽 글자를 눌러본 다음, Tab으로 버튼에 이동해 Enter나 Space로도 실행해보세요.</p>
 <button id="clear-log" type="button">전파 실험 초기화</button>
 <div class="output" id="event-log" aria-label="클릭 이벤트 로그" role="group"><p class="output-message" data-tone="muted">아직 클릭하지 않았습니다.</p></div>
+</section>
+</div>
 <p class="expected"><strong>확인할 결과</strong>부모 캡처 → 버튼 → 부모 버블 순서입니다. 글자를 직접 누르면 target은 계속 span이고 currentTarget은 리스너가 연결된 요소를 가리킵니다. 키보드로 버튼을 활성화하면 target은 버튼입니다. 전파를 멈추면 마지막 부모 버블 기록만 없어집니다. 매 클릭의 로그를 새로 표시합니다.</p>
 </section>
 <section class="demo sample" id="sample-submit" aria-labelledby="form-title">
-<p class="sample-meta">예제 4-3 · 기본 동작과 전파의 차이</p><h3 id="form-title">제출을 취소해도 부모가 알 수 있을까요?</h3>
+<header class="sample-heading">
+<p class="sample-meta"><span class="sample-number">예제 4-3</span><span class="sample-topic"> · 기본 동작과 전파의 차이</span></p>
+<h3 id="form-title">제출을 취소해도 부모가 알 수 있을까요?</h3>
+</header>
 <p class="prediction"><strong>예상하기</strong>preventDefault를 호출하면 submit이 부모에게도 전달되지 않을까요?</p>
+<div class="sample-workspace">
+<div class="sample-code" role="group" aria-labelledby="sample-submit-code-title">
+<h4 class="sample-panel-heading" id="sample-submit-code-title"><span class="sample-step" aria-hidden="true">01</span>코드 읽기</h4>
 <pre><code>form.addEventListener("submit", (event) => {
   event.preventDefault();
   show(input.value);
 });</code></pre>
+</div>
+<section class="sample-playground" aria-labelledby="sample-submit-play-title">
+<h4 class="sample-panel-heading" id="sample-submit-play-title"><span class="sample-step" aria-hidden="true">02</span>직접 실행하기</h4>
 <form id="message-form" class="stack">
 <label class="stack" for="message">제출할 문구<input id="message" name="message" type="text" value="안녕하세요" autocomplete="off"></label>
 <div class="row"><button type="submit" class="primary">문구 제출</button><button id="reset-submit" type="button">제출 실험 초기화</button></div>
 </form>
 <div class="output" id="submit-result" role="status"><p class="output-message" data-tone="muted">아직 제출하지 않았습니다.</p></div>
+</section>
+</div>
 <p class="expected"><strong>확인할 결과</strong>페이지는 이동하지 않지만 부모의 submit 횟수는 증가합니다. 문구 입력창에서 Enter를 눌러도 같은 처리가 실행됩니다. submit을 처리하면 입력 수단마다 로직을 반복하지 않아도 됩니다.</p>
 </section>
 <section class="demo sample" id="sample-input-change" aria-labelledby="change-title">
-<p class="sample-meta">예제 4-4 · 값 변경과 이벤트 발생</p><h3 id="change-title">입력 중, 입력 확정, 코드 대입 비교</h3>
+<header class="sample-heading">
+<p class="sample-meta"><span class="sample-number">예제 4-4</span><span class="sample-topic"> · 값 변경과 이벤트 발생</span></p>
+<h3 id="change-title">입력 중, 입력 확정, 코드 대입 비교</h3>
+</header>
 <p class="prediction"><strong>예상하기</strong>한 글자를 입력한 순간과 Tab으로 나간 순간은 같은 이벤트일까요? 코드로 value를 바꾸면 어떤 이벤트가 생길까요?</p>
+<div class="sample-workspace">
+<div class="sample-code" role="group" aria-labelledby="sample-input-change-code-title">
+<h4 class="sample-panel-heading" id="sample-input-change-code-title"><span class="sample-step" aria-hidden="true">01</span>코드 읽기</h4>
 <pre><code>input.addEventListener("input", record);
 input.addEventListener("change", record);
 input.value = "코드에서 넣은 값"; // 이벤트를 보내지는 않음</code></pre>
+</div>
+<section class="sample-playground" aria-labelledby="sample-input-change-play-title">
+<h4 class="sample-panel-heading" id="sample-input-change-play-title"><span class="sample-step" aria-hidden="true">02</span>직접 실행하기</h4>
 <label class="stack" for="typing-input">직접 입력할 문구<input id="typing-input" type="text" value="" autocomplete="off"></label>
 <div class="row"><button id="assign-value" type="button">코드로 value 대입</button><button id="reset-input-events" type="button">입력 실험 초기화</button></div>
 <div class="output" data-label="이벤트 기록" id="input-event-log" aria-label="입력 이벤트 기록" role="group"><p class="output-message" data-tone="muted">input: 0회 · change: 0회</p></div>
 <div class="output" data-label="코드 대입 결과" id="assignment-notice" role="status"><p class="output-message" data-tone="muted">아직 코드로 대입하지 않았습니다.</p></div>
+</section>
+</div>
 <p class="expected"><strong>확인할 결과</strong>직접 편집하는 동안 input이 발생하고, 값을 바꾼 뒤 포커스를 옮기면 change가 발생합니다. 코드 대입 자체는 둘 다 발생시키지 않습니다. 다만 입력을 마치고 버튼으로 이동할 때 생긴 change와 버튼의 대입은 별개입니다. 한글 입력은 조합 과정에 따라 input 횟수가 다를 수 있습니다.</p>
 </section>
 <section class="demo sample" id="sample-key-code" aria-labelledby="key-code-title">
-<p class="sample-meta">예제 4-5 · 키의 의미와 위치</p><h3 id="key-code-title">Space 키의 key 값은 무엇일까요?</h3>
+<header class="sample-heading">
+<p class="sample-meta"><span class="sample-number">예제 4-5</span><span class="sample-topic"> · 키의 의미와 위치</span></p>
+<h3 id="key-code-title">Space 키의 key 값은 무엇일까요?</h3>
+</header>
 <p class="prediction"><strong>예상하기</strong>Space, Shift+A, 아래 방향키를 차례로 누르면 key와 code는 각각 어떻게 기록될까요? 한글 입력으로 바꾼 뒤 같은 A 자리를 누르면 둘 중 무엇이 바뀔까요?</p>
+<div class="sample-workspace">
+<div class="sample-code" role="group" aria-labelledby="sample-key-code-code-title">
+<h4 class="sample-panel-heading" id="sample-key-code-code-title"><span class="sample-step" aria-hidden="true">01</span>코드 읽기</h4>
 <pre><code>field.addEventListener("keydown", (event) =&gt; {
   show(event.key, event.code, event.repeat);
 });</code></pre>
+</div>
+<section class="sample-playground" aria-labelledby="sample-key-code-play-title">
+<h4 class="sample-panel-heading" id="sample-key-code-play-title"><span class="sample-step" aria-hidden="true">02</span>직접 실행하기</h4>
 <label class="stack" for="key-field">여기에 포커스를 두고 키를 눌러보세요<input id="key-field" type="text" autocomplete="off"></label>
 <button id="reset-key-log" type="button">키 기록 초기화</button>
 <div class="output" id="key-log" aria-label="keydown 기록" role="group"><p class="output-message" data-tone="muted">아직 누른 키가 없습니다.</p></div>
+</section>
+</div>
 <p class="expected"><strong>확인할 결과</strong>Space의 key는 공백 문자라서 기록에 key: " "로 표시되고, code는 "Space"입니다. Shift+A의 key는 "A", code는 "KeyA"입니다. 한글 입력에서 같은 자리를 누르면 code는 그대로 "KeyA"이고 key는 "ㅁ"이나 "Process"처럼 달라집니다. 키를 길게 누르면 repeat가 true인 기록이 이어집니다. 최근 8개만 표시합니다.</p>
 </section>
 <section class="demo sample" id="sample-key-default" aria-labelledby="key-default-title">
-<p class="sample-meta">예제 4-6 · 키의 기본 동작</p><h3 id="key-default-title">방향키의 기본 동작을 취소하면 무엇이 사라질까요?</h3>
+<header class="sample-heading">
+<p class="sample-meta"><span class="sample-number">예제 4-6</span><span class="sample-topic"> · 키의 기본 동작</span></p>
+<h3 id="key-default-title">방향키의 기본 동작을 취소하면 무엇이 사라질까요?</h3>
+</header>
 <p class="prediction"><strong>예상하기</strong>목록 영역에 Tab으로 들어가 아래 방향키를 누르면 무엇이 움직일까요? 방향키를 직접 처리하도록 바꾼 뒤에도 Tab으로 영역을 빠져나갈 수 있을까요?</p>
+<div class="sample-workspace">
+<div class="sample-code" role="group" aria-labelledby="sample-key-default-code-title">
+<h4 class="sample-panel-heading" id="sample-key-default-code-title"><span class="sample-step" aria-hidden="true">01</span>코드 읽기</h4>
 <pre><code>const handledKeys = ["ArrowDown", "ArrowUp", "Home", "End"];
 area.addEventListener("keydown", (event) =&gt; {
   if (!handledKeys.includes(event.key)) return; // 처리하지 않는 키는 브라우저에 맡깁니다
   event.preventDefault();
   moveHighlight(event.key);
 });</code></pre>
+</div>
+<section class="sample-playground" aria-labelledby="sample-key-default-play-title">
+<h4 class="sample-panel-heading" id="sample-key-default-play-title"><span class="sample-step" aria-hidden="true">02</span>직접 실행하기</h4>
 <label class="control" for="handle-arrows"><input id="handle-arrows" type="checkbox">방향키·Home·End를 직접 처리하기</label>
 <div id="scroll-area" tabindex="0" role="region" aria-label="방향키 실험 목록"><ol><li data-highlighted>항목 1</li><li>항목 2</li><li>항목 3</li><li>항목 4</li><li>항목 5</li><li>항목 6</li><li>항목 7</li><li>항목 8</li><li>항목 9</li><li>항목 10</li><li>항목 11</li><li>항목 12</li></ol></div>
 <div class="row"><button id="after-scroll-area" type="button">영역 다음 버튼</button><button id="reset-key-default" type="button">기본 동작 실험 초기화</button></div>
 <div class="output" id="key-default-log" aria-label="키와 기본 동작 기록" role="group"><p class="output-message" data-tone="muted">아직 누른 키가 없습니다.</p></div>
+</section>
+</div>
 <p class="expected"><strong>확인할 결과</strong>처음에는 아래 방향키가 영역을 스크롤하고 스크롤 위치가 바뀝니다. 직접 처리하도록 바꾸면 기록에 defaultPrevented: true가 남고, 스크롤 대신 강조된 항목이 한 칸씩 이동합니다. 강조 항목이 보이는 범위를 벗어날 때만 코드가 그 항목까지 스크롤합니다. Space는 처리 목록에 없으므로 계속 영역을 스크롤하고, Tab은 어느 경우든 다음 버튼으로 이동합니다.</p>
 </section>
 <section class="demo sample" id="sample-pointer-order" aria-labelledby="pointer-title">
-<p class="sample-meta">예제 4-7 · 누름과 뗌</p><h3 id="pointer-title">누른 버튼과 뗀 버튼이 다르면 click은 누가 받을까요?</h3>
+<header class="sample-heading">
+<p class="sample-meta"><span class="sample-number">예제 4-7</span><span class="sample-topic"> · 누름과 뗌</span></p>
+<h3 id="pointer-title">누른 버튼과 뗀 버튼이 다르면 click은 누가 받을까요?</h3>
+</header>
 <p class="prediction"><strong>예상하기</strong>버튼 A를 한 번 클릭하면 몇 줄이 기록될까요? A에서 누른 채로 B 위로 옮겨 떼면 A와 B 중 누가 click을 받을까요?</p>
+<div class="sample-workspace">
+<div class="sample-code" role="group" aria-labelledby="sample-pointer-order-code-title">
+<h4 class="sample-panel-heading" id="sample-pointer-order-code-title"><span class="sample-step" aria-hidden="true">01</span>코드 읽기</h4>
 <pre><code>const types = ["pointerdown", "mousedown", "focus", "pointerup", "mouseup", "click"];
 for (const type of types) {
   buttonA.addEventListener(type, record);
   buttonB.addEventListener(type, record);
 }</code></pre>
+</div>
+<section class="sample-playground" aria-labelledby="sample-pointer-order-play-title">
+<h4 class="sample-panel-heading" id="sample-pointer-order-play-title"><span class="sample-step" aria-hidden="true">02</span>직접 실행하기</h4>
 <div class="row" id="pointer-zone"><button id="pointer-a" type="button">버튼 A</button><button id="pointer-b" type="button">버튼 B</button></div>
 <button id="reset-pointer-log" type="button">포인터 기록 초기화</button>
 <div class="output" id="pointer-log" aria-label="포인터 이벤트 기록" role="group"><p class="output-message" data-tone="muted">아직 누르지 않았습니다.</p></div>
+</section>
+</div>
 <p class="expected"><strong>확인할 결과</strong>A를 클릭하면 pointerdown, mousedown, focus, pointerup, mouseup, click 순서로 기록됩니다. A에서 누르고 B에서 떼면 누름 기록은 A에, 뗌 기록은 B에 남고 두 버튼 모두 click이 없습니다. 이때 두 버튼을 감싼 영역이 click을 받는지는 브라우저에 따라 다를 수 있습니다. Tab으로 A에 이동해 Enter를 누르면 click 한 줄만 기록되고 detail은 0입니다. macOS의 일부 브라우저는 버튼을 클릭해도 포커스를 옮기지 않으므로 focus 기록이 없을 수 있고, 터치에서는 mousedown과 mouseup이 pointerup 뒤에 이어질 수 있습니다. 새로 누를 때마다 기록을 새로 시작합니다.</p>
 </section>
 <section class="demo sample" id="sample-composition" aria-labelledby="composition-title">
-<p class="sample-meta">예제 4-8 · 한글 조합과 Enter</p><h3 id="composition-title">글자를 확정하려고 누른 Enter도 제출일까요?</h3>
+<header class="sample-heading">
+<p class="sample-meta"><span class="sample-number">예제 4-8</span><span class="sample-topic"> · 한글 조합과 Enter</span></p>
+<h3 id="composition-title">글자를 확정하려고 누른 Enter도 제출일까요?</h3>
+</header>
 <p class="prediction"><strong>예상하기</strong>한글로 “가”를 입력한 직후 Enter를 한 번 누르면, 조합을 확인하지 않는 처리와 확인하는 처리는 각각 몇 번 실행될까요?</p>
+<div class="sample-workspace">
+<div class="sample-code" role="group" aria-labelledby="sample-composition-code-title">
+<h4 class="sample-panel-heading" id="sample-composition-code-title"><span class="sample-step" aria-hidden="true">01</span>코드 읽기</h4>
 <pre><code>field.addEventListener("keydown", (event) =&gt; {
   if (event.key !== "Enter") return;
   plainCount += 1;                                   // 조합 상태를 보지 않는 처리
   if (event.isComposing || event.keyCode === 229) return;
   guardedCount += 1;                                 // 조합이 끝난 Enter만 처리
 });</code></pre>
+</div>
+<section class="sample-playground" aria-labelledby="sample-composition-play-title">
+<h4 class="sample-panel-heading" id="sample-composition-play-title"><span class="sample-step" aria-hidden="true">02</span>직접 실행하기</h4>
 <label class="stack" for="composition-field">한글로 입력한 뒤 Enter를 눌러보세요<input id="composition-field" type="text" autocomplete="off"></label>
 <button id="reset-composition" type="button">조합 실험 초기화</button>
 <div class="output" data-label="처리 횟수" id="composition-count" role="status"><p class="output-message" data-tone="muted">조합을 확인하지 않는 처리: 0회 · 조합을 확인하는 처리: 0회</p></div>
 <div class="output" data-label="이벤트 기록" id="composition-log" aria-label="조합과 keydown 기록" role="group"><p class="output-message" data-tone="muted">아직 입력하지 않았습니다.</p></div>
+</section>
+</div>
 <p class="expected"><strong>확인할 결과</strong>기록에서 compositionstart와 compositionend 사이의 keydown은 isComposing이 true이거나 keyCode가 229입니다. 조합을 확인하지 않는 처리는 글자를 확정하는 Enter까지 셀 수 있으므로 확인하는 처리보다 크거나 같습니다. 정확한 횟수는 브라우저와 입력기에 따라 다르므로 기록에서 각 Enter의 isComposing과 keyCode를 비교하세요. 영어로 입력하면 두 횟수가 같습니다. 최근 10개만 표시합니다.</p>
 </section>
 <section class="demo sample" id="sample-custom-event" aria-labelledby="custom-event-title">
-<p class="sample-meta">예제 4-9 · 직접 만든 이벤트의 전달 범위</p><h3 id="custom-event-title">직접 만든 이벤트는 부모까지 올라갈까요?</h3>
+<header class="sample-heading">
+<p class="sample-meta"><span class="sample-number">예제 4-9</span><span class="sample-topic"> · 직접 만든 이벤트의 전달 범위</span></p>
+<h3 id="custom-event-title">직접 만든 이벤트는 부모까지 올라갈까요?</h3>
+</header>
 <p class="prediction"><strong>예상하기</strong>bubbles 없이 만든 이벤트를 안쪽 요소에 전달하면 부모의 리스너가 실행될까요? 부모가 preventDefault를 호출하면 dispatchEvent는 무엇을 돌려줄까요?</p>
+<div class="sample-workspace">
+<div class="sample-code" role="group" aria-labelledby="sample-custom-event-code-title">
+<h4 class="sample-panel-heading" id="sample-custom-event-code-title"><span class="sample-step" aria-hidden="true">01</span>코드 읽기</h4>
 <pre><code>const event = new CustomEvent("choose", {
   bubbles, cancelable: true, detail: { value: "A" },
 });
 const proceed = inner.dispatchEvent(event);
 // proceed가 false면 리스너 중 누군가 취소했습니다.</code></pre>
+</div>
+<section class="sample-playground" aria-labelledby="sample-custom-event-play-title">
+<h4 class="sample-panel-heading" id="sample-custom-event-play-title"><span class="sample-step" aria-hidden="true">02</span>직접 실행하기</h4>
 <div class="row"><label class="control" for="custom-bubbles"><input id="custom-bubbles" type="checkbox">bubbles: true로 만들기</label><label class="control" for="custom-cancel"><input id="custom-cancel" type="checkbox">부모 리스너에서 preventDefault 호출</label></div>
 <div id="custom-parent"><p>부모 요소</p><span id="custom-inner">안쪽 요소</span></div>
 <div class="row"><button id="dispatch-choose" type="button">choose 이벤트 전달</button><button id="reset-custom-event" type="button">직접 만든 이벤트 실험 초기화</button></div>
 <div class="output" id="custom-log" aria-label="직접 만든 이벤트 기록" role="group"><p class="output-message" data-tone="muted">아직 전달하지 않았습니다.</p></div>
+</section>
+</div>
 <p class="expected"><strong>확인할 결과</strong>bubbles를 끄면 안쪽 리스너만 실행되고 dispatchEvent는 true입니다. 켜면 부모 리스너도 같은 detail.value를 읽습니다. 버블링을 켠 상태에서 부모가 취소하면 dispatchEvent가 false를 돌려주고, 보낸 쪽이 “기본 처리를 건너뜀”으로 기록합니다. 버블링을 끈 상태에서는 부모의 취소 설정이 아무 효과도 없습니다. isTrusted는 항상 false입니다.</p>
 </section>
 <p><a href="main.js">이 장의 JavaScript 전체 읽기</a></p></section>

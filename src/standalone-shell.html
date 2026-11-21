@@ -97,6 +97,7 @@
     let editingLesson = "";
 
     for (const [dir, label] of lessons) picker.add(new Option(label, `${dir}/index.html`));
+    picker.add(new Option("학습 도식 모아보기", "visuals.html"));
     picker.add(new Option("개념별 예제 찾기", "samples.html"));
     picker.add(new Option("읽기 안내와 용어 정리", "guide.html"));
     const pages = new Set([...picker.options].map(option => option.value));
@@ -221,7 +222,8 @@
       const [requestedPath, anchor = ""] = requested.split("#");
       const path = aliases[requestedPath] || requestedPath;
       route = pages.has(path) ? path : "index.html";
-      routeAnchor = pages.has(path) ? anchor : "";
+      // 별도 도식 목록에서 들어오는 index.html#visual-… 링크도 표지의 그림으로 연결합니다.
+      routeAnchor = pages.has(path) ? anchor : requestedPath;
       render();
     }
 

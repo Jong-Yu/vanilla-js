@@ -3,7 +3,7 @@
 <body><a class="skip-link" href="#main-content">본문으로 건너뛰기</a><main id="main-content" tabindex="-1">
 <header class="home-hero"><div><p class="eyebrow">VANILLA JS / 개념부터 읽기</p><h1>바닐라 JS로 배우는<br><span>웹의 기본 원리</span></h1><p class="intro">프레임워크 없이 JavaScript와 브라우저의 기본 API를 배웁니다. 값과 함수에서 DOM, 이벤트, 접근성까지 작은 예제로 웹의 작동 원리를 이해합니다.</p><p class="course-meta"><span>11개의 이야기</span><span>47개의 작은 실험</span></p></div>
 <div class="hero-note" aria-hidden="true"><div class="note-label"><span>ONE SMALL CHANGE</span><span class="js-mark">JS</span></div><div class="note-code"><em>const</em> message = "안녕, DOM";<br><br>element.textContent<br>&nbsp; = message;</div><div class="note-result">안녕, DOM</div><p class="note-caption">한 줄의 코드가 문서에 닿는 순간.</p></div></header>
-<div class="sample-links home-actions"><a href="#contents">11개 장 순서대로 읽기</a><a href="samples.html">개념별 예제 모아보기</a><a href="lessons/09-accessibility/">접근성부터 살펴보기</a></div>
+<div class="sample-links home-actions"><a href="#contents">11개 장 순서대로 읽기</a><a href="visuals.html">학습 도식 모아보기</a><a href="samples.html">개념별 예제 모아보기</a><a href="lessons/09-accessibility/">접근성부터 살펴보기</a></div>
 <section aria-labelledby="start-title"><h2 id="start-title">지금 궁금한 질문에서 시작해도 좋습니다</h2>
 <ol class="learning-route">
 <li><strong>언어와 문서 구분하기</strong><p>변수를 바꾸면 화면도 바뀔까? DOM은 HTML 문자열일까?</p><a href="lessons/01-javascript/">1–3장 · 값과 DOM</a></li>
@@ -17,7 +17,47 @@
 <p>웹페이지에 “안녕하세요”라는 글자가 보인다고 해봅시다. 그 글자는 HTML 파일에 적힌 문자열일 수도 있고, 페이지를 연 다음 JavaScript가 새로 넣은 내용일 수도 있습니다. 같은 모습이어도 내용이 만들어진 과정은 다릅니다. 이 과정을 이해하려면 <strong>파일에 적힌 문서, 브라우저가 기억하는 문서, 실제로 그려진 화면</strong>을 구분해야 합니다.</p>
 <p>HTML은 문서의 구조와 의미를 적는 언어입니다. <code>&lt;p&gt;안녕하세요&lt;/p&gt;</code>는 한 문단을 선언합니다. 브라우저는 이 문자열을 읽고 p 요소와 그 안의 텍스트를 나타내는 객체들을 만듭니다. 이렇게 연결한 문서 객체의 구조를 <strong>DOM(Document Object Model)</strong>이라고 부릅니다. DOM은 웹페이지의 문서를 프로그램에서 다룰 수 있도록 표현한 모델입니다.</p>
 <p>브라우저는 DOM의 요소와 CSS 규칙을 바탕으로 위치, 크기, 색 등을 계산해 화면을 그립니다. 따라서 DOM은 화면의 픽셀 자체가 아닙니다. 화면을 구성하는 데 사용하는 문서의 상태이며, JavaScript가 읽거나 바꿀 수 있는 대상입니다. DOM을 바꿔도 원래 디스크에 있던 HTML 파일의 내용까지 수정되는 것은 아닙니다.</p>
-<figure class="concept-figure"><figcaption>문서가 화면이 되는 흐름</figcaption><div class="flow"><span>HTML 문자열</span> → <span>파싱: 구조를 읽기</span> → <span>DOM 객체 트리</span></div><div class="flow"><span>DOM + CSS</span> → <span>위치와 모양 계산</span> → <span>화면에 그리기</span></div><p>JavaScript는 DOM API를 통해 가운데의 객체들을 읽거나 변경합니다.</p></figure>
+<figure class="concept-figure learning-visual" id="visual-document-layers">
+<figcaption id="visual-document-layers-caption">파일, 문서 객체, 화면은 각각 어디에 있을까요?</figcaption>
+<p class="diagram-summary">같은 문단을 세 가지 모습으로 비교하고, JavaScript의 변경이 닿는 위치를 따라가 보세요.</p>
+<p class="diagram-hint">도식을 옆으로 밀어 전체 흐름을 볼 수 있습니다.</p>
+<div class="diagram-scroll" role="region" tabindex="0" aria-labelledby="visual-document-layers-caption">
+<svg class="diagram" viewBox="0 0 640 370" role="img" aria-labelledby="visual-document-layers-title visual-document-layers-desc">
+<title id="visual-document-layers-title">HTML 파일에서 DOM을 만들고 화면을 그리는 과정</title>
+<desc id="visual-document-layers-desc">왼쪽 HTML 파일의 p 태그와 처음 문구를 브라우저가 파싱해 가운데 p 요소와 텍스트 노드를 만듭니다. JavaScript가 textContent에 안녕을 대입하면 DOM의 텍스트가 바뀝니다. 브라우저는 DOM과 CSS로 스타일과 배치를 계산하고 오른쪽 화면에 안녕을 그립니다. 원본 HTML 파일은 처음 문구 그대로 남습니다.</desc>
+<defs><marker id="visual-document-layers-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="m-accent" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<rect class="b-plain" x="16" y="44" width="176" height="190" rx="12"/>
+<text class="t-title" x="32" y="72">① HTML · 파일의 내용</text>
+<path class="l-tree" d="M32 88 H176"/>
+<text class="t-code" x="32" y="119">&lt;p id="greeting"&gt;</text>
+<text x="44" y="148">처음 문구</text>
+<text class="t-code" x="32" y="177">&lt;/p&gt;</text>
+<text class="t-small" x="32" y="216">원본은 그대로 남음</text>
+<path class="l-arrow" d="M194 138 H228" marker-end="url(#visual-document-layers-arrow)"/>
+<text class="t-small" x="211" y="120" text-anchor="middle">파싱</text>
+<rect class="b-soft" x="232" y="44" width="176" height="190" rx="12"/>
+<text class="t-title" x="248" y="72">② DOM · 문서 객체</text>
+<rect class="b-plain" x="250" y="99" width="140" height="42" rx="7"/>
+<text class="t-code" x="320" y="125" text-anchor="middle">p#greeting</text>
+<path class="l-tree" d="M320 141 V162"/>
+<rect class="b-accent" x="250" y="162" width="140" height="48" rx="7"/>
+<text x="320" y="191" text-anchor="middle">텍스트: 안녕</text>
+<path class="l-arrow" d="M410 138 H444" marker-end="url(#visual-document-layers-arrow)"/>
+<text class="t-small" x="428" y="107" text-anchor="middle">CSS와</text>
+<text class="t-small" x="428" y="122" text-anchor="middle">계산</text>
+<rect class="b-plain" x="448" y="44" width="176" height="190" rx="12"/>
+<text class="t-title" x="464" y="72">③ 화면 · 보이는 결과</text>
+<rect class="b-soft" x="466" y="100" width="140" height="88" rx="7"/>
+<text class="t-accent" x="536" y="152" text-anchor="middle">안녕</text>
+<text class="t-small" x="464" y="215">화면 갱신에 반영</text>
+<path class="l-arrow" d="M320 280 V238" marker-end="url(#visual-document-layers-arrow)"/>
+<rect class="b-accent" x="144" y="282" width="352" height="66" rx="10"/>
+<text class="t-title" x="320" y="308" text-anchor="middle">JavaScript가 바꾸는 곳은 DOM</text>
+<text class="t-code" x="320" y="332" text-anchor="middle">paragraph.textContent = "안녕";</text>
+</svg></div>
+<ol class="diagram-reading"><li><strong>파일을 읽습니다.</strong> 브라우저는 태그와 내용을 해석해 요소와 텍스트 노드를 만듭니다.</li><li><strong>문서 객체를 바꿉니다.</strong> JavaScript의 대입은 메모리에 있는 DOM을 수정합니다. 디스크의 HTML 파일을 다시 저장하는 작업은 아닙니다.</li><li><strong>결과를 그립니다.</strong> 브라우저는 문서와 스타일을 바탕으로 필요한 계산을 하고 이후 화면 갱신에 반영합니다.</li></ol>
+<p class="diagram-takeaway"><strong>기억할 점</strong>HTML은 문서를 적은 내용, DOM은 프로그램이 다루는 문서, 화면은 브라우저가 그 문서를 표현한 결과입니다.</p>
+</figure>
 </section>
 <section class="concept" id="language-and-browser">
 <h2>JavaScript와 DOM은 같은 것이 아닙니다</h2>
@@ -34,6 +74,35 @@ const paragraph = document.querySelector("#greeting");
 paragraph.textContent = message;</code></pre>
 <ol class="line-explanation"><li><strong>첫 줄은 값을 준비합니다.</strong> 문자열 “안녕하세요”를 message라는 이름으로 사용할 수 있게 합니다. 이 줄만으로는 문서를 바꾸지 않습니다.</li><li><strong>둘째 줄은 문서 속 객체를 찾습니다.</strong> querySelector는 조건에 맞는 첫 요소를 반환하는 DOM 메서드입니다. 메서드는 객체를 통해 호출하는 함수입니다. #greeting은 id가 greeting인 요소를 찾는 CSS 선택자이며, paragraph에는 HTML 문자열의 복사본이 아니라 그 요소를 가리키는 참조가 들어갑니다.</li><li><strong>셋째 줄은 그 객체의 내용을 바꿉니다.</strong> textContent는 요소의 텍스트 내용을 다루는 속성입니다. 값을 대입하면 DOM이 변경되고 브라우저가 이후 화면 갱신에 반영합니다.</li></ol>
 <p>이제 message에 다른 값을 대입한다고 paragraph의 내용까지 저절로 다시 계산되는 것은 아닙니다. JavaScript는 실행된 명령이 만든 결과를 유지합니다. 새 값을 화면에 쓰려면 문서를 변경하는 명령을 다시 실행해야 합니다. 뒤의 상태와 화면 장에서는 이 연결을 왜 함수로 모으는지 설명합니다.</p>
+<figure class="concept-figure learning-visual" id="visual-value-to-screen">
+<figcaption id="visual-value-to-screen-caption">변수를 바꾼 순간과 DOM에 다시 쓴 순간을 나누어 봅니다</figcaption>
+<p class="diagram-summary">각 행은 한 줄의 실행이 끝난 직후입니다. 왼쪽의 값과 오른쪽의 DOM 텍스트를 비교하세요.</p>
+<p class="diagram-hint">도식을 옆으로 밀어 코드와 결과를 함께 볼 수 있습니다.</p>
+<div class="diagram-scroll" role="region" tabindex="0" aria-labelledby="visual-value-to-screen-caption">
+<svg class="diagram" viewBox="0 0 640 378" role="img" aria-labelledby="visual-value-to-screen-title visual-value-to-screen-desc">
+<title id="visual-value-to-screen-title">변수의 변경이 자동으로 DOM에 전달되지 않는 세 단계</title>
+<desc id="visual-value-to-screen-desc">message가 안녕하세요이고 이를 textContent에 대입하면 둘은 같은 문자열을 담습니다. message만 반가워요로 바꾸면 DOM에는 안녕하세요가 남습니다. textContent에 message를 다시 대입해야 DOM도 반가워요가 됩니다.</desc>
+<defs><marker id="visual-value-to-screen-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="m-accent" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<text class="t-title" x="26" y="28">실행한 코드</text><text class="t-title" x="365" y="28" text-anchor="middle">message</text><text class="t-title" x="541" y="28" text-anchor="middle">DOM의 텍스트</text>
+<rect class="b-panel" x="16" y="46" width="608" height="90" rx="10"/>
+<text class="t-code" x="28" y="78">paragraph.textContent</text><text class="t-code" x="28" y="102">  = message;</text>
+<rect class="b-soft" x="300" y="68" width="130" height="48" rx="7"/><text x="365" y="98" text-anchor="middle">안녕하세요</text>
+<path class="l-arrow" d="M434 92 H472" marker-end="url(#visual-value-to-screen-arrow)"/>
+<rect class="b-soft" x="476" y="68" width="130" height="48" rx="7"/><text x="541" y="98" text-anchor="middle">안녕하세요</text>
+<rect class="b-panel" x="16" y="152" width="608" height="90" rx="10"/>
+<text class="t-code" x="28" y="190">message = "반가워요";</text><text class="t-small" x="28" y="216">변수에 새 값만 대입</text>
+<rect class="b-accent" x="300" y="174" width="130" height="48" rx="7"/><text x="365" y="204" text-anchor="middle">반가워요</text>
+<path class="x-mark" d="M446 190 l14 14 M460 190 l-14 14"/>
+<rect class="b-ghost" x="476" y="174" width="130" height="48" rx="7"/><text x="541" y="204" text-anchor="middle">안녕하세요</text>
+<rect class="b-panel" x="16" y="258" width="608" height="90" rx="10"/>
+<text class="t-code" x="28" y="290">paragraph.textContent</text><text class="t-code" x="28" y="314">  = message;</text>
+<rect class="b-accent" x="300" y="280" width="130" height="48" rx="7"/><text x="365" y="310" text-anchor="middle">반가워요</text>
+<path class="l-arrow" d="M434 304 H472" marker-end="url(#visual-value-to-screen-arrow)"/>
+<rect class="b-accent" x="476" y="280" width="130" height="48" rx="7"/><text x="541" y="310" text-anchor="middle">반가워요</text>
+</svg></div>
+<ol class="diagram-reading"><li><strong>대입할 때의 값을 씁니다.</strong> <code>textContent = message</code>는 그 순간의 문자열로 문서를 수정합니다.</li><li><strong>변수만 바꾸면 문서는 그대로입니다.</strong> 두 값을 계속 연결해 두는 규칙은 만들어지지 않았습니다.</li><li><strong>다시 쓰면 DOM도 바뀝니다.</strong> 6장에서는 이 작업을 <code>render()</code>라는 함수로 모읍니다.</li></ol>
+<p class="diagram-takeaway"><strong>기억할 점</strong>값을 바꾸는 코드와 문서에 반영하는 코드를 각각 찾아보세요. 이것이 상태와 화면의 연결을 읽는 출발점입니다.</p>
+</figure>
 </section>
 <section class="concept" id="reading-route">
 <h2>이 책이 이어지는 순서</h2>

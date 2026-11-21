@@ -44,64 +44,157 @@ title.textContent = &quot;새로운 주제&quot;;</code></pre>
 </section><section class="concept" id="references-search"><h2>HTML 문자열, 요소 참조, 검색 범위를 구분하기</h2>
 <p>같은 요소를 두 번 검색하면 두 변수로 같은 DOM 객체를 가리킬 수 있습니다. 한 변수로 속성을 수정하면 다른 변수에서 읽어도 바뀐 값을 봅니다. 반면 <code>area.outerHTML</code>처럼 요소를 HTML 문자열로 표현해 읽으면 문자열 결과를 얻습니다. 그 문자열을 변수에 저장했다고 요소와 계속 연결되는 것은 아닙니다. 이후 DOM을 변경해도 앞서 저장한 문자열은 그때 읽은 결과로 남습니다.</p>
 <p>실행 중인 DOM을 바꾸는 작업은 원본 HTML 파일을 편집하는 작업과도 다릅니다. JavaScript가 제목을 변경해도 디스크의 파일에 그 문장이 저장되지는 않습니다. 페이지를 다시 실행하면 소스에서 새 문서가 만들어지고 코드가 다시 실행됩니다. 파일, 현재 DOM 객체, DOM에서 읽어 얻은 문자열은 각각 다른 시점과 역할을 갖습니다.</p>
+<figure class="concept-figure learning-visual" id="visual-reference-snapshot">
+<figcaption id="visual-reference-snapshot-caption">요소를 가리키는 참조와 읽어 둔 문자열</figcaption>
+<p class="diagram-summary">같은 요소를 다시 읽으면 새 내용을 얻지만, 앞서 저장한 문자열은 자동으로 바뀌지 않습니다.</p>
+<p class="diagram-hint">화면이 좁으면 도식을 옆으로 밀어서 볼 수 있습니다.</p>
+<div class="diagram-scroll" role="region" tabindex="0" aria-labelledby="visual-reference-snapshot-caption">
+<svg class="diagram" viewBox="0 0 640 370" role="img" aria-labelledby="visual-reference-snapshot-title visual-reference-snapshot-desc">
+<title id="visual-reference-snapshot-title">요소를 가리키는 참조와 읽어 둔 문자열</title>
+<desc id="visual-reference-snapshot-desc">title과 again은 같은 h2 요소를 가리킨다. 처음에 saved에 title.textContent를 읽어 처음 제목이라는 문자열을 저장한다. 이후 title.textContent를 새 제목으로 바꾸면 title과 again에서 새 제목을 읽지만 saved는 처음 제목으로 남는다.</desc>
+<defs><marker id="visual-reference-snapshot-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="m-accent" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<text x="20" y="22" text-anchor="start" dominant-baseline="central" class="t-code">처음: saved = title.textContent</text>
+<rect class="b-soft" x="20" y="58" width="175" height="54" rx="12"/><text x="107.5" y="85.0" text-anchor="middle" dominant-baseline="central" class="t-code">title</text>
+<rect class="b-soft" x="20" y="140" width="175" height="54" rx="12"/><text x="107.5" y="167.0" text-anchor="middle" dominant-baseline="central" class="t-code">again</text>
+<rect class="b-accent" x="290" y="58" width="330" height="136" rx="12"/><text x="455.0" y="103.0" text-anchor="middle" dominant-baseline="central" class="t-title">같은 h2 요소 객체</text><text x="455.0" y="126.0" text-anchor="middle" dominant-baseline="central" class="t-code">textContent</text><text x="455.0" y="149.0" text-anchor="middle" dominant-baseline="central" class="t-code">&quot;처음 제목&quot; → &quot;새 제목&quot;</text>
+<path class="l-arrow" d="M195 85 H288" marker-end="url(#visual-reference-snapshot-arrow)"/>
+<path class="l-arrow" d="M195 167 H288" marker-end="url(#visual-reference-snapshot-arrow)"/>
+<text x="235" y="208" text-anchor="middle" dominant-baseline="central" class="t-small">두 변수는 같은 요소를 가리킴</text>
+<rect class="b-soft" x="20" y="258" width="175" height="60" rx="12"/><text x="107.5" y="288.0" text-anchor="middle" dominant-baseline="central" class="t-code">saved</text>
+<rect class="b-ghost" x="290" y="258" width="330" height="60" rx="12"/><text x="455.0" y="276.5" text-anchor="middle" dominant-baseline="central" class="t-code">&quot;처음 제목&quot;</text><text x="455.0" y="299.5" text-anchor="middle" dominant-baseline="central" class="t-small">읽은 시점의 문자열</text>
+<path class="l-arrow" d="M195 288 H288" marker-end="url(#visual-reference-snapshot-arrow)"/>
+<text x="320" y="345" text-anchor="middle" dominant-baseline="central" class="t-small">변경 뒤: again.textContent는 &quot;새 제목&quot;, saved는 &quot;처음 제목&quot;</text>
+</svg>
+</div>
+<ol class="diagram-reading"><li><strong>참조를 얻습니다.</strong> <code>title</code>과 <code>again</code>이 같은 요소를 검색했다면 <code>title === again</code>은 <code>true</code>입니다.</li><li><strong>그때의 내용을 읽습니다.</strong> <code>const saved = title.textContent</code>는 문자열을 저장합니다. 이후 다시 읽으라는 명령을 저장하지는 않습니다.</li><li><strong>객체를 수정합니다.</strong> <code>title.textContent = "새 제목"</code> 뒤에는 어느 참조로 읽어도 같은 새 내용을 얻습니다. 원래 HTML 파일과 <code>saved</code>는 그대로입니다.</li></ol>
+<p class="diagram-takeaway"><strong>기억할 점</strong> “무엇을 저장했나?”를 확인하세요. 요소 객체의 참조와 객체에서 읽은 문자열은 다른 값입니다.</p>
+</figure>
+
 <p>선택자는 찾을 요소의 조건을 적는 문자열입니다. <code>#profile</code>은 id, <code>.topic</code>은 class, <code>li</code>는 요소 이름을 조건으로 사용합니다. 검색은 이 문자열을 해석해 실제 객체를 돌려줍니다. 선택자 문자열 자체를 바꾼다고 문서의 id나 class가 바뀌지는 않습니다. 문서 전체에서 검색할 수도 있고, 이미 찾은 영역 안으로 반환 대상을 좁힐 수도 있습니다.</p>
 <p><code>area.querySelector("li")</code>는 area 내부의 첫 li 후손을 찾습니다. 중첩된 목록이 있으면 바로 아래뿐 아니라 더 깊은 요소도 포함될 수 있습니다. <code>:scope &gt; ul</code>처럼 쓰면 검색 기준인 area의 직접 자식 ul을 고릅니다. 요소에서 검색할 때 그 요소 자신은 반환 대상에 포함하지 않습니다. 자신의 조건 일치 여부를 알고 싶을 때는 matches를 사용합니다.</p>
 <p>선택자가 문법상 유효하지만 일치하는 요소가 없으면 querySelector는 null을 반환합니다. 잘못된 CSS 선택자 문법은 예외를 일으킵니다. 코드가 예상과 다를 때는 대상이 없는지, 검색 범위를 잘못 정했는지, 문법이 틀렸는지를 나누어 보면 됩니다. 나중에 생성될 요소를 너무 일찍 찾은 경우도 “없음”으로 나타납니다.</p>
+
 </section><section class="concept" id="collections"><h2>정적인 목록은 요소를 얼려 놓은 복사본이 아닙니다</h2>
 <p><code>querySelectorAll()</code>은 일치하는 여러 요소를 담은 NodeList를 반환합니다. 하나만 일치해도 목록이고, 하나도 없으면 길이가 0인 목록입니다. 요소 하나의 참조와 요소 목록은 다르므로, 목록의 항목을 꺼내거나 반복하면서 실제 요소를 다뤄야 합니다. 빈 목록도 객체이므로 단순히 값이 존재하는지만 검사해서는 검색 성공을 판단할 수 없습니다.</p>
 <p>querySelectorAll의 목록은 검색 시점의 구성원을 유지하는 정적 목록입니다. li가 두 개일 때 목록을 받아둔 뒤 세 번째 li를 추가해도 기존 목록의 길이는 2입니다. 새 검색을 해야 세 개를 얻습니다. 하지만 기존 목록 안의 li 객체는 실제 문서 요소의 참조입니다. 그 요소의 글자를 바꾸면 화면도 바뀝니다. “어떤 객체가 목록에 들어 있는가”가 고정되며, 객체의 내용까지 복사하거나 고정한 것은 아닙니다.</p>
 <p>반면 <code>list.children</code>은 현재 자식 요소를 반영하는 실시간 컬렉션입니다. 같은 변수를 통해 읽어도 자식이 추가되면 길이가 바뀝니다. 모든 NodeList가 정적인 것도 아닙니다. childNodes는 실시간 NodeList입니다. 이름에 List가 있다는 이유로 갱신 방식을 추측하지 말고 어떤 API가 만든 목록인지 확인해야 합니다. 고정된 작업 대상이 필요한지, 늘 현재 구조가 필요한지에 따라 적합한 읽기 방법이 달라집니다.</p>
 <p>이제 DOM 검색은 문자열로 화면 일부를 긁어오는 작업이 아니라, 문서 트리 안에 있는 객체와 관계에 접근하는 작업으로 볼 수 있습니다. 다음 장에서는 얻은 객체의 어떤 부분을 바꾸면 현재 입력값, 내용, CSS와 연결되는 상태가 달라지는지 살펴봅니다.</p>
 <p class="muted">더 읽기: <a href="https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model">MDN · DOM</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelectorAll">MDN · querySelectorAll</a>.</p>
+
+<figure class="concept-figure learning-visual" id="visual-collection-membership">
+<figcaption id="visual-collection-membership-caption">항목이 늘어나면 어떤 목록이 바뀔까요?</figcaption>
+<p class="diagram-summary">정적 목록은 구성원을 유지하고, 실시간 컬렉션은 현재 자식 구성을 반영합니다.</p>
+<p class="diagram-hint">화면이 좁으면 도식을 옆으로 밀어서 볼 수 있습니다.</p>
+<div class="diagram-scroll" role="region" tabindex="0" aria-labelledby="visual-collection-membership-caption">
+<svg class="diagram" viewBox="0 0 640 410" role="img" aria-labelledby="visual-collection-membership-title visual-collection-membership-desc">
+<title id="visual-collection-membership-title">항목이 늘어나면 어떤 목록이 바뀔까요?</title>
+<desc id="visual-collection-membership-desc">처음 목록의 자식 요소는 A와 B다. 정적 목록 fixed는 querySelectorAll로, 실시간 컬렉션 live는 children으로 얻는다. C를 새 자식으로 추가하면 현재 DOM과 live는 A B C 세 개를 포함하지만 fixed는 A B 두 개를 유지한다. fixed에 들어 있는 A와 B도 같은 실제 DOM 요소이므로 내용은 수정할 수 있다.</desc>
+<defs><marker id="visual-collection-membership-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="m-accent" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<text x="20" y="22" text-anchor="start" dominant-baseline="central" class="t-title">처음 · 두 자식 요소에서 목록을 얻음</text>
+<rect class="b-soft" x="20" y="48" width="600" height="56" rx="12"/><text x="320.0" y="76.0" text-anchor="middle" dominant-baseline="central" class="t-code">ul의 자식: [ A ]  [ B ]</text>
+<path class="l-arrow" d="M320 104 V144" marker-end="url(#visual-collection-membership-arrow)"/>
+<text x="340" y="124" text-anchor="start" dominant-baseline="central" class="t-small">새 요소 C를 append</text>
+<rect class="b-accent" x="20" y="146" width="600" height="56" rx="12"/><text x="320.0" y="174.0" text-anchor="middle" dominant-baseline="central" class="t-code">현재 DOM: [ A ]  [ B ]  [ C ]</text>
+<path class="l-arrow" d="M165 202 V246" marker-end="url(#visual-collection-membership-arrow)"/>
+<path class="l-arrow" d="M475 202 V246" marker-end="url(#visual-collection-membership-arrow)"/>
+<rect class="b-soft" x="20" y="248" width="290" height="106" rx="12"/><text x="165.0" y="278.0" text-anchor="middle" dominant-baseline="central" class="t-code">fixed = querySelectorAll(...)</text><text x="165.0" y="301.0" text-anchor="middle" dominant-baseline="central" class="t-code">[ A ]  [ B ]</text><text x="165.0" y="324.0" text-anchor="middle" dominant-baseline="central" class="t-title">구성원 고정 · length = 2</text>
+<rect class="b-accent" x="330" y="248" width="290" height="106" rx="12"/><text x="475.0" y="278.0" text-anchor="middle" dominant-baseline="central" class="t-code">live = list.children</text><text x="475.0" y="301.0" text-anchor="middle" dominant-baseline="central" class="t-code">[ A ]  [ B ]  [ C ]</text><text x="475.0" y="324.0" text-anchor="middle" dominant-baseline="central" class="t-title">현재 구성원 · length = 3</text>
+<text x="320" y="385" text-anchor="middle" dominant-baseline="central" class="t-small">두 목록 속 A와 B는 같은 DOM 객체입니다. 내용까지 복사된 것은 아닙니다.</text>
+</svg>
+</div>
+<ol class="diagram-reading"><li><strong>같은 시점에 보관합니다.</strong> 자식이 A와 B일 때 <code>const fixed = list.querySelectorAll(":scope > li")</code>와 <code>const live = list.children</code>을 실행합니다.</li><li><strong>C를 추가한 뒤 다시 읽습니다.</strong> 기존 <code>fixed.length</code>는 2, <code>live.length</code>는 3입니다. querySelectorAll을 새로 실행하면 새 목록에는 C도 들어갑니다.</li><li><strong>기존 항목의 내용은 바꿀 수 있습니다.</strong> <code>fixed[0].textContent = "새 A"</code>는 실제 A 요소를 수정합니다. “정적”은 구성원을 뜻하며, 요소 내용의 고정을 뜻하지 않습니다.</li></ol>
+<p class="diagram-takeaway"><strong>기억할 점</strong> NodeList라는 이름만 보고 판단하지 마세요. querySelectorAll()은 정적이지만 childNodes는 실시간입니다.</p>
+</figure>
 </section>
 <h2 id="demo-observe">작은 예제 · 한 번에 하나의 차이 관찰하기</h2>
 <p>각 예제는 서로 다른 요소를 사용합니다. 다른 예제를 먼저 실행하지 않아도 됩니다. 버튼을 누르기 전 결과를 예상하고, 아래 설명과 비교해보세요.</p>
 <section class="demo sample" id="sample-dom-query" aria-labelledby="query-title">
-<p class="sample-meta">예제 2-1 · 검색의 결과 · querySelector / querySelectorAll</p><h3 id="query-title">하나, 목록, 없음은 어떻게 다를까요?</h3>
+<header class="sample-heading">
+<p class="sample-meta"><span class="sample-number">예제 2-1</span><span class="sample-topic"> · 검색의 결과 · querySelector / querySelectorAll</span></p>
+<h3 id="query-title">하나, 목록, 없음은 어떻게 다를까요?</h3>
+</header>
 <p class="prediction"><strong>예상하기</strong>두 항목이 있는 영역에서 하나 찾기, 여러 개 찾기, 없는 요소 찾기는 각각 무엇을 돌려줄까요?</p>
+<div class="sample-workspace">
+<div class="sample-code" role="group" aria-labelledby="sample-dom-query-code-title">
+<h4 class="sample-panel-heading" id="sample-dom-query-code-title"><span class="sample-step" aria-hidden="true">01</span>코드 읽기</h4>
 <pre><code>const area = document.querySelector("#profile");
 const topics = area.querySelectorAll(".topic");
 const missing = area.querySelector(".missing");</code></pre>
+</div>
+<section class="sample-playground" aria-labelledby="sample-dom-query-play-title">
+<h4 class="sample-panel-heading" id="sample-dom-query-play-title"><span class="sample-step" aria-hidden="true">02</span>직접 실행하기</h4>
 <section id="profile" aria-labelledby="profile-title"><h4 id="profile-title">학습할 주제</h4><ul><li class="topic">DOM 구조 읽기</li><li class="topic">이벤트 연결하기</li></ul></section>
 <div class="row"><button id="find-one" type="button">id로 하나 찾기</button><button id="find-many" type="button">class로 여러 개 찾기</button><button id="find-missing" type="button">없는 요소 찾기</button></div>
 <div class="output" id="query-result" role="status"><p class="output-message" data-tone="muted">아직 검색하지 않았습니다.</p></div>
+</section>
+</div>
 <p class="expected"><strong>확인할 결과</strong>하나 찾기는 section 요소, 여러 개 찾기는 길이 2인 목록, 없는 요소 찾기는 null입니다. 검색은 기존 객체를 찾는 작업이며 새 요소를 만들지 않습니다. 찾은 대상에는 테두리와 함께 태그·부모·자식 수가 표시됩니다.</p>
 </section>
 <section class="demo sample" id="sample-dom-nodes" aria-labelledby="nodes-title">
-<p class="sample-meta">예제 2-2 · 노드와 요소 · children / childNodes</p><h3 id="nodes-title">보이지 않는 공백도 자식일까요?</h3>
+<header class="sample-heading">
+<p class="sample-meta"><span class="sample-number">예제 2-2</span><span class="sample-topic"> · 노드와 요소 · children / childNodes</span></p>
+<h3 id="nodes-title">보이지 않는 공백도 자식일까요?</h3>
+</header>
 <p class="prediction"><strong>예상하기</strong>아래 문장에는 strong 요소가 하나 있습니다. 자식 노드도 하나일까요?</p>
+<div class="sample-workspace">
+<div class="sample-code" role="group" aria-labelledby="sample-dom-nodes-code-title">
+<h4 class="sample-panel-heading" id="sample-dom-nodes-code-title"><span class="sample-step" aria-hidden="true">01</span>코드 읽기</h4>
 <pre><code>sentence.children.length;   // 요소만
 sentence.childNodes.length; // 텍스트도 포함</code></pre>
+</div>
+<section class="sample-playground" aria-labelledby="sample-dom-nodes-play-title">
+<h4 class="sample-panel-heading" id="sample-dom-nodes-play-title"><span class="sample-step" aria-hidden="true">02</span>직접 실행하기</h4>
 <p id="node-sentence">안녕 <strong>DOM</strong>!</p>
 <button id="inspect-nodes" type="button">자식 요소와 노드 비교</button>
 <div class="output" id="nodes-result" role="status"><p class="output-message" data-tone="muted">버튼을 눌러 두 목록을 읽어보세요.</p></div>
-
+</section>
+</div>
 <p class="expected"><strong>확인할 결과</strong>children은 strong 하나, childNodes는 “안녕 ” 텍스트·strong·“!” 텍스트, 총 3개입니다. 화면의 글자도 트리 안에서는 별도 노드입니다. 이 문장은 태그 사이의 줄바꿈이 없도록 작성했습니다.</p>
 </section>
 <section class="demo sample" id="sample-dom-reference" aria-labelledby="reference-title">
-<p class="sample-meta">예제 2-3 · 참조와 값 · 같은 객체 / 읽어 둔 문자열</p><h3 id="reference-title">요소가 바뀌면 저장한 글자도 바뀔까요?</h3>
+<header class="sample-heading">
+<p class="sample-meta"><span class="sample-number">예제 2-3</span><span class="sample-topic"> · 참조와 값 · 같은 객체 / 읽어 둔 문자열</span></p>
+<h3 id="reference-title">요소가 바뀌면 저장한 글자도 바뀔까요?</h3>
+</header>
 <p class="prediction"><strong>예상하기</strong>같은 문단을 두 번 찾아도 같은 객체입니다. 그 문단에서 미리 읽어 둔 문자열은 어떨까요?</p>
+<div class="sample-workspace">
+<div class="sample-code" role="group" aria-labelledby="sample-dom-reference-code-title">
+<h4 class="sample-panel-heading" id="sample-dom-reference-code-title"><span class="sample-step" aria-hidden="true">01</span>코드 읽기</h4>
 <pre><code>const first = document.querySelector("#reference-text");
 const second = document.querySelector("#reference-text");
 const savedText = first.textContent;
 first.textContent = "바뀐 문구";</code></pre>
+</div>
+<section class="sample-playground" aria-labelledby="sample-dom-reference-play-title">
+<h4 class="sample-panel-heading" id="sample-dom-reference-play-title"><span class="sample-step" aria-hidden="true">02</span>직접 실행하기</h4>
 <p id="reference-text">처음 문구</p>
 <div class="row"><button id="change-reference" type="button">참조로 문구 바꾸기</button><button id="reset-reference" type="button">문구 되돌리기</button></div>
 <div class="output" id="reference-result" role="status"></div>
-
+</section>
+</div>
 <p class="expected"><strong>확인할 결과</strong>first === second는 true이고, second.textContent도 “바뀐 문구”입니다. savedText는 여전히 “처음 문구”입니다. 요소 참조는 같은 객체를 가리키지만, 이미 읽은 문자열은 다시 계산되지 않습니다.</p>
 </section>
 <section class="demo sample" id="sample-dom-collections" aria-labelledby="collections-title">
-<p class="sample-meta">예제 2-4 · 목록의 기준 시점 · 정적 목록 / 실시간 목록</p><h3 id="collections-title">항목을 추가하면 어떤 개수가 바뀔까요?</h3>
+<header class="sample-heading">
+<p class="sample-meta"><span class="sample-number">예제 2-4</span><span class="sample-topic"> · 목록의 기준 시점 · 정적 목록 / 실시간 목록</span></p>
+<h3 id="collections-title">항목을 추가하면 어떤 개수가 바뀔까요?</h3>
+</header>
 <p class="prediction"><strong>예상하기</strong>항목 두 개일 때 NodeList와 children을 저장했습니다. 항목을 하나 추가하면 두 목록이 모두 3개가 될까요?</p>
+<div class="sample-workspace">
+<div class="sample-code" role="group" aria-labelledby="sample-dom-collections-code-title">
+<h4 class="sample-panel-heading" id="sample-dom-collections-code-title"><span class="sample-step" aria-hidden="true">01</span>코드 읽기</h4>
 <pre><code>const saved = list.querySelectorAll("li");
 const live = list.children;
 list.append(document.createElement("li"));
 // saved.length는 2, live.length는 3</code></pre>
+</div>
+<section class="sample-playground" aria-labelledby="sample-dom-collections-play-title">
+<h4 class="sample-panel-heading" id="sample-dom-collections-play-title"><span class="sample-step" aria-hidden="true">02</span>직접 실행하기</h4>
 <ul id="collection-list"><li>첫 항목</li><li>둘째 항목</li></ul>
 <div class="row"><button id="append-collection" type="button">항목 하나 추가</button><button id="rename-collection" type="button">저장된 첫 요소의 글자 바꾸기</button><button id="reset-collection" type="button">두 항목으로 다시 시작</button></div>
 <div class="output" id="collections-result" role="status"></div>
-
+</section>
+</div>
 <p class="expected"><strong>확인할 결과</strong>추가 후 저장한 NodeList의 길이는 2로 유지되고, children과 다시 검색한 목록은 3이 됩니다. 저장된 첫 요소의 글자는 바꿀 수 있습니다. 정적인 것은 목록의 구성원이며 요소의 내용이 아닙니다. 다시 시작하면 두 목록도 처음부터 저장합니다.</p>
 </section>
 <p><a href="main.js">이 장의 실행 코드 읽기</a></p>
